@@ -1,0 +1,390 @@
+{
+  "kpis": {
+    "totalDatasets": 387912,
+    "organizations": 112,
+    "groups": 4,
+    "distinctFormats": 999,
+    "updatedLast30Days": 88647,
+    "createdLast30Days": 39573,
+    "updatedLast90Days": 169773,
+    "freshnessScore": 43.8
+  },
+  "topPublishers": [
+    {
+      "name": "census-gov",
+      "label": "U.S. Census Bureau, Department of Commerce",
+      "count": 144572
+    },
+    {
+      "name": "noaa-gov",
+      "label": "National Oceanic and Atmospheric Administration, Department of Commerce",
+      "count": 88856
+    },
+    {
+      "name": "doi-gov",
+      "label": "Department of the Interior",
+      "count": 44194
+    },
+    {
+      "name": "nasa-gov",
+      "label": "National Aeronautics and Space Administration",
+      "count": 27020
+    },
+    {
+      "name": "hhs-gov",
+      "label": "U.S. Department of Health & Human Services",
+      "count": 18967
+    },
+    {
+      "name": "epa-gov",
+      "label": "U.S. Environmental Protection Agency",
+      "count": 7474
+    },
+    {
+      "name": "edac-unm-edu",
+      "label": "Earth Data Analysis Center, University of New Mexico",
+      "count": 5459
+    },
+    {
+      "name": "ca-gov",
+      "label": "State of California",
+      "count": 4236
+    },
+    {
+      "name": "doe-gov",
+      "label": "Department of Energy",
+      "count": 3965
+    },
+    {
+      "name": "usda-gov",
+      "label": "Department of Agriculture",
+      "count": 2904
+    }
+  ],
+  "topFormats": [
+    {
+      "name": "XML",
+      "label": "XML",
+      "count": 219857
+    },
+    {
+      "name": "ZIP",
+      "label": "ZIP",
+      "count": 167908
+    },
+    {
+      "name": "HTML",
+      "label": "HTML",
+      "count": 112162
+    },
+    {
+      "name": "PDF",
+      "label": "PDF",
+      "count": 41984
+    },
+    {
+      "name": "CSV",
+      "label": "CSV",
+      "count": 28980
+    },
+    {
+      "name": "Esri REST",
+      "label": "Esri REST",
+      "count": 25232
+    },
+    {
+      "name": "JSON",
+      "label": "JSON",
+      "count": 18822
+    },
+    {
+      "name": "TEXT",
+      "label": "TEXT",
+      "count": 16917
+    },
+    {
+      "name": "TIFF",
+      "label": "TIFF",
+      "count": 14854
+    },
+    {
+      "name": "RDF",
+      "label": "RDF",
+      "count": 14217
+    }
+  ],
+  "licenses": [
+    {
+      "name": "notspecified",
+      "label": "License not specified",
+      "count": 98909
+    },
+    {
+      "name": "other-license-specified",
+      "label": "other-license-specified",
+      "count": 22074
+    },
+    {
+      "name": "us-pd",
+      "label": "us-pd",
+      "count": 11338
+    },
+    {
+      "name": "cc-by",
+      "label": "Creative Commons Attribution",
+      "count": 6802
+    },
+    {
+      "name": "cc-zero",
+      "label": "Creative Commons CCZero",
+      "count": 5626
+    },
+    {
+      "name": "cc-by-sa",
+      "label": "Creative Commons Attribution Share-Alike",
+      "count": 365
+    },
+    {
+      "name": "other-pd",
+      "label": "Other (Public Domain)",
+      "count": 78
+    },
+    {
+      "name": "odc-pddl",
+      "label": "Open Data Commons Public Domain Dedication and License (PDDL)",
+      "count": 11
+    }
+  ],
+  "topTags": [
+    {
+      "name": "__",
+      "label": "__",
+      "count": 387912
+    },
+    {
+      "name": "county or equivalent entity",
+      "label": "county or equivalent entity",
+      "count": 136146
+    },
+    {
+      "name": "state fips code",
+      "label": "state fips code",
+      "count": 81024
+    },
+    {
+      "name": "county fips code",
+      "label": "county fips code",
+      "count": 80797
+    },
+    {
+      "name": "earth science",
+      "label": "earth science",
+      "count": 70204
+    },
+    {
+      "name": "state gnis code",
+      "label": "state gnis code",
+      "count": 64840
+    },
+    {
+      "name": "county gnis code",
+      "label": "county gnis code",
+      "count": 64612
+    },
+    {
+      "name": "table",
+      "label": "table",
+      "count": 61674
+    },
+    {
+      "name": "oceans",
+      "label": "oceans",
+      "count": 56795
+    },
+    {
+      "name": "hydrography",
+      "label": "hydrography",
+      "count": 53553
+    },
+    {
+      "name": "noaa",
+      "label": "noaa",
+      "count": 52079
+    },
+    {
+      "name": "permanent edge id",
+      "label": "permanent edge id",
+      "count": 51675
+    }
+  ],
+  "activitySeries": [
+    {
+      "label": "Last 7 days",
+      "modified": 14624,
+      "created": 315
+    },
+    {
+      "label": "Last 30 days",
+      "modified": 88647,
+      "created": 39573
+    },
+    {
+      "label": "Last 90 days",
+      "modified": 169773,
+      "created": 114856
+    },
+    {
+      "label": "Last 12 months",
+      "modified": 265768,
+      "created": 196322
+    }
+  ],
+  "recentDatasets": [
+    {
+      "id": "d59c49ba-4160-4324-9bb3-b6ccfa7d83ff",
+      "title": "Learning Resources Database",
+      "organization": "U.S. Department of Health & Human Services",
+      "metadataModified": "2026-02-09T08:14:10.440451",
+      "metadataCreated": "2022-02-17T08:09:48.256937",
+      "resourceCount": 4,
+      "formats": [
+        "CSV",
+        "RDF",
+        "JSON"
+      ]
+    },
+    {
+      "id": "cb878132-0692-4a70-91b4-40a51ffd60d3",
+      "title": "EPA Facility Registry Service (FRS): ER_TRI",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:15:02.258132",
+      "metadataCreated": "2026-01-13T18:26:24.744648",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "11a4cfaa-7bce-4248-8bf9-58d7b3019d83",
+      "title": "EPA Facility Registry Service (FRS): ER_NAICS",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:15:02.207234",
+      "metadataCreated": "2025-02-25T05:06:57.024348",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "242922a5-220f-4af3-a8be-855e717a0243",
+      "title": "EPA Facility Registry Service (FRS): ER_TSCA",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:15:01.170582",
+      "metadataCreated": "2025-02-25T05:26:15.557526",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "0b75e593-8096-4560-b085-32c1d9afd953",
+      "title": "EPA Facility Registry Service (FRS): ER_SIC",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:58.982941",
+      "metadataCreated": "2025-10-22T19:11:53.286885",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "5c8c2b44-c5f2-4f56-8ce2-2e05bb506353",
+      "title": "NPL Superfund Institutional Control Boundaries (EPA)",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:58.918542",
+      "metadataCreated": "2025-02-25T05:49:48.625384",
+      "resourceCount": 4,
+      "formats": [
+        "ESRI REST",
+        "ZIP"
+      ]
+    },
+    {
+      "id": "300377f1-74a1-47c6-b46e-17fbc860eb12",
+      "title": "EPA Facility Registry Service (FRS): ER_RCRATSD",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:58.111840",
+      "metadataCreated": "2025-02-25T05:36:11.072773",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "bdc0098f-cf9c-48ec-a7b5-c4afe48b9b2d",
+      "title": "EPA Facility Registry Service (FRS): ER_CERCLIS",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:54.840336",
+      "metadataCreated": "2025-02-25T05:36:15.613039",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "c2662717-0671-40e8-bec2-6bd6b8948275",
+      "title": "EPA Facility Registry Service (FRS): ER_FRP",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:53.517305",
+      "metadataCreated": "2025-02-25T05:30:23.777067",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "dc16ecd2-7247-437f-8da6-f39c937f044e",
+      "title": "EPA Facility Registry Service (FRS): ER_STATE_ID",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:52.007558",
+      "metadataCreated": "2025-11-02T11:38:10.919849",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "a7c6bcfa-2bda-447f-8981-16d9492b8963",
+      "title": "NPL Superfund Site Boundaries (EPA)",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:50.401149",
+      "metadataCreated": "2025-02-25T05:42:57.547567",
+      "resourceCount": 3,
+      "formats": [
+        "ESRI REST",
+        "ZIP"
+      ]
+    },
+    {
+      "id": "98da27da-5d1f-4474-a201-a64213a6631a",
+      "title": "EPA Facility Registry Service (FRS): ER_CONTACTS",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:50.332659",
+      "metadataCreated": "2025-02-25T05:47:44.469914",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    }
+  ],
+  "generatedAt": "2026-02-09T22:34:36.129Z"
+}

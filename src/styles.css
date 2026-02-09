@@ -125,6 +125,12 @@ body {
   margin-bottom: 0.45rem;
 }
 
+.hero__mode-note {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
 .api-form__row {
   display: grid;
   grid-template-columns: 1fr auto;

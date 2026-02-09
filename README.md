@@ -1,6 +1,6 @@
 # Data.gov Metrics Dashboard
 
-A comprehensive, polished, and visually rich dashboard for exploring key Data.gov catalog metrics in real time.
+A comprehensive, polished, and visually rich dashboard for exploring key Data.gov catalog metrics.
 
 ## What it shows
 
@@ -19,7 +19,13 @@ This dashboard uses the public CKAN API at:
 
 `https://catalog.data.gov/api/3/action`
 
-An API key is optional for these reads, but the UI supports adding one if needed.
+### Why it uses a snapshot
+
+Data.gov API endpoints do not currently allow browser CORS requests from GitHub Pages origins, so the dashboard uses a **build-time generated JSON snapshot**:
+
+- `public/dashboard-data.json`
+
+The snapshot is refreshed during build/deploy and then served from the same origin as the dashboard UI.
 
 ## Quick start
 
@@ -30,16 +36,18 @@ npm run dev
 
 Then open `http://localhost:5173`.
 
-## Optional API key
+## Refreshing dashboard data snapshot
 
-You can provide a key in two ways:
+Run:
 
-1. Environment variable:
-   - Copy `.env.example` to `.env`
-   - Set `VITE_DATA_GOV_API_KEY=...`
-2. Dashboard UI:
-   - Paste in the **Optional API key** field and click **Apply**
-   - The key is stored in local browser storage for convenience
+```bash
+npm run generate:data
+```
+
+Optional: set an API key for server-side snapshot generation:
+
+- Copy `.env.example` to `.env`
+- Set `DATA_GOV_API_KEY=...`
 
 ## Build
 
@@ -54,7 +62,7 @@ This repo includes a GitHub Actions workflow at:
 
 `.github/workflows/deploy-pages.yml`
 
-It builds the app and deploys `dist/` to GitHub Pages on pushes to:
+It generates a fresh snapshot, builds the app, and deploys `dist/` to GitHub Pages on pushes to:
 
 - `main`
 - `cursor/data-gov-metrics-dashboard-1d8c`

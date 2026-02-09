@@ -4,7 +4,7 @@ export function LoadingState() {
       <section className="state-card">
         <div className="spinner" />
         <h2>Loading Data.gov metrics...</h2>
-        <p>Gathering metadata, publishers, formats, and freshness indicators.</p>
+        <p>Reading the latest generated dashboard snapshot.</p>
       </section>
     </main>
   );

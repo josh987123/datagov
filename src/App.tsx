@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
@@ -31,10 +31,9 @@ import { ErrorState } from "./components/ErrorState";
 import { LoadingState } from "./components/LoadingState";
 import { MetricCard } from "./components/MetricCard";
 import { RecentDatasetsTable } from "./components/RecentDatasetsTable";
-import { fetchDashboardData } from "./lib/datagov";
 import { formatCompact, formatDateTime, formatNumber, formatPercent, truncate } from "./lib/format";
+import type { DashboardData } from "./types";
 
-const API_KEY_STORAGE_KEY = "datagov.dashboard.apiKey";
 const PIE_COLORS = ["#8b5cf6", "#6366f1", "#06b6d4", "#14b8a6", "#22c55e", "#84cc16", "#f59e0b"];
 
 function formatTooltipValue(value: number | string | undefined): string {
@@ -46,24 +45,26 @@ function formatTooltipValue(value: number | string | undefined): string {
   return formatNumber(Number.isFinite(parsed) ? parsed : 0);
 }
 
-function resolveInitialApiKey(): string {
-  const envKey = import.meta.env.VITE_DATA_GOV_API_KEY ?? "";
+async function fetchDashboardSnapshot(): Promise<DashboardData> {
+  const response = await fetch(`${import.meta.env.BASE_URL}dashboard-data.json`, {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+    },
+  });
 
-  if (typeof window === "undefined") {
-    return envKey;
+  if (!response.ok) {
+    throw new Error(`Dashboard snapshot unavailable (${response.status})`);
   }
 
-  const savedKey = window.localStorage.getItem(API_KEY_STORAGE_KEY);
-  return savedKey ?? envKey;
+  const payload = (await response.json()) as DashboardData;
+  return payload;
 }
 
 export default function App() {
-  const [apiKeyInput, setApiKeyInput] = useState(() => resolveInitialApiKey());
-  const [activeApiKey, setActiveApiKey] = useState(() => resolveInitialApiKey());
-
   const { data, error, isLoading, isFetching, refetch } = useQuery({
-    queryKey: ["datagov-dashboard", activeApiKey],
-    queryFn: () => fetchDashboardData(activeApiKey),
+    queryKey: ["datagov-dashboard-snapshot"],
+    queryFn: fetchDashboardSnapshot,
     refetchInterval: 1000 * 60 * 10,
   });
 
@@ -97,18 +98,6 @@ export default function App() {
     };
   }, [data]);
 
-  const saveApiKey = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const normalized = apiKeyInput.trim();
-    setActiveApiKey(normalized);
-
-    if (normalized.length > 0) {
-      window.localStorage.setItem(API_KEY_STORAGE_KEY, normalized);
-    } else {
-      window.localStorage.removeItem(API_KEY_STORAGE_KEY);
-    }
-  };
-
   if (isLoading) {
     return <LoadingState />;
   }
@@ -118,7 +107,9 @@ export default function App() {
     return <ErrorState message={message} onRetry={() => void refetch()} />;
   }
 
-  const refreshHint = isFetching ? "Refreshing data..." : `Updated ${formatDateTime(data.generatedAt)}`;
+  const refreshHint = isFetching
+    ? "Refreshing snapshot..."
+    : `Snapshot generated ${formatDateTime(data.generatedAt)}`;
 
   return (
     <main className="dashboard-shell">
@@ -130,27 +121,18 @@ export default function App() {
             <p className="eyebrow">Federal open-data intelligence</p>
             <h1>Data.gov Metrics Command Center</h1>
             <p className="hero__subtitle">
-              A live, high-level view of catalog scale, content freshness, resource formats, and
-              top publishers from the Data.gov CKAN metadata API.
+              A high-level view of catalog scale, content freshness, resource formats, and top
+              publishers from the Data.gov CKAN metadata API.
             </p>
             <p className="hero__timestamp">{refreshHint}</p>
           </div>
           <div className="hero__controls">
-            <form className="api-form" onSubmit={saveApiKey}>
-              <label htmlFor="apiKey">Optional API key</label>
-              <div className="api-form__row">
-                <input
-                  id="apiKey"
-                  type="password"
-                  placeholder="Paste Data.gov API key"
-                  value={apiKeyInput}
-                  onChange={(event) => setApiKeyInput(event.target.value)}
-                />
-                <button type="submit" className="primary-button">
-                  Apply
-                </button>
-              </div>
-            </form>
+            <div className="api-form">
+              <label>Data source mode</label>
+              <p className="hero__mode-note">
+                Snapshot data is generated at deploy time to avoid Data.gov browser CORS blocks.
+              </p>
+            </div>
             <button type="button" className="secondary-button" onClick={() => void refetch()}>
               <RefreshCcw size={16} />
               Refresh
