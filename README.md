@@ -47,3 +47,18 @@ You can provide a key in two ways:
 npm run build
 npm run preview
 ```
+
+## Hosting (GitHub Pages)
+
+This repo includes a GitHub Actions workflow at:
+
+`.github/workflows/deploy-pages.yml`
+
+It builds the app and deploys `dist/` to GitHub Pages on pushes to:
+
+- `main`
+- `cursor/data-gov-metrics-dashboard-1d8c`
+
+Once deployed, the site URL format is:
+
+`https://josh987123.github.io/datagov/`
