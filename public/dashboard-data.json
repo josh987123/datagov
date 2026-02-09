@@ -4,9 +4,12 @@
     "organizations": 112,
     "groups": 4,
     "distinctFormats": 999,
+    "updatedLast7Days": 14619,
+    "createdLast7Days": 315,
     "updatedLast30Days": 88647,
     "createdLast30Days": 39573,
     "updatedLast90Days": 169773,
+    "updatedLast365Days": 265768,
     "freshnessScore": 43.8
   },
   "topPublishers": [
@@ -220,7 +223,7 @@
   "activitySeries": [
     {
       "label": "Last 7 days",
-      "modified": 14624,
+      "modified": 14619,
       "created": 315
     },
     {
@@ -234,11 +237,235 @@
       "created": 114856
     },
     {
+      "label": "Last 180 days",
+      "modified": 206829,
+      "created": 134805
+    },
+    {
       "label": "Last 12 months",
       "modified": 265768,
       "created": 196322
+    },
+    {
+      "label": "Last 12 months",
+      "modified": 377403,
+      "created": 348273
     }
   ],
+  "analytics": {
+    "freshnessBuckets": [
+      {
+        "label": "0-30 days",
+        "count": 88647,
+        "share": 22.9
+      },
+      {
+        "label": "31-180 days",
+        "count": 118182,
+        "share": 30.5
+      },
+      {
+        "label": "181-365 days",
+        "count": 58939,
+        "share": 15.2
+      },
+      {
+        "label": "Over 1 year",
+        "count": 122144,
+        "share": 31.5
+      }
+    ],
+    "ageBuckets": [
+      {
+        "label": "0-30 days",
+        "count": 39573,
+        "share": 10.2
+      },
+      {
+        "label": "31-365 days",
+        "count": 156749,
+        "share": 40.4
+      },
+      {
+        "label": "1-5 years",
+        "count": 151951,
+        "share": 39.2
+      },
+      {
+        "label": "Over 5 years",
+        "count": 39639,
+        "share": 10.2
+      }
+    ],
+    "dailyTrend": [
+      {
+        "label": "Jan 27",
+        "modified": 10908,
+        "created": 362
+      },
+      {
+        "label": "Jan 28",
+        "modified": 6147,
+        "created": 1
+      },
+      {
+        "label": "Jan 29",
+        "modified": 208,
+        "created": 16
+      },
+      {
+        "label": "Jan 30",
+        "modified": 18,
+        "created": 3
+      },
+      {
+        "label": "Jan 31",
+        "modified": 1096,
+        "created": 874
+      },
+      {
+        "label": "Feb 01",
+        "modified": 1560,
+        "created": 1437
+      },
+      {
+        "label": "Feb 02",
+        "modified": 13050,
+        "created": 272
+      },
+      {
+        "label": "Feb 03",
+        "modified": 461,
+        "created": 12
+      },
+      {
+        "label": "Feb 04",
+        "modified": 115,
+        "created": 3
+      },
+      {
+        "label": "Feb 05",
+        "modified": 178,
+        "created": 3
+      },
+      {
+        "label": "Feb 06",
+        "modified": 4257,
+        "created": 1
+      },
+      {
+        "label": "Feb 07",
+        "modified": 7773,
+        "created": 38
+      },
+      {
+        "label": "Feb 08",
+        "modified": 960,
+        "created": 168
+      },
+      {
+        "label": "Feb 09",
+        "modified": 1217,
+        "created": 34
+      }
+    ],
+    "publisherShares": [
+      {
+        "label": "U.S. Census Bureau, Department of Commerce",
+        "count": 144572,
+        "share": 37.3
+      },
+      {
+        "label": "National Oceanic and Atmospheric Administration, Department of Commerce",
+        "count": 88856,
+        "share": 22.9
+      },
+      {
+        "label": "Department of the Interior",
+        "count": 44194,
+        "share": 11.4
+      },
+      {
+        "label": "National Aeronautics and Space Administration",
+        "count": 27020,
+        "share": 7
+      },
+      {
+        "label": "U.S. Department of Health & Human Services",
+        "count": 18967,
+        "share": 4.9
+      },
+      {
+        "label": "U.S. Environmental Protection Agency",
+        "count": 7474,
+        "share": 1.9
+      },
+      {
+        "label": "Earth Data Analysis Center, University of New Mexico",
+        "count": 5459,
+        "share": 1.4
+      },
+      {
+        "label": "State of California",
+        "count": 4236,
+        "share": 1.1
+      }
+    ],
+    "resourceHistogram": [
+      {
+        "label": "0",
+        "count": 69
+      },
+      {
+        "label": "1",
+        "count": 30
+      },
+      {
+        "label": "2-5",
+        "count": 85
+      },
+      {
+        "label": "6-10",
+        "count": 1
+      },
+      {
+        "label": "11+",
+        "count": 15
+      }
+    ],
+    "velocity": {
+      "updatesPerDay30": 2954.9,
+      "creationsPerDay30": 1319.1,
+      "updateToCreateRatio": 2.24,
+      "weeklyMomentum": 0.71
+    },
+    "concentration": {
+      "top1Share": 37.3,
+      "top5Share": 83.4,
+      "top10Share": 89.6,
+      "hhi": 2127.7
+    },
+    "licenseSummary": {
+      "openCount": 23766,
+      "restrictedCount": 22529,
+      "unspecifiedCount": 341617,
+      "openShare": 6.1,
+      "unspecifiedShare": 88.1
+    },
+    "resourceCoverage": {
+      "sampleSize": 200,
+      "totalResources": 530,
+      "avgResources": 2.7,
+      "medianResources": 2,
+      "maxResources": 12,
+      "datasetsWithNoResources": 69,
+      "noResourceShare": 34.5
+    },
+    "formatInsights": {
+      "top3Share": 64,
+      "diversityScore": 84.5
+    }
+  },
   "recentDatasets": [
     {
       "id": "d59c49ba-4160-4324-9bb3-b6ccfa7d83ff",
@@ -384,7 +611,189 @@
         "ZIP",
         "ESRI REST"
       ]
+    },
+    {
+      "id": "f4063324-f65c-43bf-8db2-9642ac88f112",
+      "title": "NPL Superfund Operable Unit Boundaries (EPA)",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:49.326814",
+      "metadataCreated": "2025-02-25T05:24:44.646400",
+      "resourceCount": 4,
+      "formats": [
+        "ESRI REST",
+        "ZIP"
+      ]
+    },
+    {
+      "id": "1b013cb1-c50b-45d0-b2d8-7f33003ac8b4",
+      "title": "NPL Superfund Site Feature Locations (EPA)",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:47.064178",
+      "metadataCreated": "2025-02-25T05:05:56.851154",
+      "resourceCount": 5,
+      "formats": [
+        "ESRI REST",
+        "ZIP"
+      ]
+    },
+    {
+      "id": "3c7dfd1a-2315-4f16-bc7c-6e7e2bad845a",
+      "title": "NPL Superfund Site Feature Areas (EPA)",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:46.944012",
+      "metadataCreated": "2025-02-25T05:24:52.214062",
+      "resourceCount": 4,
+      "formats": [
+        "ESRI REST",
+        "ZIP"
+      ]
+    },
+    {
+      "id": "0df4efc2-1bbf-4b11-92a8-cf06bed24c27",
+      "title": "EPA Facility Registry Service (FRS): ER_CHEMICALS",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:46.642521",
+      "metadataCreated": "2025-11-02T11:38:13.763511",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "6141089c-0804-49ca-b031-50a569d1c33d",
+      "title": "EPA Facility Registry Service (FRS): ER_RMP",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:43.449348",
+      "metadataCreated": "2025-02-25T05:20:10.047364",
+      "resourceCount": 2,
+      "formats": [
+        "ZIP",
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "b51e2a6d-17bf-4fcc-82ee-a46b376e33d8",
+      "title": "NPL Superfund Linear Site Features (EPA)",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:43.301791",
+      "metadataCreated": "2025-02-25T05:21:27.247882",
+      "resourceCount": 4,
+      "formats": [
+        "ESRI REST",
+        "ZIP"
+      ]
+    },
+    {
+      "id": "fc0451cd-2c2e-4c80-b395-2c8f06b77cd1",
+      "title": "Critical Habitat for Endangered Species",
+      "organization": "U.S. Environmental Protection Agency",
+      "metadataModified": "2026-02-09T05:14:43.295653",
+      "metadataCreated": "2025-02-25T05:21:02.998708",
+      "resourceCount": 2,
+      "formats": [
+        "ESRI REST"
+      ]
+    },
+    {
+      "id": "e535c41c-4030-422b-9d29-be28e9f54bb1",
+      "title": "ELIS - Electronic Immigration System",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:14:10.768384",
+      "metadataCreated": "2026-02-09T00:14:10.768379",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "accfa28e-5505-4377-9eda-e631613b7a79",
+      "title": "CIS2 - Central Index System 2",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:14:09.672083",
+      "metadataCreated": "2026-02-09T00:14:09.672079",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "eae1e17b-9282-42ba-97b6-cbfe343403b3",
+      "title": "FLETC Mobile Application",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:14:02.135527",
+      "metadataCreated": "2022-10-14T14:42:54.535531",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "ca236322-13b3-4792-a8a2-bf3c55346d5f",
+      "title": "FLETC.gov",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:14:00.841528",
+      "metadataCreated": "2022-10-14T14:42:58.892747",
+      "resourceCount": 1,
+      "formats": []
+    },
+    {
+      "id": "00e6fa4a-4788-470e-926d-86d0f8ba3cd3",
+      "title": "DID(IT) - INFACT Case Management System",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:59.328578",
+      "metadataCreated": "2026-02-09T00:13:59.328571",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "7b9e55b8-f7eb-4f4b-9248-8471a349e2a4",
+      "title": "CIS2 - Immigrant Visa and Adjustment of Status Data",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:46.326952",
+      "metadataCreated": "2026-02-09T00:13:46.326947",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "56f6fbb1-c707-45ce-93b2-7ad4499ea049",
+      "title": "CIS2 - 8 USC Section 1367 Protected Data",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:45.165509",
+      "metadataCreated": "2026-02-09T00:13:45.165504",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "472e44df-9817-4d22-a9e2-fcf161a3c46b",
+      "title": "CIS2 - ICE and CBP Encounter Data",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:44.112722",
+      "metadataCreated": "2026-02-09T00:13:44.112715",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "528cf786-82e6-4681-868b-e23ab3c0bb7d",
+      "title": "CIS2 - Parolee Data",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:33.676588",
+      "metadataCreated": "2026-02-09T00:13:33.676582",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "a9fcb121-a979-4a09-a4d9-4e81a79e7872",
+      "title": "CIS2 - Asylum Data",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:32.372540",
+      "metadataCreated": "2026-02-09T00:13:32.372536",
+      "resourceCount": 0,
+      "formats": []
+    },
+    {
+      "id": "a3cc4808-58c2-43ec-803b-99e7ec0a77c7",
+      "title": "CIS2 - Naturalization Data",
+      "organization": "Department of Homeland Security",
+      "metadataModified": "2026-02-09T00:13:31.180931",
+      "metadataCreated": "2026-02-09T00:13:31.180924",
+      "resourceCount": 0,
+      "formats": []
     }
   ],
-  "generatedAt": "2026-02-09T22:45:19.869Z"
+  "generatedAt": "2026-02-09T23:15:12.926Z"
 }
