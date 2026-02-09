@@ -598,6 +598,437 @@
       }
     ]
   },
+  "economy": {
+    "snapshot": {
+      "population": 334914896,
+      "medianIncome": 77719,
+      "medianHomeValue": 340200,
+      "medianAge": 39.2,
+      "giniIndex": 0.4828,
+      "laborForce": 171742922,
+      "unemploymentRate": 4.4,
+      "laborForceParticipationRate": 62.4,
+      "cpiIndex": 324.054,
+      "inflationYoY": 2.68,
+      "averageHourlyEarnings": 37.02,
+      "hourlyEarningsYoY": 3.76,
+      "totalPublicDebt": 38588547251497.72,
+      "debtChange30Days": 213197654567.14062,
+      "latestOutlays": 541146327504.76,
+      "latestReceipts": 454414708491.47,
+      "latestDeficit": 86731619013.29,
+      "grossPrivateDomesticInvestment": null,
+      "personalSavingRate": null
+    },
+    "trends": {
+      "monthlySpending": [
+        {
+          "label": "Jan 25",
+          "outlays": 641934549325.42,
+          "receipts": 513294342651.93,
+          "deficit": 128640206673.49
+        },
+        {
+          "label": "Feb 25",
+          "outlays": 603440878521.84,
+          "receipts": 296423683822.57,
+          "deficit": 307017194699.27
+        },
+        {
+          "label": "Mar 25",
+          "outlays": 528165492489.68,
+          "receipts": 367635170990.32,
+          "deficit": 160530321499.36
+        },
+        {
+          "label": "Apr 25",
+          "outlays": 591769368657.85,
+          "receipts": 850169317772.81,
+          "deficit": -258399949114.96
+        },
+        {
+          "label": "May 25",
+          "outlays": 670777880670.05,
+          "receipts": 323646986978.4,
+          "deficit": 347130893691.65
+        },
+        {
+          "label": "Jun 25",
+          "outlays": 537220210883.5,
+          "receipts": 466254918407.16,
+          "deficit": 70965292476.34
+        },
+        {
+          "label": "Jul 25",
+          "outlays": 574118515597.52,
+          "receipts": 330377428300.09,
+          "deficit": 243741087297.43
+        },
+        {
+          "label": "Aug 25",
+          "outlays": 689107213868.44,
+          "receipts": 344315322010.32,
+          "deficit": 344791891858.12
+        },
+        {
+          "label": "Sep 25",
+          "outlays": 345713357099.06,
+          "receipts": 543662987461.22,
+          "deficit": -197949630362.16
+        },
+        {
+          "label": "Oct 25",
+          "outlays": 688721399756.5,
+          "receipts": 404371348973.7,
+          "deficit": 284350050782.8
+        },
+        {
+          "label": "Nov 25",
+          "outlays": 509278370786.88,
+          "receipts": 336001195709.96,
+          "deficit": 173277175076.92
+        },
+        {
+          "label": "Dec 25",
+          "outlays": 541146327504.76,
+          "receipts": 454414708491.47,
+          "deficit": 86731619013.29
+        }
+      ],
+      "debtDaily": [
+        {
+          "label": "Dec 03",
+          "value": 38403532042006.28
+        },
+        {
+          "label": "Dec 04",
+          "value": 38389369875885.1
+        },
+        {
+          "label": "Dec 05",
+          "value": 38390532833611.7
+        },
+        {
+          "label": "Dec 08",
+          "value": 38395956139411.28
+        },
+        {
+          "label": "Dec 09",
+          "value": 38377110471869.66
+        },
+        {
+          "label": "Dec 10",
+          "value": 38352200418068.14
+        },
+        {
+          "label": "Dec 11",
+          "value": 38349795034550.24
+        },
+        {
+          "label": "Dec 12",
+          "value": 38339541810902.33
+        },
+        {
+          "label": "Dec 15",
+          "value": 38419380255240.59
+        },
+        {
+          "label": "Dec 16",
+          "value": 38396179577012.1
+        },
+        {
+          "label": "Dec 17",
+          "value": 38378996619785.02
+        },
+        {
+          "label": "Dec 18",
+          "value": 38375371484790.79
+        },
+        {
+          "label": "Dec 19",
+          "value": 38372869364189.14
+        },
+        {
+          "label": "Dec 22",
+          "value": 38378413234316.13
+        },
+        {
+          "label": "Dec 23",
+          "value": 38375349596930.58
+        },
+        {
+          "label": "Dec 24",
+          "value": 38352846701813.17
+        },
+        {
+          "label": "Dec 26",
+          "value": 38380536147996.03
+        },
+        {
+          "label": "Dec 29",
+          "value": 38386384190622.68
+        },
+        {
+          "label": "Dec 30",
+          "value": 38372153717621.09
+        },
+        {
+          "label": "Dec 31",
+          "value": 38514009184232.72
+        },
+        {
+          "label": "Jan 02",
+          "value": 38422818570606.72
+        },
+        {
+          "label": "Jan 05",
+          "value": 38441088237227.94
+        },
+        {
+          "label": "Jan 06",
+          "value": 38430410089259.84
+        },
+        {
+          "label": "Jan 07",
+          "value": 38432287507801.52
+        },
+        {
+          "label": "Jan 08",
+          "value": 38432587259757.29
+        },
+        {
+          "label": "Jan 09",
+          "value": 38433330126292.37
+        },
+        {
+          "label": "Jan 12",
+          "value": 38437700892419.68
+        },
+        {
+          "label": "Jan 13",
+          "value": 38433852753680.03
+        },
+        {
+          "label": "Jan 14",
+          "value": 38396062667874.39
+        },
+        {
+          "label": "Jan 15",
+          "value": 38453108492348.67
+        },
+        {
+          "label": "Jan 16",
+          "value": 38460239071716.76
+        },
+        {
+          "label": "Jan 20",
+          "value": 38484705102395.33
+        },
+        {
+          "label": "Jan 21",
+          "value": 38473375474319
+        },
+        {
+          "label": "Jan 22",
+          "value": 38490798138585.9
+        },
+        {
+          "label": "Jan 23",
+          "value": 38491020558407.85
+        },
+        {
+          "label": "Jan 26",
+          "value": 38513523578580.59
+        },
+        {
+          "label": "Jan 27",
+          "value": 38567114207655.7
+        },
+        {
+          "label": "Jan 28",
+          "value": 38542542471886.84
+        },
+        {
+          "label": "Jan 29",
+          "value": 38568501122811.36
+        },
+        {
+          "label": "Jan 30",
+          "value": 38521368112341.66
+        },
+        {
+          "label": "Feb 02",
+          "value": 38515650269880.94
+        },
+        {
+          "label": "Feb 03",
+          "value": 38564278020214.6
+        },
+        {
+          "label": "Feb 04",
+          "value": 38564513699490.46
+        },
+        {
+          "label": "Feb 05",
+          "value": 38587617094083.77
+        },
+        {
+          "label": "Feb 06",
+          "value": 38588547251497.72
+        }
+      ],
+      "unemploymentRate": [
+        {
+          "label": "Jan 25",
+          "value": 4
+        },
+        {
+          "label": "Feb 25",
+          "value": 4.2
+        },
+        {
+          "label": "Mar 25",
+          "value": 4.2
+        },
+        {
+          "label": "Apr 25",
+          "value": 4.2
+        },
+        {
+          "label": "May 25",
+          "value": 4.3
+        },
+        {
+          "label": "Jun 25",
+          "value": 4.1
+        },
+        {
+          "label": "Jul 25",
+          "value": 4.3
+        },
+        {
+          "label": "Aug 25",
+          "value": 4.3
+        },
+        {
+          "label": "Sep 25",
+          "value": 4.4
+        },
+        {
+          "label": "Oct 25",
+          "value": 0
+        },
+        {
+          "label": "Nov 25",
+          "value": 4.5
+        },
+        {
+          "label": "Dec 25",
+          "value": 4.4
+        }
+      ],
+      "inflationYoY": [
+        {
+          "label": "Jan 25",
+          "value": 3
+        },
+        {
+          "label": "Feb 25",
+          "value": 2.82
+        },
+        {
+          "label": "Mar 25",
+          "value": 2.39
+        },
+        {
+          "label": "Apr 25",
+          "value": 2.31
+        },
+        {
+          "label": "May 25",
+          "value": 2.35
+        },
+        {
+          "label": "Jun 25",
+          "value": 2.67
+        },
+        {
+          "label": "Jul 25",
+          "value": 2.7
+        },
+        {
+          "label": "Aug 25",
+          "value": 2.92
+        },
+        {
+          "label": "Sep 25",
+          "value": 3.01
+        },
+        {
+          "label": "Oct 25",
+          "value": -100
+        },
+        {
+          "label": "Nov 25",
+          "value": 2.74
+        },
+        {
+          "label": "Dec 25",
+          "value": 2.68
+        }
+      ],
+      "hourlyEarningsYoY": [
+        {
+          "label": "Jan 25",
+          "value": 3.95
+        },
+        {
+          "label": "Feb 25",
+          "value": 3.94
+        },
+        {
+          "label": "Mar 25",
+          "value": 3.89
+        },
+        {
+          "label": "Apr 25",
+          "value": 3.83
+        },
+        {
+          "label": "May 25",
+          "value": 3.84
+        },
+        {
+          "label": "Jun 25",
+          "value": 3.74
+        },
+        {
+          "label": "Jul 25",
+          "value": 3.88
+        },
+        {
+          "label": "Aug 25",
+          "value": 3.83
+        },
+        {
+          "label": "Sep 25",
+          "value": 3.74
+        },
+        {
+          "label": "Oct 25",
+          "value": 3.75
+        },
+        {
+          "label": "Nov 25",
+          "value": 3.62
+        },
+        {
+          "label": "Dec 25",
+          "value": 3.76
+        }
+      ]
+    }
+  },
   "recentDatasets": [
     {
       "id": "68cc6751-8a14-49f6-b67a-425b38937ff1",
@@ -958,8 +1389,8 @@
   "source": {
     "siteTitle": "Catalog",
     "ckanVersion": "2.11.4",
-    "apiBase": "https://catalog.data.gov/api/3/action",
-    "snapshotStrategy": "build-time static snapshot"
+    "apiBase": "https://catalog.data.gov/api/3/action + BLS + Census + Treasury",
+    "snapshotStrategy": "build-time static snapshot from federal data APIs"
   },
-  "generatedAt": "2026-02-09T23:45:49.296Z"
+  "generatedAt": "2026-02-09T23:57:50.431Z"
 }

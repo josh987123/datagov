@@ -21,8 +21,6 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
-  TrendingDown,
-  TrendingUp,
 } from "lucide-react";
 import {
   Area,
