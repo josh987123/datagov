@@ -8,6 +8,7 @@
     "generate:data": "node ./scripts/generate-dashboard-data.mjs",
     "prebuild": "npm run generate:data",
     "build": "tsc -b && vite build",
+    "postbuild": "node ./scripts/add-legacy-asset-aliases.mjs",
     "preview": "vite preview",
     "lint": "eslint ."
   },
