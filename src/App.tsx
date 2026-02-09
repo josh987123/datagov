@@ -37,6 +37,15 @@ import { formatCompact, formatDateTime, formatNumber, formatPercent, truncate } 
 const API_KEY_STORAGE_KEY = "datagov.dashboard.apiKey";
 const PIE_COLORS = ["#8b5cf6", "#6366f1", "#06b6d4", "#14b8a6", "#22c55e", "#84cc16", "#f59e0b"];
 
+function formatTooltipValue(value: number | string | undefined): string {
+  if (typeof value === "number") {
+    return formatNumber(value);
+  }
+
+  const parsed = Number(value ?? 0);
+  return formatNumber(Number.isFinite(parsed) ? parsed : 0);
+}
+
 function resolveInitialApiKey(): string {
   const envKey = import.meta.env.VITE_DATA_GOV_API_KEY ?? "";
 
@@ -234,7 +243,7 @@ export default function App() {
                   axisLine={false}
                 />
                 <Tooltip
-                  formatter={(value: number) => formatNumber(value)}
+                  formatter={formatTooltipValue}
                   contentStyle={{
                     backgroundColor: "#0f172a",
                     border: "1px solid rgba(148, 163, 184, 0.25)",
@@ -276,7 +285,7 @@ export default function App() {
                   axisLine={false}
                 />
                 <Tooltip
-                  formatter={(value: number) => formatNumber(value)}
+                  formatter={formatTooltipValue}
                   contentStyle={{
                     backgroundColor: "#0f172a",
                     border: "1px solid rgba(148, 163, 184, 0.25)",
@@ -307,7 +316,7 @@ export default function App() {
                     <Cell key={`format-cell-${entry.name}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => formatNumber(value)} />
+                <Tooltip formatter={formatTooltipValue} />
               </PieChart>
             </ResponsiveContainer>
           </ChartPanel>
@@ -329,7 +338,7 @@ export default function App() {
                     <Cell key={`license-cell-${entry.name}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value: number) => formatNumber(value)} />
+                <Tooltip formatter={formatTooltipValue} />
               </PieChart>
             </ResponsiveContainer>
           </ChartPanel>
@@ -349,7 +358,7 @@ export default function App() {
                   axisLine={false}
                 />
                 <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(value: number) => formatNumber(value)} />
+                <Tooltip formatter={formatTooltipValue} />
                 <Bar dataKey="count" fill="#22c55e" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
