@@ -4,9 +4,9 @@
     "organizations": 112,
     "groups": 4,
     "distinctFormats": 999,
-    "updatedLast7Days": 14619,
-    "createdLast7Days": 315,
-    "updatedLast30Days": 88647,
+    "updatedLast7Days": 14618,
+    "createdLast7Days": 313,
+    "updatedLast30Days": 88651,
     "createdLast30Days": 39573,
     "updatedLast90Days": 169773,
     "updatedLast365Days": 265768,
@@ -62,6 +62,28 @@
       "name": "usda-gov",
       "label": "Department of Agriculture",
       "count": 2904
+    }
+  ],
+  "topGroups": [
+    {
+      "name": "local",
+      "label": "Local Government",
+      "count": 24208
+    },
+    {
+      "name": "climate5434",
+      "label": "Climate",
+      "count": 402
+    },
+    {
+      "name": "older-adults-health-data",
+      "label": "Older Adults Health Data Collection",
+      "count": 71
+    },
+    {
+      "name": "energy9485",
+      "label": "Energy",
+      "count": 19
     }
   ],
   "topFormats": [
@@ -223,12 +245,12 @@
   "activitySeries": [
     {
       "label": "Last 7 days",
-      "modified": 14619,
-      "created": 315
+      "modified": 14618,
+      "created": 313
     },
     {
       "label": "Last 30 days",
-      "modified": 88647,
+      "modified": 88651,
       "created": 39573
     },
     {
@@ -256,12 +278,12 @@
     "freshnessBuckets": [
       {
         "label": "0-30 days",
-        "count": 88647,
+        "count": 88651,
         "share": 22.9
       },
       {
         "label": "31-180 days",
-        "count": 118182,
+        "count": 118178,
         "share": 30.5
       },
       {
@@ -335,7 +357,7 @@
       },
       {
         "label": "Feb 03",
-        "modified": 461,
+        "modified": 459,
         "created": 12
       },
       {
@@ -367,6 +389,68 @@
         "label": "Feb 09",
         "modified": 1217,
         "created": 34
+      }
+    ],
+    "monthlyTrend": [
+      {
+        "label": "Feb 25",
+        "modified": 4124,
+        "created": 3148
+      },
+      {
+        "label": "Mar 25",
+        "modified": 3032,
+        "created": 1358
+      },
+      {
+        "label": "Apr 25",
+        "modified": 5649,
+        "created": 11464
+      },
+      {
+        "label": "May 25",
+        "modified": 3958,
+        "created": 827
+      },
+      {
+        "label": "Jun 25",
+        "modified": 3436,
+        "created": 1067
+      },
+      {
+        "label": "Jul 25",
+        "modified": 5426,
+        "created": 9718
+      },
+      {
+        "label": "Aug 25",
+        "modified": 47520,
+        "created": 40627
+      },
+      {
+        "label": "Sep 25",
+        "modified": 21366,
+        "created": 13364
+      },
+      {
+        "label": "Oct 25",
+        "modified": 3416,
+        "created": 567
+      },
+      {
+        "label": "Nov 25",
+        "modified": 3563,
+        "created": 326
+      },
+      {
+        "label": "Dec 25",
+        "modified": 70179,
+        "created": 67713
+      },
+      {
+        "label": "Jan 26",
+        "modified": 68196,
+        "created": 46317
       }
     ],
     "publisherShares": [
@@ -414,7 +498,7 @@
     "resourceHistogram": [
       {
         "label": "0",
-        "count": 69
+        "count": 68
       },
       {
         "label": "1",
@@ -422,7 +506,7 @@
       },
       {
         "label": "2-5",
-        "count": 85
+        "count": 79
       },
       {
         "label": "6-10",
@@ -430,11 +514,11 @@
       },
       {
         "label": "11+",
-        "count": 15
+        "count": 22
       }
     ],
     "velocity": {
-      "updatesPerDay30": 2954.9,
+      "updatesPerDay30": 2955,
       "creationsPerDay30": 1319.1,
       "updateToCreateRatio": 2.24,
       "weeklyMomentum": 0.71
@@ -454,19 +538,158 @@
     },
     "resourceCoverage": {
       "sampleSize": 200,
-      "totalResources": 530,
-      "avgResources": 2.7,
+      "totalResources": 688,
+      "avgResources": 3.4,
       "medianResources": 2,
-      "maxResources": 12,
-      "datasetsWithNoResources": 69,
-      "noResourceShare": 34.5
+      "maxResources": 26,
+      "datasetsWithNoResources": 68,
+      "noResourceShare": 34
     },
     "formatInsights": {
       "top3Share": 64,
       "diversityScore": 84.5
-    }
+    },
+    "periodComparison": {
+      "updatedCurrent7Days": 14618,
+      "updatedPrevious7Days": 32987,
+      "createdCurrent7Days": 313,
+      "createdPrevious7Days": 2965,
+      "updatedDeltaPct": -55.7,
+      "createdDeltaPct": -89.4
+    },
+    "groupCoverage": {
+      "top3Share": 6.4
+    },
+    "alerts": [
+      {
+        "id": "freshness",
+        "title": "Freshness health",
+        "level": "watch",
+        "metric": "43.8%",
+        "detail": "Share of datasets updated in the last 90 days."
+      },
+      {
+        "id": "license-clarity",
+        "title": "License clarity",
+        "level": "risk",
+        "metric": "88.1%",
+        "detail": "Datasets with unspecified or missing license identifiers."
+      },
+      {
+        "id": "publisher-concentration",
+        "title": "Publisher concentration",
+        "level": "watch",
+        "metric": "37.3%",
+        "detail": "Share of catalog held by the largest publisher."
+      },
+      {
+        "id": "resource-completeness",
+        "title": "Resource completeness",
+        "level": "risk",
+        "metric": "34%",
+        "detail": "Recent sampled datasets with zero resources attached."
+      },
+      {
+        "id": "weekly-momentum",
+        "title": "Weekly momentum",
+        "level": "risk",
+        "metric": "0.71x",
+        "detail": "Current 7-day updates versus the 30-day baseline."
+      }
+    ]
   },
   "recentDatasets": [
+    {
+      "id": "68cc6751-8a14-49f6-b67a-425b38937ff1",
+      "title": "Navigation Facilities",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:21:02.644504",
+      "metadataCreated": "2025-06-30T16:05:47.289561",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
+    {
+      "id": "661fa96e-8bf5-4fc6-bd5c-6b4213c2a464",
+      "title": "North American Rail Network Lines",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:20:55.262491",
+      "metadataCreated": "2025-06-30T16:04:59.912034",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
+    {
+      "id": "034e45fa-dc18-45c5-a58a-0dd712535444",
+      "title": "North American Rail Network Nodes",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:20:53.894981",
+      "metadataCreated": "2025-06-30T16:05:01.302069",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
+    {
+      "id": "d892ff0b-fa0e-4d2c-b36b-d2aadd330f24",
+      "title": "Aviation Facilities",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:20:52.589556",
+      "metadataCreated": "2025-06-30T16:04:45.549926",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
+    {
+      "id": "c24a0f0a-0f5d-4e53-8d0b-6eba69af5f54",
+      "title": "National Waterway Network Nodes",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:20:43.581542",
+      "metadataCreated": "2025-06-30T16:05:30.579529",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
+    {
+      "id": "73c29e41-a85e-4d91-8350-7fe50b49399d",
+      "title": "National Waterway Network Lines",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:20:43.490537",
+      "metadataCreated": "2025-06-30T16:05:31.841414",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
+    {
+      "id": "a6dfc31c-3d24-4ac6-ac2c-2ad9382f712b",
+      "title": "Runways",
+      "organization": "Federal Geographic Data Committee",
+      "metadataModified": "2026-02-09T23:20:43.480986",
+      "metadataCreated": "2025-06-30T16:05:48.684422",
+      "resourceCount": 26,
+      "formats": [
+        "XML",
+        "TEXT/JSON",
+        "RSS"
+      ]
+    },
     {
       "id": "d59c49ba-4160-4324-9bb3-b6ccfa7d83ff",
       "title": "Learning Resources Database",
@@ -730,70 +953,13 @@
       "metadataCreated": "2022-10-14T14:42:58.892747",
       "resourceCount": 1,
       "formats": []
-    },
-    {
-      "id": "00e6fa4a-4788-470e-926d-86d0f8ba3cd3",
-      "title": "DID(IT) - INFACT Case Management System",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:59.328578",
-      "metadataCreated": "2026-02-09T00:13:59.328571",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "7b9e55b8-f7eb-4f4b-9248-8471a349e2a4",
-      "title": "CIS2 - Immigrant Visa and Adjustment of Status Data",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:46.326952",
-      "metadataCreated": "2026-02-09T00:13:46.326947",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "56f6fbb1-c707-45ce-93b2-7ad4499ea049",
-      "title": "CIS2 - 8 USC Section 1367 Protected Data",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:45.165509",
-      "metadataCreated": "2026-02-09T00:13:45.165504",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "472e44df-9817-4d22-a9e2-fcf161a3c46b",
-      "title": "CIS2 - ICE and CBP Encounter Data",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:44.112722",
-      "metadataCreated": "2026-02-09T00:13:44.112715",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "528cf786-82e6-4681-868b-e23ab3c0bb7d",
-      "title": "CIS2 - Parolee Data",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:33.676588",
-      "metadataCreated": "2026-02-09T00:13:33.676582",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "a9fcb121-a979-4a09-a4d9-4e81a79e7872",
-      "title": "CIS2 - Asylum Data",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:32.372540",
-      "metadataCreated": "2026-02-09T00:13:32.372536",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "a3cc4808-58c2-43ec-803b-99e7ec0a77c7",
-      "title": "CIS2 - Naturalization Data",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:13:31.180931",
-      "metadataCreated": "2026-02-09T00:13:31.180924",
-      "resourceCount": 0,
-      "formats": []
     }
   ],
-  "generatedAt": "2026-02-09T23:15:12.926Z"
+  "source": {
+    "siteTitle": "Catalog",
+    "ckanVersion": "2.11.4",
+    "apiBase": "https://catalog.data.gov/api/3/action",
+    "snapshotStrategy": "build-time static snapshot"
+  },
+  "generatedAt": "2026-02-09T23:45:49.296Z"
 }
