@@ -1,31 +1,32 @@
 # Data.gov Metrics Dashboard
 
-A comprehensive, polished, and visually rich dashboard for exploring key Data.gov catalog metrics.
+A comprehensive, polished, and visually rich dashboard centered on **actual federal economic, demographic, spending, debt, labor, and savings/investment indicators**, with catalog metadata retained as optional context.
 
 ## What it shows
 
-- **Catalog scale:** total datasets, organizations, groups
-- **Freshness indicators:** recently created and recently modified metadata
-- **Activity momentum:** created vs modified records across multiple windows
-- **Daily pulse tracking:** rolling daily created/modified trendline
-- **12-month trendline:** month-over-month created/modified trajectory
-- **Top publishers:** agencies with the largest dataset footprints
-- **Publisher concentration diagnostics:** top-1/top-5 share and HHI concentration index
-- **Group coverage analysis:** top catalog groups and concentration share
-- **Resource formats:** distribution of attachment/data formats
-- **License quality profile:** open vs restrictive vs unspecified license composition
-- **Resource depth diagnostics:** histogram and summary stats of resources per dataset
-- **Catalog lifecycle mix:** freshness buckets and age buckets
-- **Operational alert center:** automated health/risk checks with thresholds
-- **Week-over-week comparators:** current week vs previous week update/creation deltas
-- **Top tags:** frequently used metadata tags
-- **Recent updates:** collapsible, searchable, sortable table with CSV export
+### Primary: real-world federal indicators
+
+- **Economic and labor data:** unemployment, labor-force participation, CPI inflation, wage growth
+- **Spending and budget flow:** monthly federal outlays, receipts, and deficit/surplus trend
+- **Debt data:** total public debt and daily trajectory with 30-day change
+- **Demographic and household profile:** population, median age, median income, median home value, Gini
+- **Investment and savings context:** BEA private investment and personal saving rate (when API key is available)
+- **Operational signal center:** threshold-based alerts for economic and data-quality health
+
+### Secondary: catalog context
+
+- Catalog structure and metadata trend panels (publishers, formats, tags, freshness, etc.)
+- Recently modified datasets table with collapse/search/sort/CSV export
 
 ## Data source
 
-This dashboard uses the public CKAN API at:
+This dashboard combines multiple public federal APIs, including:
 
-`https://catalog.data.gov/api/3/action`
+- `https://catalog.data.gov/api/3/action` (catalog metadata context)
+- BLS public API (labor, inflation, earnings)
+- U.S. Census ACS API (demographics and household indicators)
+- Treasury Fiscal Data API (debt and monthly spending flow)
+- BEA API (investment/savings, when `DATA_GOV_API_KEY` is provided)
 
 ### Why it uses a snapshot
 

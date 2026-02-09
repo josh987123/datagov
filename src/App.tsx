@@ -65,6 +65,11 @@ function formatSignedPercent(value: number): string {
   return `${sign}${value.toFixed(1)}%`;
 }
 
+function formatCurrencyCompact(value: number): string {
+  const sign = value < 0 ? "-" : "";
+  return `${sign}$${formatCompact(Math.abs(value))}`;
+}
+
 function escapeCsvCell(value: string | number): string {
   const asString = String(value);
   if (/[",\n]/.test(asString)) {
@@ -119,6 +124,12 @@ export default function App() {
   const chartData = useMemo(() => {
     if (!data) {
       return {
+        monthlySpending: [],
+        debtDaily: [],
+        unemploymentTrend: [],
+        inflationTrend: [],
+        earningsTrend: [],
+        macroTrend: [],
         topFormats: [],
         topPublishers: [],
         licenses: [],
@@ -134,6 +145,24 @@ export default function App() {
     }
 
     return {
+      ...(() => {
+        const unemploymentTrend = data.economy.trends.unemploymentRate ?? [];
+        const inflationMap = new Map(
+          (data.economy.trends.inflationYoY ?? []).map((point) => [point.label, point.value]),
+        );
+        return {
+          unemploymentTrend,
+          macroTrend: unemploymentTrend.map((point) => ({
+            label: point.label,
+            unemployment: point.value,
+            inflation: inflationMap.get(point.label) ?? 0,
+          })),
+        };
+      })(),
+      monthlySpending: data.economy.trends.monthlySpending ?? [],
+      debtDaily: data.economy.trends.debtDaily ?? [],
+      inflationTrend: data.economy.trends.inflationYoY ?? [],
+      earningsTrend: data.economy.trends.hourlyEarningsYoY ?? [],
       topFormats: data.topFormats.map((item) => ({
         name: truncate(item.label, 18),
         value: item.count,
@@ -287,6 +316,27 @@ export default function App() {
     apiBase: "https://catalog.data.gov/api/3/action",
     snapshotStrategy: "build-time static snapshot",
   };
+  const economy = data.economy?.snapshot ?? {
+    population: 0,
+    medianIncome: 0,
+    medianHomeValue: 0,
+    medianAge: 0,
+    giniIndex: 0,
+    laborForce: 0,
+    unemploymentRate: 0,
+    laborForceParticipationRate: 0,
+    cpiIndex: 0,
+    inflationYoY: 0,
+    averageHourlyEarnings: 0,
+    hourlyEarningsYoY: 0,
+    totalPublicDebt: 0,
+    debtChange30Days: 0,
+    latestOutlays: 0,
+    latestReceipts: 0,
+    latestDeficit: 0,
+    grossPrivateDomesticInvestment: null,
+    personalSavingRate: null,
+  };
 
   return (
     <main className="dashboard-shell">
@@ -295,22 +345,22 @@ export default function App() {
       <div className="dashboard">
         <header className="hero">
           <div>
-            <p className="eyebrow">Federal open-data intelligence</p>
-            <h1>Data.gov Metrics Command Center</h1>
+            <p className="eyebrow">Federal economic and demographic intelligence</p>
+            <h1>U.S. Economy, Spending, and Demographics Dashboard</h1>
             <p className="hero__subtitle">
-              A high-level view of catalog scale, content freshness, resource formats, and top
-              publishers from the Data.gov CKAN metadata API.
+              Actual federal data indicators spanning labor, inflation, wages, public debt,
+              government spending, income, housing, and demographics.
             </p>
             <p className="hero__timestamp">{refreshHint}</p>
             <div className="hero__insights">
               <span className="insight-pill">
-                7-day momentum: {data.analytics.velocity.weeklyMomentum.toFixed(2)}x baseline
+                Inflation (YoY): {formatSignedPercent(economy.inflationYoY)}
               </span>
               <span className="insight-pill">
-                Open-license share: {formatPercent(data.analytics.licenseSummary.openShare / 100)}
+                Unemployment: {economy.unemploymentRate.toFixed(1)}%
               </span>
               <span className="insight-pill">
-                Top publisher concentration: {formatPercent(data.analytics.concentration.top1Share / 100)}
+                Federal debt (30d change): {formatCompact(economy.debtChange30Days)}
               </span>
             </div>
           </div>
@@ -318,7 +368,8 @@ export default function App() {
             <div className="api-form">
               <label>Data source mode</label>
               <p className="hero__mode-note">
-                Snapshot data is generated at deploy time to avoid Data.gov browser CORS blocks.
+                Snapshot data is generated at deploy time from federal APIs to avoid browser CORS
+                limits while keeping indicators current.
               </p>
               <p className="hero__mode-note">
                 Source: {source.siteTitle} (CKAN {source.ckanVersion})
@@ -337,129 +388,286 @@ export default function App() {
 
         <section className="metrics-grid">
           <MetricCard
-            title="Total datasets"
-            value={formatNumber(data.kpis.totalDatasets)}
-            hint="Indexed records in Data.gov catalog"
+            title="U.S. population"
+            value={formatCompact(economy.population)}
+            hint="ACS 1-year estimate"
             icon={<Database size={18} />}
             accent="violet"
           />
           <MetricCard
-            title="Active publishers"
-            value={formatNumber(data.kpis.organizations)}
-            hint="Organizations with indexed datasets"
+            title="Median household income"
+            value={formatCurrencyCompact(economy.medianIncome)}
+            hint="ACS median income (USD)"
             icon={<Building2 size={18} />}
             accent="cyan"
           />
           <MetricCard
-            title="Updated (30 days)"
-            value={formatCompact(data.kpis.updatedLast30Days)}
-            hint="Records modified in the last month"
+            title="Unemployment rate"
+            value={`${economy.unemploymentRate.toFixed(1)}%`}
+            hint="BLS labor force survey"
             icon={<Clock3 size={18} />}
             accent="emerald"
           />
           <MetricCard
-            title="Created (30 days)"
-            value={formatCompact(data.kpis.createdLast30Days)}
-            hint="Newly created metadata records"
+            title="Labor force participation"
+            value={`${economy.laborForceParticipationRate.toFixed(1)}%`}
+            hint="Civilian labor force participation rate"
             icon={<PlusCircle size={18} />}
             accent="amber"
           />
           <MetricCard
-            title="Freshness score"
-            value={formatPercent(data.kpis.freshnessScore / 100)}
-            hint="Share updated within the last 90 days"
+            title="Inflation (YoY)"
+            value={formatSignedPercent(economy.inflationYoY)}
+            hint="Year-over-year CPI change"
             icon={<Sparkles size={18} />}
             accent="violet"
           />
           <MetricCard
-            title="Updated (90 days)"
-            value={formatCompact(data.kpis.updatedLast90Days)}
-            hint="Broader quarter-over-quarter activity"
+            title="Avg hourly earnings"
+            value={formatCurrencyCompact(economy.averageHourlyEarnings)}
+            hint={`YoY wage growth ${formatSignedPercent(economy.hourlyEarningsYoY)}`}
             icon={<Activity size={18} />}
             accent="cyan"
           />
           <MetricCard
-            title="Catalog groups"
-            value={formatNumber(data.kpis.groups)}
-            hint="Distinct collection groupings"
+            title="Federal outlays (latest)"
+            value={formatCurrencyCompact(economy.latestOutlays)}
+            hint="Monthly Treasury Statement"
             icon={<FolderTree size={18} />}
             accent="emerald"
           />
           <MetricCard
-            title="Top formats tracked"
-            value={formatNumber(data.kpis.distinctFormats)}
-            hint="Distinct resource formats in leaderboard"
+            title="Federal receipts (latest)"
+            value={formatCurrencyCompact(economy.latestReceipts)}
+            hint="Monthly Treasury Statement"
             icon={<FileBarChart2 size={18} />}
             accent="amber"
           />
           <MetricCard
-            title="Updated (7 days)"
-            value={formatCompact(data.kpis.updatedLast7Days)}
-            hint="Recently refreshed metadata records"
+            title="Federal deficit/surplus"
+            value={formatCurrencyCompact(economy.latestDeficit)}
+            hint="Positive = deficit, negative = surplus"
             icon={<CalendarClock size={18} />}
             accent="violet"
           />
           <MetricCard
-            title="Created (7 days)"
-            value={formatCompact(data.kpis.createdLast7Days)}
-            hint="New metadata records this week"
+            title="Total public debt"
+            value={formatCurrencyCompact(economy.totalPublicDebt)}
+            hint="Treasury debt to the penny"
             icon={<PlusCircle size={18} />}
             accent="cyan"
           />
           <MetricCard
-            title="Updated (12 months)"
-            value={formatCompact(data.kpis.updatedLast365Days)}
-            hint="Yearly rolling update activity"
+            title="Debt change (30d)"
+            value={formatCurrencyCompact(economy.debtChange30Days)}
+            hint="Change over roughly 30 days"
             icon={<BarChart3 size={18} />}
             accent="emerald"
           />
           <MetricCard
-            title="Update velocity (30d)"
-            value={`${formatNumber(Math.round(data.analytics.velocity.updatesPerDay30))}/day`}
-            hint="Average metadata modifications per day"
+            title="Median home value"
+            value={formatCurrencyCompact(economy.medianHomeValue)}
+            hint="ACS median owner-occupied value"
             icon={<Gauge size={18} />}
             accent="amber"
           />
           <MetricCard
-            title="WoW update delta"
-            value={formatSignedPercent(periodComparison.updatedDeltaPct)}
-            hint="Current 7 days vs previous 7 days"
-            icon={
-              periodComparison.updatedDeltaPct >= 0 ? (
-                <TrendingUp size={18} />
-              ) : (
-                <TrendingDown size={18} />
-              )
+            title="Personal saving rate"
+            value={
+              economy.personalSavingRate === null ? "N/A" : `${economy.personalSavingRate.toFixed(1)}%`
             }
-            accent="violet"
-          />
-          <MetricCard
-            title="WoW creation delta"
-            value={formatSignedPercent(periodComparison.createdDeltaPct)}
-            hint="New records this week vs prior week"
-            icon={
-              periodComparison.createdDeltaPct >= 0 ? (
-                <TrendingUp size={18} />
-              ) : (
-                <TrendingDown size={18} />
-              )
-            }
-            accent="emerald"
-          />
-          <MetricCard
-            title="Open-license share"
-            value={formatPercent(data.analytics.licenseSummary.openShare / 100)}
-            hint="Records with open/public license IDs"
+            hint="BEA personal saving as share of disposable income"
             icon={<ShieldCheck size={18} />}
             accent="violet"
           />
           <MetricCard
-            title="Avg resources/dataset"
-            value={data.analytics.resourceCoverage.avgResources.toFixed(1)}
-            hint={`From ${formatNumber(data.analytics.resourceCoverage.sampleSize)} recent datasets`}
+            title="Private investment"
+            value={
+              economy.grossPrivateDomesticInvestment === null
+                ? "N/A"
+                : formatCurrencyCompact(economy.grossPrivateDomesticInvestment)
+            }
+            hint="BEA gross private domestic investment"
             icon={<Layers3 size={18} />}
-            accent="cyan"
+            accent="emerald"
           />
+        </section>
+
+        <section className="panel-grid panel-grid--two">
+          <ChartPanel title="Federal spending flow (monthly)" subtitle="Outlays, receipts, and monthly deficit/surplus trend">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData.monthlySpending} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value: number) => formatCompact(value)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip formatter={formatTooltipValue} />
+                <Legend />
+                <Line type="monotone" dataKey="outlays" name="Outlays" stroke="#f97316" strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="receipts"
+                  name="Receipts"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="deficit"
+                  name="Deficit/Surplus"
+                  stroke="#8b5cf6"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Labor and inflation trajectory" subtitle="Unemployment rate and inflation year-over-year">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData.macroTrend} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value: number) => `${value.toFixed(1)}%`}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip
+                  formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="unemployment"
+                  name="Unemployment"
+                  stroke="#06b6d4"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="inflation"
+                  name="Inflation YoY"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </section>
+
+        <section className="panel-grid panel-grid--two">
+          <ChartPanel title="Public debt daily trajectory" subtitle="Recent debt-to-the-penny trend">
+            <ResponsiveContainer width="100%" height={280}>
+              <AreaChart data={chartData.debtDaily} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="debtFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.55} />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.03} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
+                <Tooltip formatter={formatTooltipValue} />
+                <Area type="monotone" dataKey="value" name="Total debt" stroke="#ef4444" fill="url(#debtFill)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Wage growth trend (YoY)" subtitle="Average hourly earnings year-over-year change">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={chartData.earningsTrend} margin={{ top: 8, right: 12, left: -10, bottom: 6 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+                <Tooltip
+                  formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`}
+                />
+                <Bar dataKey="value" fill="#14b8a6" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </section>
+
+        <section className="panel-grid panel-grid--two">
+          <ChartPanel title="Demographic and household profile" subtitle="National population, income, housing, and inequality indicators">
+            <div className="insight-grid">
+              <div className="insight-item">
+                <span>Population</span>
+                <strong>{formatNumber(Math.round(economy.population))}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Median age</span>
+                <strong>{economy.medianAge.toFixed(1)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Median household income</span>
+                <strong>{formatCurrencyCompact(economy.medianIncome)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Median home value</span>
+                <strong>{formatCurrencyCompact(economy.medianHomeValue)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Labor force size</span>
+                <strong>{formatCompact(economy.laborForce)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Gini inequality index</span>
+                <strong>{economy.giniIndex.toFixed(3)}</strong>
+              </div>
+            </div>
+          </ChartPanel>
+
+          <ChartPanel title="Investment and savings indicators" subtitle="Macroeconomic investment and savings context">
+            <div className="insight-grid">
+              <div className="insight-item">
+                <span>Gross private domestic investment</span>
+                <strong>
+                  {economy.grossPrivateDomesticInvestment === null
+                    ? "API key required"
+                    : formatCurrencyCompact(economy.grossPrivateDomesticInvestment)}
+                </strong>
+              </div>
+              <div className="insight-item">
+                <span>Personal saving rate</span>
+                <strong>
+                  {economy.personalSavingRate === null
+                    ? "API key required"
+                    : `${economy.personalSavingRate.toFixed(1)}%`}
+                </strong>
+              </div>
+              <div className="insight-item">
+                <span>Inflation (YoY)</span>
+                <strong>{formatSignedPercent(economy.inflationYoY)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Avg hourly earnings</span>
+                <strong>{formatCurrencyCompact(economy.averageHourlyEarnings)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Hourly earnings YoY</span>
+                <strong>{formatSignedPercent(economy.hourlyEarningsYoY)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Labor force participation</span>
+                <strong>{economy.laborForceParticipationRate.toFixed(1)}%</strong>
+              </div>
+            </div>
+          </ChartPanel>
+        </section>
+
+        <section className="catalog-context-note">
+          <p>Catalog metadata context below is optional and secondary to the economic indicators above.</p>
         </section>
 
         <section className="panel-grid panel-grid--two">

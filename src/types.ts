@@ -28,6 +28,18 @@ export interface MonthlyTrendPoint {
   created: number;
 }
 
+export interface ValueTrendPoint {
+  label: string;
+  value: number;
+}
+
+export interface SpendingTrendPoint {
+  label: string;
+  outlays: number;
+  receipts: number;
+  deficit: number;
+}
+
 export interface PublisherSharePoint {
   label: string;
   count: number;
@@ -147,6 +159,41 @@ export interface SourceMetadata {
   snapshotStrategy: string;
 }
 
+export interface EconomySnapshot {
+  population: number;
+  medianIncome: number;
+  medianHomeValue: number;
+  medianAge: number;
+  giniIndex: number;
+  laborForce: number;
+  unemploymentRate: number;
+  laborForceParticipationRate: number;
+  cpiIndex: number;
+  inflationYoY: number;
+  averageHourlyEarnings: number;
+  hourlyEarningsYoY: number;
+  totalPublicDebt: number;
+  debtChange30Days: number;
+  latestOutlays: number;
+  latestReceipts: number;
+  latestDeficit: number;
+  grossPrivateDomesticInvestment: number | null;
+  personalSavingRate: number | null;
+}
+
+export interface EconomyTrends {
+  monthlySpending: SpendingTrendPoint[];
+  debtDaily: ValueTrendPoint[];
+  unemploymentRate: ValueTrendPoint[];
+  inflationYoY: ValueTrendPoint[];
+  hourlyEarningsYoY: ValueTrendPoint[];
+}
+
+export interface EconomyData {
+  snapshot: EconomySnapshot;
+  trends: EconomyTrends;
+}
+
 export interface DashboardData {
   kpis: DashboardKpis;
   topPublishers: FacetItem[];
@@ -156,6 +203,7 @@ export interface DashboardData {
   topTags: FacetItem[];
   activitySeries: TimeSeriesPoint[];
   analytics: DashboardAnalytics;
+  economy: EconomyData;
   recentDatasets: RecentDataset[];
   source: SourceMetadata;
   generatedAt: string;

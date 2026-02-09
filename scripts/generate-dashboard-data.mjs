@@ -13,6 +13,27 @@ const API_KEY =
   process.env.DATA_GOV_API_KEY?.trim() || process.env.VITE_DATA_GOV_API_KEY?.trim() || "";
 const OPEN_LICENSE_IDS = new Set(["cc-by", "cc-zero", "us-pd", "odc-odbl", "gfdl"]);
 const UNSPECIFIED_LICENSE_IDS = new Set(["notspecified", "unknown"]);
+const BLS_ENDPOINT = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
+const ACS_ENDPOINT = "https://api.census.gov/data/2023/acs/acs1";
+const TREASURY_DEBT_ENDPOINT =
+  "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v2/accounting/od/debt_to_penny";
+const TREASURY_MTS_TABLE1_ENDPOINT =
+  "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/mts/mts_table_1";
+const BEA_ENDPOINT = "https://apps.bea.gov/api/data";
+const MONTH_NAMES = new Map([
+  ["01", "January"],
+  ["02", "February"],
+  ["03", "March"],
+  ["04", "April"],
+  ["05", "May"],
+  ["06", "June"],
+  ["07", "July"],
+  ["08", "August"],
+  ["09", "September"],
+  ["10", "October"],
+  ["11", "November"],
+  ["12", "December"],
+]);
 
 function sleep(ms) {
   return new Promise((resolveSleep) => {
@@ -68,6 +89,38 @@ function median(values) {
   return sorted[middle];
 }
 
+function parseNumber(value) {
+  const normalized = String(value ?? "")
+    .replaceAll(",", "")
+    .replaceAll("$", "")
+    .trim();
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function parseOptionalNumber(value) {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const normalized = String(value).replaceAll(",", "").replaceAll("$", "").trim();
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function safeLabelFromDate(isoDate) {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return isoDate;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    timeZone: "UTC",
+  }).format(date);
+}
+
 async function mapWithConcurrency(items, worker, concurrency = QUERY_CONCURRENCY) {
   const results = new Array(items.length);
   let cursor = 0;
@@ -116,6 +169,47 @@ async function requestAction(action, params, maxAttempts = 3) {
       if (attempt === maxAttempts) {
         throw error;
       }
+      await sleep(300 * 2 ** attempt);
+    }
+  }
+
+  throw new Error("Unreachable request state");
+}
+
+async function requestJson(
+  url,
+  {
+    queryParams = {},
+    method = "GET",
+    body = null,
+    headers = {},
+    maxAttempts = 3,
+  } = {},
+) {
+  const query = toQueryString(queryParams);
+  const requestUrl = query.length > 0 ? `${url}?${query}` : url;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(requestUrl, {
+        method,
+        headers: {
+          Accept: "application/json",
+          ...headers,
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed (${response.status})`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (attempt === maxAttempts) {
+        throw error;
+      }
+
       await sleep(300 * 2 ** attempt);
     }
   }
@@ -262,6 +356,294 @@ function toAlertLevel(metricValue, watchThreshold, riskThreshold, direction = "h
   return "good";
 }
 
+function formatMonthLabel(isoDate) {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) {
+    return isoDate;
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "2-digit",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function parseBlsSeries(seriesEntry) {
+  const rows = seriesEntry?.data ?? [];
+
+  return rows
+    .filter((row) => typeof row.period === "string" && /^M\d{2}$/.test(row.period))
+    .map((row) => {
+      const month = Number.parseInt(row.period.slice(1), 10);
+      const year = Number.parseInt(row.year, 10);
+      const date = new Date(Date.UTC(year, month - 1, 1));
+      return {
+        year,
+        month,
+        date,
+        label: new Intl.DateTimeFormat("en-US", {
+          month: "short",
+          year: "2-digit",
+          timeZone: "UTC",
+        }).format(date),
+        value: parseNumber(row.value),
+      };
+    })
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+}
+
+function computeYearOverYear(points) {
+  const results = [];
+
+  for (let index = 12; index < points.length; index += 1) {
+    const current = points[index];
+    const previous = points[index - 12];
+    const value = previous.value === 0 ? 0 : ((current.value / previous.value) - 1) * 100;
+    results.push({
+      label: current.label,
+      value: round(value, 2),
+    });
+  }
+
+  return results;
+}
+
+async function fetchBlsIndicators() {
+  const currentYear = new Date().getUTCFullYear();
+  const startYear = String(currentYear - 4);
+  const endYear = String(currentYear);
+
+  const empty = {
+    unemploymentRate: 0,
+    laborForceParticipationRate: 0,
+    cpiIndex: 0,
+    inflationYoY: 0,
+    averageHourlyEarnings: 0,
+    hourlyEarningsYoY: 0,
+    unemploymentTrend: [],
+    inflationTrend: [],
+    earningsTrend: [],
+  };
+
+  try {
+    const payload = await requestJson(BLS_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        seriesid: ["LNS14000000", "LNS11300000", "CUUR0000SA0", "CES0500000003"],
+        startyear: startYear,
+        endyear: endYear,
+      }),
+    });
+
+    const seriesRows = payload?.Results?.series ?? [];
+    const byId = new Map(seriesRows.map((series) => [series.seriesID, parseBlsSeries(series)]));
+
+    const unemployment = byId.get("LNS14000000") ?? [];
+    const participation = byId.get("LNS11300000") ?? [];
+    const cpi = byId.get("CUUR0000SA0") ?? [];
+    const earnings = byId.get("CES0500000003") ?? [];
+
+    const inflationYoYSeries = computeYearOverYear(cpi);
+    const earningsYoYSeries = computeYearOverYear(earnings);
+
+    const latestUnemployment = unemployment.at(-1)?.value ?? 0;
+    const latestParticipation = participation.at(-1)?.value ?? 0;
+    const latestCpi = cpi.at(-1)?.value ?? 0;
+    const latestInflation = inflationYoYSeries.at(-1)?.value ?? 0;
+    const latestEarnings = earnings.at(-1)?.value ?? 0;
+    const latestEarningsYoY = earningsYoYSeries.at(-1)?.value ?? 0;
+
+    return {
+      unemploymentRate: latestUnemployment,
+      laborForceParticipationRate: latestParticipation,
+      cpiIndex: latestCpi,
+      inflationYoY: latestInflation,
+      averageHourlyEarnings: latestEarnings,
+      hourlyEarningsYoY: latestEarningsYoY,
+      unemploymentTrend: unemployment.slice(-12).map((point) => ({ label: point.label, value: point.value })),
+      inflationTrend: inflationYoYSeries.slice(-12),
+      earningsTrend: earningsYoYSeries.slice(-12),
+    };
+  } catch {
+    return empty;
+  }
+}
+
+async function fetchDemographicIndicators() {
+  try {
+    const payload = await requestJson(ACS_ENDPOINT, {
+      queryParams: {
+        get: "B01003_001E,B19013_001E,B19083_001E,B01002_001E,B23025_003E,B23025_005E,B25077_001E,NAME",
+        for: "us:1",
+      },
+    });
+
+    const headers = payload?.[0] ?? [];
+    const values = payload?.[1] ?? [];
+    const mapped = Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+
+    return {
+      population: parseNumber(mapped.B01003_001E),
+      medianIncome: parseNumber(mapped.B19013_001E),
+      giniIndex: parseNumber(mapped.B19083_001E),
+      medianAge: parseNumber(mapped.B01002_001E),
+      laborForce: parseNumber(mapped.B23025_003E),
+      unemploymentPersons: parseNumber(mapped.B23025_005E),
+      medianHomeValue: parseNumber(mapped.B25077_001E),
+    };
+  } catch {
+    return {
+      population: 0,
+      medianIncome: 0,
+      giniIndex: 0,
+      medianAge: 0,
+      laborForce: 0,
+      unemploymentPersons: 0,
+      medianHomeValue: 0,
+    };
+  }
+}
+
+async function fetchTreasurySpendingSeries() {
+  try {
+    const payload = await requestJson(TREASURY_MTS_TABLE1_ENDPOINT, {
+      queryParams: {
+        filter: "record_type_cd:eq:MTH",
+        sort: "-record_date",
+        "page[size]": 240,
+      },
+    });
+
+    const rows = payload?.data ?? [];
+    const monthlyByDate = new Map();
+
+    rows.forEach((row) => {
+      const isoDate = row.record_date;
+      const monthCode = typeof isoDate === "string" ? isoDate.slice(5, 7) : "";
+      const expectedName = MONTH_NAMES.get(monthCode);
+      if (expectedName && row.classification_desc === expectedName && !monthlyByDate.has(isoDate)) {
+        monthlyByDate.set(isoDate, row);
+      }
+    });
+
+    const monthlySeries = Array.from(monthlyByDate.entries())
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([isoDate, row]) => ({
+        recordDate: isoDate,
+        label: formatMonthLabel(isoDate),
+        outlays: parseNumber(row.current_month_gross_outly_amt),
+        receipts: parseNumber(row.current_month_gross_rcpt_amt),
+        deficit: parseNumber(row.current_month_dfct_sur_amt),
+      }));
+
+    return monthlySeries.slice(-18);
+  } catch {
+    return [];
+  }
+}
+
+async function fetchDebtSeries() {
+  try {
+    const payload = await requestJson(TREASURY_DEBT_ENDPOINT, {
+      queryParams: {
+        fields: "record_date,tot_pub_debt_out_amt",
+        sort: "-record_date",
+        "page[size]": 120,
+      },
+    });
+
+    const rows = payload?.data ?? [];
+    const latest = rows[0];
+    const baseline = rows[Math.min(30, Math.max(rows.length - 1, 0))];
+
+    return {
+      totalDebt: parseNumber(latest?.tot_pub_debt_out_amt),
+      debtChange30Days:
+        parseNumber(latest?.tot_pub_debt_out_amt) - parseNumber(baseline?.tot_pub_debt_out_amt),
+      trend: rows
+        .slice(0, 45)
+        .reverse()
+        .map((row) => ({
+          label: safeLabelFromDate(row.record_date),
+          value: parseNumber(row.tot_pub_debt_out_amt),
+        })),
+    };
+  } catch {
+    return {
+      totalDebt: 0,
+      debtChange30Days: 0,
+      trend: [],
+    };
+  }
+}
+
+function parseBeaQuarter(quarterLabel) {
+  const [yearPart, quarterPart] = String(quarterLabel).split("Q");
+  const year = Number.parseInt(yearPart, 10);
+  const quarter = Number.parseInt(quarterPart, 10);
+  if (!Number.isFinite(year) || !Number.isFinite(quarter)) {
+    return 0;
+  }
+
+  return year * 10 + quarter;
+}
+
+async function fetchBeaQuarterLine(lineNumber) {
+  const payload = await requestJson(BEA_ENDPOINT, {
+    queryParams: {
+      UserID: API_KEY,
+      method: "GetData",
+      datasetname: "NIPA",
+      TableName: "T10105",
+      LineNumber: String(lineNumber),
+      Frequency: "Q",
+      Year: "X",
+      ResultFormat: "json",
+    },
+  });
+
+  const rows = payload?.BEAAPI?.Results?.Data ?? [];
+  const parsed = rows
+    .map((row) => ({
+      time: row.TimePeriod,
+      value: parseOptionalNumber(row.DataValue),
+    }))
+    .filter((row) => row.value !== null)
+    .sort((left, right) => parseBeaQuarter(left.time) - parseBeaQuarter(right.time));
+
+  return parsed.at(-1)?.value ?? null;
+}
+
+async function fetchBeaIndicators() {
+  if (!API_KEY) {
+    return {
+      grossPrivateDomesticInvestment: null,
+      personalSavingRate: null,
+    };
+  }
+
+  try {
+    const [investment, savingsRate] = await Promise.all([
+      fetchBeaQuarterLine(8),
+      fetchBeaQuarterLine(35),
+    ]);
+
+    return {
+      grossPrivateDomesticInvestment: investment,
+      personalSavingRate: savingsRate,
+    };
+  } catch {
+    return {
+      grossPrivateDomesticInvestment: null,
+      personalSavingRate: null,
+    };
+  }
+}
+
 async function generateDashboardData() {
   const [statusData, facetData, recentData, resourceSampleData] = await Promise.all([
     requestAction("status_show", {}),
@@ -280,6 +662,15 @@ async function generateDashboardData() {
       sort: "metadata_modified desc",
     }),
   ]);
+
+  const [blsIndicators, demographicIndicators, spendingSeries, debtSeries, beaIndicators] =
+    await Promise.all([
+      fetchBlsIndicators(),
+      fetchDemographicIndicators(),
+      fetchTreasurySpendingSeries(),
+      fetchDebtSeries(),
+      fetchBeaIndicators(),
+    ]);
 
   const windowPairs = await mapWithConcurrency(WINDOW_DAYS, async (days) => {
     const [modified, created] = await Promise.all([
@@ -435,6 +826,53 @@ async function generateDashboardData() {
   const baselineWeek = (updated30 / 30) * 7;
   const weeklyMomentum = baselineWeek === 0 ? 0 : round(updated7 / baselineWeek, 2);
 
+  const latestSpending = spendingSeries.at(-1) ?? {
+    outlays: 0,
+    receipts: 0,
+    deficit: 0,
+  };
+  const unemploymentRate =
+    blsIndicators.unemploymentRate > 0
+      ? blsIndicators.unemploymentRate
+      : demographicIndicators.laborForce > 0
+        ? round((demographicIndicators.unemploymentPersons / demographicIndicators.laborForce) * 100, 2)
+        : 0;
+
+  const economySnapshot = {
+    population: demographicIndicators.population,
+    medianIncome: demographicIndicators.medianIncome,
+    medianHomeValue: demographicIndicators.medianHomeValue,
+    medianAge: demographicIndicators.medianAge,
+    giniIndex: demographicIndicators.giniIndex,
+    laborForce: demographicIndicators.laborForce,
+    unemploymentRate,
+    laborForceParticipationRate: blsIndicators.laborForceParticipationRate,
+    cpiIndex: blsIndicators.cpiIndex,
+    inflationYoY: blsIndicators.inflationYoY,
+    averageHourlyEarnings: blsIndicators.averageHourlyEarnings,
+    hourlyEarningsYoY: blsIndicators.hourlyEarningsYoY,
+    totalPublicDebt: debtSeries.totalDebt,
+    debtChange30Days: debtSeries.debtChange30Days,
+    latestOutlays: latestSpending.outlays,
+    latestReceipts: latestSpending.receipts,
+    latestDeficit: latestSpending.deficit,
+    grossPrivateDomesticInvestment: beaIndicators.grossPrivateDomesticInvestment,
+    personalSavingRate: beaIndicators.personalSavingRate,
+  };
+
+  const economyTrends = {
+    monthlySpending: spendingSeries.slice(-12).map((point) => ({
+      label: point.label,
+      outlays: point.outlays,
+      receipts: point.receipts,
+      deficit: point.deficit,
+    })),
+    debtDaily: debtSeries.trend,
+    unemploymentRate: blsIndicators.unemploymentTrend,
+    inflationYoY: blsIndicators.inflationTrend,
+    hourlyEarningsYoY: blsIndicators.earningsTrend,
+  };
+
   const alerts = [
     {
       id: "freshness",
@@ -552,12 +990,16 @@ async function generateDashboardData() {
       },
       alerts,
     },
+    economy: {
+      snapshot: economySnapshot,
+      trends: economyTrends,
+    },
     recentDatasets: (recentData.results ?? []).map(packageToRecentDataset),
     source: {
       siteTitle: statusData?.site_title ?? "Catalog",
       ckanVersion: statusData?.ckan_version ?? "unknown",
-      apiBase: CKAN_BASE_URL,
-      snapshotStrategy: "build-time static snapshot",
+      apiBase: `${CKAN_BASE_URL} + BLS + Census + Treasury`,
+      snapshotStrategy: "build-time static snapshot from federal data APIs",
     },
     generatedAt: new Date().toISOString(),
   };

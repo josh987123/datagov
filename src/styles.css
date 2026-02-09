@@ -299,6 +299,19 @@ body {
   grid-template-columns: 1fr 1fr 1fr;
 }
 
+.catalog-context-note {
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(30, 41, 59, 0.42);
+  padding: 0.72rem 0.86rem;
+}
+
+.catalog-context-note p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
 .panel {
   border-radius: 16px;
   border: 1px solid rgba(148, 163, 184, 0.2);
