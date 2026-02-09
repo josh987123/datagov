@@ -103,6 +103,25 @@ body {
   font-size: 0.84rem;
 }
 
+.hero__insights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+}
+
+.insight-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.34rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(30, 41, 59, 0.55);
+  color: #dbeafe;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
 .hero__controls {
   display: flex;
   flex-direction: column;
@@ -180,6 +199,12 @@ body {
   padding: 0 0.95rem;
   background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.secondary-button--compact {
+  height: 2.05rem;
+  padding: 0 0.72rem;
+  font-size: 0.8rem;
 }
 
 .primary-button:hover,
@@ -297,6 +322,17 @@ body {
   margin-top: 0.75rem;
 }
 
+.panel__header--with-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.panel__actions {
+  flex-shrink: 0;
+}
+
 .table-wrap {
   overflow: auto;
   border-radius: 12px;
@@ -306,7 +342,7 @@ body {
 .dataset-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 1120px;
 }
 
 .dataset-table thead {
@@ -334,6 +370,17 @@ body {
   background: rgba(30, 41, 59, 0.38);
 }
 
+.dataset-link {
+  color: #dbeafe;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(147, 197, 253, 0.6);
+}
+
+.dataset-link:hover {
+  color: #f8fafc;
+  border-bottom-color: rgba(191, 219, 254, 0.95);
+}
+
 .format-pills {
   display: inline-flex;
   align-items: center;
@@ -359,6 +406,130 @@ body {
   color: #cbd5e1;
   background: rgba(71, 85, 105, 0.38);
   border-color: rgba(148, 163, 184, 0.38);
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.55rem;
+}
+
+.insight-item {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  padding: 0.62rem 0.66rem;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.insight-item span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.73rem;
+}
+
+.insight-item strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: #f8fafc;
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.progress-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.66rem;
+}
+
+.progress-row__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.3rem;
+  color: #cbd5e1;
+  font-size: 0.79rem;
+}
+
+.progress-row__label strong {
+  color: #f8fafc;
+  font-size: 0.79rem;
+}
+
+.progress-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(51, 65, 85, 0.7);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8b5cf6 0%, #22d3ee 100%);
+}
+
+.recent-toolbar {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) auto;
+  gap: 0.7rem;
+  align-items: center;
+  margin-bottom: 0.72rem;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(15, 23, 42, 0.84);
+  padding: 0 0.6rem;
+  color: #cbd5e1;
+}
+
+.search-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #f8fafc;
+  outline: none;
+}
+
+.recent-limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+}
+
+.recent-limit select {
+  height: 2.1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.33);
+  background: rgba(15, 23, 42, 0.84);
+  color: #f8fafc;
+  padding: 0 0.45rem;
+}
+
+.recent-summary {
+  margin: 0;
+  grid-column: 1 / -1;
+  color: #94a3b8;
+  font-size: 0.77rem;
+}
+
+.collapsed-message {
+  margin: 0;
+  padding: 0.7rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+  font-size: 0.84rem;
 }
 
 .state-shell {
@@ -429,6 +600,10 @@ body {
   }
 
   .api-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-toolbar {
     grid-template-columns: 1fr;
   }
 }

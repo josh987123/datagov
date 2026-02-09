@@ -7,11 +7,15 @@ A comprehensive, polished, and visually rich dashboard for exploring key Data.go
 - **Catalog scale:** total datasets, organizations, groups
 - **Freshness indicators:** recently created and recently modified metadata
 - **Activity momentum:** created vs modified records across multiple windows
+- **Daily pulse tracking:** rolling daily created/modified trendline
 - **Top publishers:** agencies with the largest dataset footprints
+- **Publisher concentration diagnostics:** top-1/top-5 share and HHI concentration index
 - **Resource formats:** distribution of attachment/data formats
-- **License profile:** most common license IDs
+- **License quality profile:** open vs restrictive vs unspecified license composition
+- **Resource depth diagnostics:** histogram and summary stats of resources per dataset
+- **Catalog lifecycle mix:** freshness buckets and age buckets
 - **Top tags:** frequently used metadata tags
-- **Recent updates:** latest modified datasets with publisher and format details
+- **Recent updates:** collapsible, searchable table of latest modified datasets
 
 ## Data source
 

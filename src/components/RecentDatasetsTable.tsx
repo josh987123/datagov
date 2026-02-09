@@ -14,6 +14,7 @@ export function RecentDatasetsTable({ rows }: RecentDatasetsTableProps) {
             <th>Dataset</th>
             <th>Publisher</th>
             <th>Modified</th>
+            <th>Created</th>
             <th>Resources</th>
             <th>Formats</th>
           </tr>
@@ -21,9 +22,19 @@ export function RecentDatasetsTable({ rows }: RecentDatasetsTableProps) {
         <tbody>
           {rows.map((dataset) => (
             <tr key={dataset.id}>
-              <td title={dataset.title}>{truncate(dataset.title, 74)}</td>
+              <td title={dataset.title}>
+                <a
+                  className="dataset-link"
+                  href={`https://catalog.data.gov/dataset/${dataset.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {truncate(dataset.title, 74)}
+                </a>
+              </td>
               <td title={dataset.organization}>{truncate(dataset.organization, 42)}</td>
               <td>{formatDateTime(dataset.metadataModified)}</td>
+              <td>{formatDateTime(dataset.metadataCreated)}</td>
               <td>{dataset.resourceCount}</td>
               <td>
                 <div className="format-pills">

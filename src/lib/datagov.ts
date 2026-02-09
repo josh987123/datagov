@@ -2,6 +2,7 @@ import type { DashboardData, FacetItem, RecentDataset, TimeSeriesPoint } from ".
 
 const CKAN_BASE_URL = "https://catalog.data.gov/api/3/action";
 const WINDOW_DAYS = [7, 30, 90, 365] as const;
+const OPEN_LICENSE_IDS = new Set(["cc-by", "cc-zero", "us-pd", "odc-odbl", "gfdl"]);
 
 interface CkanResponse<T> {
   success: boolean;
@@ -107,6 +108,19 @@ function facetToItems(
   return normalized.slice(0, limit);
 }
 
+function round(value: number, digits = 1): number {
+  const multiplier = 10 ** digits;
+  return Math.round(value * multiplier) / multiplier;
+}
+
+function toPercent(part: number, total: number): number {
+  if (total <= 0) {
+    return 0;
+  }
+
+  return round((part / total) * 100, 1);
+}
+
 function packageToRecentDataset(record: CkanPackage): RecentDataset {
   const uniqueFormats = Array.from(
     new Set(
@@ -204,13 +218,17 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
 
   const topPublishers = organizations.slice(0, 10);
   const topFormats = formats.slice(0, 10);
-  const licenses = facetToItems(facetData.search_facets, "license_id", 8);
+  const licenses = facetToItems(facetData.search_facets, "license_id", 8, true);
   const topTags = facetToItems(facetData.search_facets, "tags", 12);
   const groupCount = facetToItems(facetData.search_facets, "groups", 1000).length;
 
+  const updated7 = windowPairs.find((item) => item.days === 7)?.modified ?? 0;
+  const created7 = windowPairs.find((item) => item.days === 7)?.created ?? 0;
   const updated30 = windowPairs.find((item) => item.days === 30)?.modified ?? 0;
   const created30 = windowPairs.find((item) => item.days === 30)?.created ?? 0;
   const updated90 = windowPairs.find((item) => item.days === 90)?.modified ?? 0;
+  const updated365 = windowPairs.find((item) => item.days === 365)?.modified ?? 0;
+  const created365 = windowPairs.find((item) => item.days === 365)?.created ?? 0;
 
   const activitySeries: TimeSeriesPoint[] = windowPairs.map((item) => ({
     label: getWindowLabel(item.days),
@@ -222,15 +240,34 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
   const freshnessScore =
     totalDatasets === 0 ? 0 : Math.min(100, Math.round((updated90 / totalDatasets) * 1000) / 10);
 
+  const top3Formats = topFormats.slice(0, 3).reduce((sum, item) => sum + item.count, 0);
+  const totalFormatCounts = formats.reduce((sum, item) => sum + item.count, 0);
+  const openCount = licenses
+    .filter((license) => OPEN_LICENSE_IDS.has(license.name))
+    .reduce((sum, license) => sum + license.count, 0);
+  const unspecifiedCount = licenses
+    .filter((license) => license.name === "notspecified" || license.name === "unknown")
+    .reduce((sum, license) => sum + license.count, 0);
+  const restrictedCount = Math.max(totalDatasets - openCount - unspecifiedCount, 0);
+
+  const publisherShares = topPublishers.slice(0, 8).map((publisher) => ({
+    label: publisher.label,
+    count: publisher.count,
+    share: toPercent(publisher.count, totalDatasets),
+  }));
+
   return {
     kpis: {
       totalDatasets,
       organizations: organizations.length,
       groups: groupCount,
       distinctFormats: formats.length,
+      updatedLast7Days: updated7,
+      createdLast7Days: created7,
       updatedLast30Days: updated30,
       createdLast30Days: created30,
       updatedLast90Days: updated90,
+      updatedLast365Days: updated365,
       freshnessScore,
     },
     topPublishers,
@@ -238,6 +275,104 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
     licenses,
     topTags,
     activitySeries,
+    analytics: {
+      freshnessBuckets: [
+        { label: "0-30 days", count: updated30, share: toPercent(updated30, totalDatasets) },
+        {
+          label: "31-180 days",
+          count: Math.max(updated90 - updated30, 0),
+          share: toPercent(Math.max(updated90 - updated30, 0), totalDatasets),
+        },
+        {
+          label: "181-365 days",
+          count: Math.max(updated365 - updated90, 0),
+          share: toPercent(Math.max(updated365 - updated90, 0), totalDatasets),
+        },
+        {
+          label: "Over 1 year",
+          count: Math.max(totalDatasets - updated365, 0),
+          share: toPercent(Math.max(totalDatasets - updated365, 0), totalDatasets),
+        },
+      ],
+      ageBuckets: [
+        { label: "0-30 days", count: created30, share: toPercent(created30, totalDatasets) },
+        {
+          label: "31-365 days",
+          count: Math.max(created365 - created30, 0),
+          share: toPercent(Math.max(created365 - created30, 0), totalDatasets),
+        },
+        {
+          label: "1-5 years",
+          count: 0,
+          share: 0,
+        },
+        {
+          label: "Over 5 years",
+          count: Math.max(totalDatasets - created365, 0),
+          share: toPercent(Math.max(totalDatasets - created365, 0), totalDatasets),
+        },
+      ],
+      dailyTrend: activitySeries.map((point) => ({
+        label: point.label,
+        modified: point.modified,
+        created: point.created,
+      })),
+      publisherShares,
+      resourceHistogram: [],
+      velocity: {
+        updatesPerDay30: round(updated30 / 30, 1),
+        creationsPerDay30: round(created30 / 30, 1),
+        updateToCreateRatio: created30 === 0 ? 0 : round(updated30 / created30, 2),
+        weeklyMomentum:
+          updated30 === 0 ? 0 : round(updated7 / ((updated30 / 30) * 7 || 1), 2),
+      },
+      concentration: {
+        top1Share: toPercent(topPublishers[0]?.count ?? 0, totalDatasets),
+        top5Share: toPercent(
+          topPublishers.slice(0, 5).reduce((sum, item) => sum + item.count, 0),
+          totalDatasets,
+        ),
+        top10Share: toPercent(
+          topPublishers.slice(0, 10).reduce((sum, item) => sum + item.count, 0),
+          totalDatasets,
+        ),
+        hhi: round(
+          organizations.reduce((sum, item) => {
+            const share = totalDatasets === 0 ? 0 : item.count / totalDatasets;
+            return sum + share * share;
+          }, 0) * 10000,
+          1,
+        ),
+      },
+      licenseSummary: {
+        openCount,
+        restrictedCount,
+        unspecifiedCount,
+        openShare: toPercent(openCount, totalDatasets),
+        unspecifiedShare: toPercent(unspecifiedCount, totalDatasets),
+      },
+      resourceCoverage: {
+        sampleSize: 0,
+        totalResources: 0,
+        avgResources: 0,
+        medianResources: 0,
+        maxResources: 0,
+        datasetsWithNoResources: 0,
+        noResourceShare: 0,
+      },
+      formatInsights: {
+        top3Share: toPercent(top3Formats, totalFormatCounts),
+        diversityScore: round(
+          (1 -
+            formats.reduce((sum, item) => {
+              const share = totalFormatCounts === 0 ? 0 : item.count / totalFormatCounts;
+              return sum + share * share;
+            }, 0)) *
+            100,
+          1,
+        ),
+      },
+    },
     recentDatasets: (recentData.results ?? []).map(packageToRecentDataset),
     generatedAt: new Date().toISOString(),
   };

@@ -2,10 +2,15 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
 const CKAN_BASE_URL = "https://catalog.data.gov/api/3/action";
-const WINDOW_DAYS = [7, 30, 90, 365];
+const WINDOW_DAYS = [7, 30, 90, 180, 365, 1825];
+const DAILY_TREND_DAYS = 14;
+const RECENT_DATASET_ROWS = 30;
+const RESOURCE_SAMPLE_ROWS = 200;
 const OUTPUT_FILE = resolve(process.cwd(), "public", "dashboard-data.json");
 const API_KEY =
   process.env.DATA_GOV_API_KEY?.trim() || process.env.VITE_DATA_GOV_API_KEY?.trim() || "";
+const OPEN_LICENSE_IDS = new Set(["cc-by", "cc-zero", "us-pd", "odc-odbl", "gfdl"]);
+const UNSPECIFIED_LICENSE_IDS = new Set(["notspecified", "unknown"]);
 
 function sleep(ms) {
   return new Promise((resolveSleep) => {
@@ -19,6 +24,38 @@ function toQueryString(params) {
     search.set(key, String(value));
   }
   return search.toString();
+}
+
+function round(value, digits = 1) {
+  const multiplier = 10 ** digits;
+  return Math.round(value * multiplier) / multiplier;
+}
+
+function toPercent(part, total) {
+  if (total <= 0) {
+    return 0;
+  }
+
+  return round((part / total) * 100, 1);
+}
+
+function sumCounts(items) {
+  return items.reduce((sum, item) => sum + item.count, 0);
+}
+
+function median(values) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 0) {
+    return round((sorted[middle - 1] + sorted[middle]) / 2, 1);
+  }
+
+  return sorted[middle];
 }
 
 async function requestAction(action, params, maxAttempts = 3) {
@@ -113,8 +150,40 @@ async function fetchWindowCount(field, days) {
   }
 }
 
+async function fetchRangeCount(field, start, end) {
+  try {
+    const result = await requestAction("package_search", {
+      rows: 0,
+      fq: `${field}:[${start} TO ${end}]`,
+    });
+
+    return result.count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+function buildDailyTrend() {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    timeZone: "UTC",
+  });
+
+  const offsets = Array.from({ length: DAILY_TREND_DAYS }, (_, index) => DAILY_TREND_DAYS - index - 1);
+
+  return offsets.map((offset) => {
+    const dayDate = new Date(Date.now() - offset * 24 * 60 * 60 * 1000);
+    return {
+      label: formatter.format(dayDate),
+      start: `NOW-${offset + 1}DAY/DAY`,
+      end: `NOW-${offset}DAY/DAY`,
+    };
+  });
+}
+
 async function generateDashboardData() {
-  const [facetData, recentData] = await Promise.all([
+  const [facetData, recentData, resourceSampleData] = await Promise.all([
     requestAction("package_search", {
       rows: 0,
       facet: true,
@@ -122,7 +191,11 @@ async function generateDashboardData() {
       "facet.field": JSON.stringify(["organization", "res_format", "license_id", "tags", "groups"]),
     }),
     requestAction("package_search", {
-      rows: 12,
+      rows: RECENT_DATASET_ROWS,
+      sort: "metadata_modified desc",
+    }),
+    requestAction("package_search", {
+      rows: RESOURCE_SAMPLE_ROWS,
       sort: "metadata_modified desc",
     }),
   ]);
@@ -138,31 +211,143 @@ async function generateDashboardData() {
     }),
   );
 
-  const organizations = facetToItems(facetData.search_facets, "organization", 1000);
-  const formats = facetToItems(facetData.search_facets, "res_format", 1000);
+  const dailyRanges = buildDailyTrend();
+  const dailyTrend = await Promise.all(
+    dailyRanges.map(async (range) => {
+      const [modified, created] = await Promise.all([
+        fetchRangeCount("metadata_modified", range.start, range.end),
+        fetchRangeCount("metadata_created", range.start, range.end),
+      ]);
 
-  const topPublishers = organizations.slice(0, 10);
+      return {
+        label: range.label,
+        modified,
+        created,
+      };
+    }),
+  );
+
+  const organizations = facetToItems(facetData.search_facets, "organization", 1000, true);
+  const knownOrganizations = organizations.filter((organization) => organization.name !== "unknown");
+  const formats = facetToItems(facetData.search_facets, "res_format", 1000, true).filter(
+    (format) => format.name !== "unknown",
+  );
+  const licensesAll = facetToItems(facetData.search_facets, "license_id", 1000, true);
+
+  const topPublishers = knownOrganizations.slice(0, 10);
   const topFormats = formats.slice(0, 10);
   const licenses = facetToItems(facetData.search_facets, "license_id", 8);
   const topTags = facetToItems(facetData.search_facets, "tags", 12);
   const groups = facetToItems(facetData.search_facets, "groups", 1000);
 
+  const updated7 = windowPairs.find((item) => item.days === 7)?.modified ?? 0;
+  const created7 = windowPairs.find((item) => item.days === 7)?.created ?? 0;
   const updated30 = windowPairs.find((item) => item.days === 30)?.modified ?? 0;
   const created30 = windowPairs.find((item) => item.days === 30)?.created ?? 0;
   const updated90 = windowPairs.find((item) => item.days === 90)?.modified ?? 0;
+  const updated180 = windowPairs.find((item) => item.days === 180)?.modified ?? 0;
+  const created365 = windowPairs.find((item) => item.days === 365)?.created ?? 0;
+  const updated365 = windowPairs.find((item) => item.days === 365)?.modified ?? 0;
+  const created1825 = windowPairs.find((item) => item.days === 1825)?.created ?? 0;
   const totalDatasets = facetData.count ?? 0;
   const freshnessScore =
     totalDatasets === 0 ? 0 : Math.min(100, Math.round((updated90 / totalDatasets) * 1000) / 10);
 
+  const freshnessBuckets = [
+    { label: "0-30 days", count: updated30 },
+    { label: "31-180 days", count: Math.max(updated180 - updated30, 0) },
+    { label: "181-365 days", count: Math.max(updated365 - updated180, 0) },
+    { label: "Over 1 year", count: Math.max(totalDatasets - updated365, 0) },
+  ].map((bucket) => ({
+    ...bucket,
+    share: toPercent(bucket.count, totalDatasets),
+  }));
+
+  const ageBuckets = [
+    { label: "0-30 days", count: created30 },
+    { label: "31-365 days", count: Math.max(created365 - created30, 0) },
+    { label: "1-5 years", count: Math.max(created1825 - created365, 0) },
+    { label: "Over 5 years", count: Math.max(totalDatasets - created1825, 0) },
+  ].map((bucket) => ({
+    ...bucket,
+    share: toPercent(bucket.count, totalDatasets),
+  }));
+
+  const publisherCounts = topPublishers.map((publisher) => publisher.count);
+  const top1Share = toPercent(publisherCounts[0] ?? 0, totalDatasets);
+  const top5Share = toPercent(publisherCounts.slice(0, 5).reduce((sum, count) => sum + count, 0), totalDatasets);
+  const top10Share = toPercent(
+    publisherCounts.slice(0, 10).reduce((sum, count) => sum + count, 0),
+    totalDatasets,
+  );
+  const hhi = round(
+    knownOrganizations.reduce((sum, organization) => {
+      const share = totalDatasets === 0 ? 0 : organization.count / totalDatasets;
+      return sum + share * share;
+    }, 0) * 10000,
+    1,
+  );
+
+  const publisherShares = topPublishers.slice(0, 8).map((publisher) => ({
+    label: publisher.label,
+    count: publisher.count,
+    share: toPercent(publisher.count, totalDatasets),
+  }));
+
+  const licenseTotalFromFacet = sumCounts(licensesAll);
+  const missingLicenseCount = Math.max(totalDatasets - licenseTotalFromFacet, 0);
+  const openCount = licensesAll
+    .filter((license) => OPEN_LICENSE_IDS.has(license.name))
+    .reduce((sum, license) => sum + license.count, 0);
+  const unspecifiedFacetCount = licensesAll
+    .filter((license) => UNSPECIFIED_LICENSE_IDS.has(license.name))
+    .reduce((sum, license) => sum + license.count, 0);
+  const unspecifiedCount = unspecifiedFacetCount + missingLicenseCount;
+  const restrictedCount = Math.max(totalDatasets - openCount - unspecifiedCount, 0);
+
+  const totalFormatAssignments = sumCounts(formats);
+  const top3FormatAssignments = topFormats.slice(0, 3).reduce((sum, format) => sum + format.count, 0);
+  const formatTop3Share = toPercent(top3FormatAssignments, totalFormatAssignments);
+  const formatDiversityScore = round(
+    (1 -
+      formats.reduce((sum, format) => {
+        const share = totalFormatAssignments === 0 ? 0 : format.count / totalFormatAssignments;
+        return sum + share * share;
+      }, 0)) *
+      100,
+    1,
+  );
+
+  const resourceCounts = (resourceSampleData.results ?? []).map((dataset) => dataset.resources?.length ?? 0);
+  const totalResources = resourceCounts.reduce((sum, count) => sum + count, 0);
+  const sampleSize = resourceCounts.length;
+  const zeroResourceCount = resourceCounts.filter((count) => count === 0).length;
+  const resourceHistogram = [
+    { label: "0", count: resourceCounts.filter((count) => count === 0).length },
+    { label: "1", count: resourceCounts.filter((count) => count === 1).length },
+    { label: "2-5", count: resourceCounts.filter((count) => count >= 2 && count <= 5).length },
+    { label: "6-10", count: resourceCounts.filter((count) => count >= 6 && count <= 10).length },
+    { label: "11+", count: resourceCounts.filter((count) => count >= 11).length },
+  ];
+
+  const updatesPerDay30 = round(updated30 / 30, 1);
+  const creationsPerDay30 = round(created30 / 30, 1);
+  const updateToCreateRatio = created30 === 0 ? 0 : round(updated30 / created30, 2);
+  const baselineWeek = (updated30 / 30) * 7;
+  const weeklyMomentum = baselineWeek === 0 ? 0 : round(updated7 / baselineWeek, 2);
+
   return {
     kpis: {
       totalDatasets,
-      organizations: organizations.length,
+      organizations: knownOrganizations.length,
       groups: groups.length,
       distinctFormats: formats.length,
+      updatedLast7Days: updated7,
+      createdLast7Days: created7,
       updatedLast30Days: updated30,
       createdLast30Days: created30,
       updatedLast90Days: updated90,
+      updatedLast365Days: updated365,
       freshnessScore,
     },
     topPublishers,
@@ -174,6 +359,45 @@ async function generateDashboardData() {
       modified: item.modified,
       created: item.created,
     })),
+    analytics: {
+      freshnessBuckets,
+      ageBuckets,
+      dailyTrend,
+      publisherShares,
+      resourceHistogram,
+      velocity: {
+        updatesPerDay30,
+        creationsPerDay30,
+        updateToCreateRatio,
+        weeklyMomentum,
+      },
+      concentration: {
+        top1Share,
+        top5Share,
+        top10Share,
+        hhi,
+      },
+      licenseSummary: {
+        openCount,
+        restrictedCount,
+        unspecifiedCount,
+        openShare: toPercent(openCount, totalDatasets),
+        unspecifiedShare: toPercent(unspecifiedCount, totalDatasets),
+      },
+      resourceCoverage: {
+        sampleSize,
+        totalResources,
+        avgResources: sampleSize === 0 ? 0 : round(totalResources / sampleSize, 1),
+        medianResources: median(resourceCounts),
+        maxResources: sampleSize === 0 ? 0 : Math.max(...resourceCounts),
+        datasetsWithNoResources: zeroResourceCount,
+        noResourceShare: toPercent(zeroResourceCount, sampleSize),
+      },
+      formatInsights: {
+        top3Share: formatTop3Share,
+        diversityScore: formatDiversityScore,
+      },
+    },
     recentDatasets: (recentData.results ?? []).map(packageToRecentDataset),
     generatedAt: new Date().toISOString(),
   };
