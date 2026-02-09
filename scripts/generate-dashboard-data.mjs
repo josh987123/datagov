@@ -4,6 +4,8 @@ import { dirname, resolve } from "node:path";
 const CKAN_BASE_URL = "https://catalog.data.gov/api/3/action";
 const WINDOW_DAYS = [7, 30, 90, 180, 365, 1825];
 const DAILY_TREND_DAYS = 14;
+const MONTHLY_TREND_MONTHS = 12;
+const QUERY_CONCURRENCY = 4;
 const RECENT_DATASET_ROWS = 30;
 const RESOURCE_SAMPLE_ROWS = 200;
 const OUTPUT_FILE = resolve(process.cwd(), "public", "dashboard-data.json");
@@ -39,6 +41,14 @@ function toPercent(part, total) {
   return round((part / total) * 100, 1);
 }
 
+function percentChange(current, previous) {
+  if (previous === 0) {
+    return current === 0 ? 0 : 100;
+  }
+
+  return round(((current - previous) / previous) * 100, 1);
+}
+
 function sumCounts(items) {
   return items.reduce((sum, item) => sum + item.count, 0);
 }
@@ -56,6 +66,26 @@ function median(values) {
   }
 
   return sorted[middle];
+}
+
+async function mapWithConcurrency(items, worker, concurrency = QUERY_CONCURRENCY) {
+  const results = new Array(items.length);
+  let cursor = 0;
+
+  async function runWorker() {
+    while (true) {
+      const index = cursor;
+      cursor += 1;
+      if (index >= items.length) {
+        break;
+      }
+
+      results[index] = await worker(items[index], index);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => runWorker()));
+  return results;
 }
 
 async function requestAction(action, params, maxAttempts = 3) {
@@ -182,8 +212,59 @@ function buildDailyTrend() {
   });
 }
 
+function buildMonthlyTrend() {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "2-digit",
+    timeZone: "UTC",
+  });
+
+  const offsets = Array.from(
+    { length: MONTHLY_TREND_MONTHS },
+    (_, index) => MONTHLY_TREND_MONTHS - index - 1,
+  );
+
+  return offsets.map((offset) => {
+    const monthDate = new Date();
+    monthDate.setUTCDate(1);
+    monthDate.setUTCHours(0, 0, 0, 0);
+    monthDate.setUTCMonth(monthDate.getUTCMonth() - offset - 1);
+
+    return {
+      label: formatter.format(monthDate),
+      start: `NOW-${offset + 1}MONTH/MONTH`,
+      end: `NOW-${offset}MONTH/MONTH`,
+    };
+  });
+}
+
+function toAlertLevel(metricValue, watchThreshold, riskThreshold, direction = "higher-is-risk") {
+  if (direction === "higher-is-risk") {
+    if (metricValue >= riskThreshold) {
+      return "risk";
+    }
+
+    if (metricValue >= watchThreshold) {
+      return "watch";
+    }
+
+    return "good";
+  }
+
+  if (metricValue <= riskThreshold) {
+    return "risk";
+  }
+
+  if (metricValue <= watchThreshold) {
+    return "watch";
+  }
+
+  return "good";
+}
+
 async function generateDashboardData() {
-  const [facetData, recentData, resourceSampleData] = await Promise.all([
+  const [statusData, facetData, recentData, resourceSampleData] = await Promise.all([
+    requestAction("status_show", {}),
     requestAction("package_search", {
       rows: 0,
       facet: true,
@@ -200,32 +281,47 @@ async function generateDashboardData() {
     }),
   ]);
 
-  const windowPairs = await Promise.all(
-    WINDOW_DAYS.map(async (days) => {
-      const [modified, created] = await Promise.all([
-        fetchWindowCount("metadata_modified", days),
-        fetchWindowCount("metadata_created", days),
-      ]);
+  const windowPairs = await mapWithConcurrency(WINDOW_DAYS, async (days) => {
+    const [modified, created] = await Promise.all([
+      fetchWindowCount("metadata_modified", days),
+      fetchWindowCount("metadata_created", days),
+    ]);
 
-      return { days, modified, created };
-    }),
-  );
+    return { days, modified, created };
+  });
 
   const dailyRanges = buildDailyTrend();
-  const dailyTrend = await Promise.all(
-    dailyRanges.map(async (range) => {
-      const [modified, created] = await Promise.all([
-        fetchRangeCount("metadata_modified", range.start, range.end),
-        fetchRangeCount("metadata_created", range.start, range.end),
-      ]);
+  const dailyTrend = await mapWithConcurrency(dailyRanges, async (range) => {
+    const [modified, created] = await Promise.all([
+      fetchRangeCount("metadata_modified", range.start, range.end),
+      fetchRangeCount("metadata_created", range.start, range.end),
+    ]);
 
-      return {
-        label: range.label,
-        modified,
-        created,
-      };
-    }),
-  );
+    return {
+      label: range.label,
+      modified,
+      created,
+    };
+  });
+
+  const monthlyRanges = buildMonthlyTrend();
+  const monthlyTrend = await mapWithConcurrency(monthlyRanges, async (range) => {
+    const [modified, created] = await Promise.all([
+      fetchRangeCount("metadata_modified", range.start, range.end),
+      fetchRangeCount("metadata_created", range.start, range.end),
+    ]);
+
+    return {
+      label: range.label,
+      modified,
+      created,
+    };
+  });
+
+  const [updatedPrevious7Days, createdPrevious7Days] = await Promise.all([
+    fetchRangeCount("metadata_modified", "NOW-14DAY/DAY", "NOW-7DAY/DAY"),
+    fetchRangeCount("metadata_created", "NOW-14DAY/DAY", "NOW-7DAY/DAY"),
+  ]);
 
   const organizations = facetToItems(facetData.search_facets, "organization", 1000, true);
   const knownOrganizations = organizations.filter((organization) => organization.name !== "unknown");
@@ -235,6 +331,7 @@ async function generateDashboardData() {
   const licensesAll = facetToItems(facetData.search_facets, "license_id", 1000, true);
 
   const topPublishers = knownOrganizations.slice(0, 10);
+  const topGroups = facetToItems(facetData.search_facets, "groups", 10);
   const topFormats = formats.slice(0, 10);
   const licenses = facetToItems(facetData.search_facets, "license_id", 8);
   const topTags = facetToItems(facetData.search_facets, "tags", 12);
@@ -304,6 +401,8 @@ async function generateDashboardData() {
     .reduce((sum, license) => sum + license.count, 0);
   const unspecifiedCount = unspecifiedFacetCount + missingLicenseCount;
   const restrictedCount = Math.max(totalDatasets - openCount - unspecifiedCount, 0);
+  const openShare = toPercent(openCount, totalDatasets);
+  const unspecifiedShare = toPercent(unspecifiedCount, totalDatasets);
 
   const totalFormatAssignments = sumCounts(formats);
   const top3FormatAssignments = topFormats.slice(0, 3).reduce((sum, format) => sum + format.count, 0);
@@ -336,6 +435,44 @@ async function generateDashboardData() {
   const baselineWeek = (updated30 / 30) * 7;
   const weeklyMomentum = baselineWeek === 0 ? 0 : round(updated7 / baselineWeek, 2);
 
+  const alerts = [
+    {
+      id: "freshness",
+      title: "Freshness health",
+      level: toAlertLevel(freshnessScore, 45, 30, "lower-is-risk"),
+      metric: `${freshnessScore}%`,
+      detail: "Share of datasets updated in the last 90 days.",
+    },
+    {
+      id: "license-clarity",
+      title: "License clarity",
+      level: toAlertLevel(unspecifiedShare, 20, 35),
+      metric: `${unspecifiedShare}%`,
+      detail: "Datasets with unspecified or missing license identifiers.",
+    },
+    {
+      id: "publisher-concentration",
+      title: "Publisher concentration",
+      level: toAlertLevel(top1Share, 25, 40),
+      metric: `${top1Share}%`,
+      detail: "Share of catalog held by the largest publisher.",
+    },
+    {
+      id: "resource-completeness",
+      title: "Resource completeness",
+      level: toAlertLevel(toPercent(zeroResourceCount, sampleSize), 15, 30),
+      metric: `${toPercent(zeroResourceCount, sampleSize)}%`,
+      detail: "Recent sampled datasets with zero resources attached.",
+    },
+    {
+      id: "weekly-momentum",
+      title: "Weekly momentum",
+      level: toAlertLevel(weeklyMomentum, 0.95, 0.75, "lower-is-risk"),
+      metric: `${weeklyMomentum}x`,
+      detail: "Current 7-day updates versus the 30-day baseline.",
+    },
+  ];
+
   return {
     kpis: {
       totalDatasets,
@@ -351,6 +488,7 @@ async function generateDashboardData() {
       freshnessScore,
     },
     topPublishers,
+    topGroups,
     topFormats,
     licenses,
     topTags,
@@ -363,6 +501,7 @@ async function generateDashboardData() {
       freshnessBuckets,
       ageBuckets,
       dailyTrend,
+      monthlyTrend,
       publisherShares,
       resourceHistogram,
       velocity: {
@@ -381,8 +520,8 @@ async function generateDashboardData() {
         openCount,
         restrictedCount,
         unspecifiedCount,
-        openShare: toPercent(openCount, totalDatasets),
-        unspecifiedShare: toPercent(unspecifiedCount, totalDatasets),
+        openShare,
+        unspecifiedShare,
       },
       resourceCoverage: {
         sampleSize,
@@ -397,8 +536,29 @@ async function generateDashboardData() {
         top3Share: formatTop3Share,
         diversityScore: formatDiversityScore,
       },
+      periodComparison: {
+        updatedCurrent7Days: updated7,
+        updatedPrevious7Days,
+        createdCurrent7Days: created7,
+        createdPrevious7Days,
+        updatedDeltaPct: percentChange(updated7, updatedPrevious7Days),
+        createdDeltaPct: percentChange(created7, createdPrevious7Days),
+      },
+      groupCoverage: {
+        top3Share: toPercent(
+          topGroups.slice(0, 3).reduce((sum, group) => sum + group.count, 0),
+          totalDatasets,
+        ),
+      },
+      alerts,
     },
     recentDatasets: (recentData.results ?? []).map(packageToRecentDataset),
+    source: {
+      siteTitle: statusData?.site_title ?? "Catalog",
+      ckanVersion: statusData?.ckan_version ?? "unknown",
+      apiBase: CKAN_BASE_URL,
+      snapshotStrategy: "build-time static snapshot",
+    },
     generatedAt: new Date().toISOString(),
   };
 }

@@ -2,13 +2,16 @@ import { useMemo, useState, type ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
+  AlertTriangle,
   BarChart3,
   Building2,
   CalendarClock,
+  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Clock3,
   Database,
+  Download,
   FileBarChart2,
   FolderTree,
   Gauge,
@@ -18,6 +21,8 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import {
   Area,
@@ -55,6 +60,32 @@ function formatTooltipValue(value: number | string | undefined): string {
   return formatNumber(Number.isFinite(parsed) ? parsed : 0);
 }
 
+function formatSignedPercent(value: number): string {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(1)}%`;
+}
+
+function escapeCsvCell(value: string | number): string {
+  const asString = String(value);
+  if (/[",\n]/.test(asString)) {
+    return `"${asString.replaceAll("\"", "\"\"")}"`;
+  }
+
+  return asString;
+}
+
+function triggerDownload(filename: string, payload: string, mimeType: string): void {
+  const blob = new Blob([payload], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 async function fetchDashboardSnapshot(): Promise<DashboardData> {
   const response = await fetch(`${import.meta.env.BASE_URL}dashboard-data.json`, {
     cache: "no-store",
@@ -75,6 +106,9 @@ export default function App() {
   const [isRecentExpanded, setIsRecentExpanded] = useState(true);
   const [recentSearch, setRecentSearch] = useState("");
   const [recentLimit, setRecentLimit] = useState(12);
+  const [recentSort, setRecentSort] = useState<"modified_desc" | "resources_desc" | "title_asc">(
+    "modified_desc",
+  );
 
   const { data, error, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["datagov-dashboard-snapshot"],
@@ -92,6 +126,8 @@ export default function App() {
         freshnessBuckets: [],
         ageBuckets: [],
         dailyTrend: [],
+        monthlyTrend: [],
+        topGroups: [],
         resourceHistogram: [],
         licenseComposition: [],
       };
@@ -124,12 +160,17 @@ export default function App() {
         count: bucket.count,
         share: bucket.share,
       })),
-      dailyTrend: data.analytics.dailyTrend,
-      resourceHistogram: data.analytics.resourceHistogram,
+      dailyTrend: data.analytics.dailyTrend ?? [],
+      monthlyTrend: data.analytics.monthlyTrend ?? [],
+      topGroups: (data.topGroups ?? []).map((group) => ({
+        label: truncate(group.label, 26),
+        count: group.count,
+      })),
+      resourceHistogram: data.analytics.resourceHistogram ?? [],
       licenseComposition: [
-        { name: "Open", value: data.analytics.licenseSummary.openCount },
-        { name: "Restricted/other", value: data.analytics.licenseSummary.restrictedCount },
-        { name: "Unspecified", value: data.analytics.licenseSummary.unspecifiedCount },
+        { name: "Open", value: data.analytics.licenseSummary?.openCount ?? 0 },
+        { name: "Restricted/other", value: data.analytics.licenseSummary?.restrictedCount ?? 0 },
+        { name: "Unspecified", value: data.analytics.licenseSummary?.unspecifiedCount ?? 0 },
       ].filter((item) => item.value > 0),
     };
   }, [data]);
@@ -158,14 +199,65 @@ export default function App() {
     });
   }, [data, recentSearch]);
 
+  const sortedRecentDatasets = useMemo(() => {
+    const rows = [...matchingRecentDatasets];
+
+    if (recentSort === "resources_desc") {
+      rows.sort((left, right) => right.resourceCount - left.resourceCount);
+      return rows;
+    }
+
+    if (recentSort === "title_asc") {
+      rows.sort((left, right) => left.title.localeCompare(right.title));
+      return rows;
+    }
+
+    rows.sort((left, right) => {
+      const leftTime = new Date(left.metadataModified).getTime();
+      const rightTime = new Date(right.metadataModified).getTime();
+      return rightTime - leftTime;
+    });
+    return rows;
+  }, [matchingRecentDatasets, recentSort]);
+
   const visibleRecentDatasets = useMemo(
-    () => matchingRecentDatasets.slice(0, recentLimit),
-    [matchingRecentDatasets, recentLimit],
+    () => sortedRecentDatasets.slice(0, recentLimit),
+    [sortedRecentDatasets, recentLimit],
   );
 
   const onLimitChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const parsed = Number(event.target.value);
     setRecentLimit(Number.isFinite(parsed) ? parsed : 12);
+  };
+
+  const exportRecentCsv = () => {
+    const headers = ["Dataset", "Publisher", "Modified", "Created", "Resources", "Formats"];
+    const rows = visibleRecentDatasets.map((dataset) => [
+      dataset.title,
+      dataset.organization,
+      dataset.metadataModified,
+      dataset.metadataCreated,
+      dataset.resourceCount,
+      dataset.formats.join("|"),
+    ]);
+
+    const csv = [headers, ...rows]
+      .map((line) => line.map((cell) => escapeCsvCell(cell)).join(","))
+      .join("\n");
+
+    triggerDownload("datagov-recent-datasets.csv", `${csv}\n`, "text/csv;charset=utf-8");
+  };
+
+  const exportSnapshot = () => {
+    if (!data) {
+      return;
+    }
+
+    triggerDownload(
+      "datagov-dashboard-snapshot.json",
+      `${JSON.stringify(data, null, 2)}\n`,
+      "application/json;charset=utf-8",
+    );
   };
 
   if (isLoading) {
@@ -180,6 +272,21 @@ export default function App() {
   const refreshHint = isFetching
     ? "Refreshing snapshot..."
     : `Snapshot generated ${formatDateTime(data.generatedAt)}`;
+  const periodComparison = data.analytics.periodComparison ?? {
+    updatedCurrent7Days: 0,
+    updatedPrevious7Days: 0,
+    createdCurrent7Days: 0,
+    createdPrevious7Days: 0,
+    updatedDeltaPct: 0,
+    createdDeltaPct: 0,
+  };
+  const alerts = data.analytics.alerts ?? [];
+  const source = data.source ?? {
+    siteTitle: "Catalog",
+    ckanVersion: "unknown",
+    apiBase: "https://catalog.data.gov/api/3/action",
+    snapshotStrategy: "build-time static snapshot",
+  };
 
   return (
     <main className="dashboard-shell">
@@ -213,10 +320,17 @@ export default function App() {
               <p className="hero__mode-note">
                 Snapshot data is generated at deploy time to avoid Data.gov browser CORS blocks.
               </p>
+              <p className="hero__mode-note">
+                Source: {source.siteTitle} (CKAN {source.ckanVersion})
+              </p>
             </div>
             <button type="button" className="secondary-button" onClick={() => void refetch()}>
               <RefreshCcw size={16} />
               Refresh
+            </button>
+            <button type="button" className="secondary-button" onClick={exportSnapshot}>
+              <Download size={16} />
+              Snapshot JSON
             </button>
           </div>
         </header>
@@ -305,6 +419,32 @@ export default function App() {
             hint="Average metadata modifications per day"
             icon={<Gauge size={18} />}
             accent="amber"
+          />
+          <MetricCard
+            title="WoW update delta"
+            value={formatSignedPercent(periodComparison.updatedDeltaPct)}
+            hint="Current 7 days vs previous 7 days"
+            icon={
+              periodComparison.updatedDeltaPct >= 0 ? (
+                <TrendingUp size={18} />
+              ) : (
+                <TrendingDown size={18} />
+              )
+            }
+            accent="violet"
+          />
+          <MetricCard
+            title="WoW creation delta"
+            value={formatSignedPercent(periodComparison.createdDeltaPct)}
+            hint="New records this week vs prior week"
+            icon={
+              periodComparison.createdDeltaPct >= 0 ? (
+                <TrendingUp size={18} />
+              ) : (
+                <TrendingDown size={18} />
+              )
+            }
+            accent="emerald"
           />
           <MetricCard
             title="Open-license share"
@@ -418,6 +558,60 @@ export default function App() {
         </section>
 
         <section className="panel-grid panel-grid--two">
+          <ChartPanel title="12-month activity profile" subtitle="Completed month-by-month created vs modified trend">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData.monthlyTrend} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value: number) => formatCompact(value)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip formatter={formatTooltipValue} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="modified"
+                  name="Modified"
+                  stroke="#818cf8"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="created"
+                  name="Created"
+                  stroke="#2dd4bf"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+
+          <ChartPanel title="Top catalog groups" subtitle="Dataset counts in major thematic groupings">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData.topGroups} layout="vertical" margin={{ left: 12, right: 12 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis type="number" stroke="#94a3b8" tickFormatter={formatCompact} axisLine={false} />
+                <YAxis
+                  dataKey="label"
+                  type="category"
+                  width={190}
+                  stroke="#94a3b8"
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip formatter={formatTooltipValue} />
+                <Bar dataKey="count" fill="#22d3ee" radius={[0, 8, 8, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </section>
+
+        <section className="panel-grid panel-grid--two">
           <ChartPanel title="Top publishers" subtitle="Largest dataset publishers in the active catalog">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData.topPublishers} layout="vertical" margin={{ left: 10, right: 10 }}>
@@ -454,6 +648,66 @@ export default function App() {
                 <Bar dataKey="count" fill="#14b8a6" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </ChartPanel>
+        </section>
+
+        <section className="panel-grid panel-grid--two">
+          <ChartPanel title="Operational alert center" subtitle="Automated health checks across freshness and quality">
+            <div className="alert-list">
+              {alerts.map((alert) => (
+                <article key={alert.id} className={`alert-card alert-card--${alert.level}`}>
+                  <div className="alert-card__header">
+                    <span className="alert-card__icon">
+                      {alert.level === "good" ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                    </span>
+                    <h4>{alert.title}</h4>
+                    <strong>{alert.metric}</strong>
+                  </div>
+                  <p>{alert.detail}</p>
+                </article>
+              ))}
+            </div>
+          </ChartPanel>
+
+          <ChartPanel title="Weekly comparative intelligence" subtitle="Current 7-day window benchmarked against previous week">
+            <div className="insight-grid">
+              <div className="insight-item">
+                <span>Updates this week</span>
+                <strong>{formatCompact(periodComparison.updatedCurrent7Days)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Updates previous week</span>
+                <strong>{formatCompact(periodComparison.updatedPrevious7Days)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Update delta</span>
+                <strong>{formatSignedPercent(periodComparison.updatedDeltaPct)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Created this week</span>
+                <strong>{formatCompact(periodComparison.createdCurrent7Days)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Created previous week</span>
+                <strong>{formatCompact(periodComparison.createdPrevious7Days)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Creation delta</span>
+                <strong>{formatSignedPercent(periodComparison.createdDeltaPct)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Top-3 group share</span>
+                <strong>{formatPercent(data.analytics.groupCoverage.top3Share / 100)}</strong>
+              </div>
+              <div className="insight-item">
+                <span>Snapshot strategy</span>
+                <strong>{source.snapshotStrategy}</strong>
+              </div>
+              <div className="insight-item">
+                <span>API base</span>
+                <strong>{truncate(source.apiBase, 28)}</strong>
+              </div>
+            </div>
           </ChartPanel>
         </section>
 
@@ -664,15 +918,34 @@ export default function App() {
                     placeholder="Search title, publisher, format..."
                   />
                 </div>
-                <label className="recent-limit">
-                  Rows
-                  <select value={recentLimit} onChange={onLimitChange}>
-                    <option value={8}>8</option>
-                    <option value={12}>12</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                  </select>
-                </label>
+                <div className="recent-controls">
+                  <label className="recent-limit">
+                    Sort
+                    <select
+                      value={recentSort}
+                      onChange={(event) =>
+                        setRecentSort(event.target.value as "modified_desc" | "resources_desc" | "title_asc")
+                      }
+                    >
+                      <option value="modified_desc">Newest modified</option>
+                      <option value="resources_desc">Most resources</option>
+                      <option value="title_asc">Title A-Z</option>
+                    </select>
+                  </label>
+                  <label className="recent-limit">
+                    Rows
+                    <select value={recentLimit} onChange={onLimitChange}>
+                      <option value={8}>8</option>
+                      <option value={12}>12</option>
+                      <option value={20}>20</option>
+                      <option value={30}>30</option>
+                    </select>
+                  </label>
+                  <button type="button" className="secondary-button secondary-button--compact" onClick={exportRecentCsv}>
+                    <Download size={14} />
+                    Export CSV
+                  </button>
+                </div>
                 <p className="recent-summary">
                   Showing {formatNumber(visibleRecentDatasets.length)} of{" "}
                   {formatNumber(matchingRecentDatasets.length)} matching datasets

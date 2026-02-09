@@ -45,6 +45,11 @@ interface CkanPackageSearchResult {
   results?: CkanPackage[];
 }
 
+interface CkanStatusResult {
+  site_title?: string;
+  ckan_version?: string;
+}
+
 function encodeParams(params: Record<string, string | number | boolean>): URLSearchParams {
   const query = new URLSearchParams();
 
@@ -171,7 +176,8 @@ async function fetchWindowCount(
 export async function fetchDashboardData(apiKey?: string): Promise<DashboardData> {
   const normalizedApiKey = apiKey?.trim();
 
-  const [facetData, recentData] = await Promise.all([
+  const [statusData, facetData, recentData] = await Promise.all([
+    requestAction<CkanStatusResult>("status_show", {}, normalizedApiKey),
     requestAction<CkanPackageSearchResult>(
       "package_search",
       {
@@ -217,6 +223,7 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
   const formats = facetToItems(facetData.search_facets, "res_format", 1000);
 
   const topPublishers = organizations.slice(0, 10);
+  const topGroups = facetToItems(facetData.search_facets, "groups", 10);
   const topFormats = formats.slice(0, 10);
   const licenses = facetToItems(facetData.search_facets, "license_id", 8, true);
   const topTags = facetToItems(facetData.search_facets, "tags", 12);
@@ -271,6 +278,7 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
       freshnessScore,
     },
     topPublishers,
+    topGroups,
     topFormats,
     licenses,
     topTags,
@@ -317,6 +325,7 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
         modified: point.modified,
         created: point.created,
       })),
+      monthlyTrend: [],
       publisherShares,
       resourceHistogram: [],
       velocity: {
@@ -372,8 +381,45 @@ export async function fetchDashboardData(apiKey?: string): Promise<DashboardData
           1,
         ),
       },
+      periodComparison: {
+        updatedCurrent7Days: updated7,
+        updatedPrevious7Days: 0,
+        createdCurrent7Days: created7,
+        createdPrevious7Days: 0,
+        updatedDeltaPct: 0,
+        createdDeltaPct: 0,
+      },
+      groupCoverage: {
+        top3Share: toPercent(
+          topGroups.slice(0, 3).reduce((sum, group) => sum + group.count, 0),
+          totalDatasets,
+        ),
+      },
+      alerts: [
+        {
+          id: "freshness",
+          title: "Freshness health",
+          level: freshnessScore < 30 ? "risk" : freshnessScore < 45 ? "watch" : "good",
+          metric: `${freshnessScoreOrZero(freshnessScore)}%`,
+          detail: "Share of datasets updated in the last 90 days.",
+        },
+      ],
     },
     recentDatasets: (recentData.results ?? []).map(packageToRecentDataset),
+    source: {
+      siteTitle: statusData.site_title ?? "Catalog",
+      ckanVersion: statusData.ckan_version ?? "unknown",
+      apiBase: CKAN_BASE_URL,
+      snapshotStrategy: "live fetch",
+    },
     generatedAt: new Date().toISOString(),
   };
+}
+
+function freshnessScoreOrZero(score: number): string {
+  if (!Number.isFinite(score)) {
+    return "0.0";
+  }
+
+  return score.toFixed(1);
 }

@@ -20,37 +20,45 @@ export function RecentDatasetsTable({ rows }: RecentDatasetsTableProps) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((dataset) => (
-            <tr key={dataset.id}>
-              <td title={dataset.title}>
-                <a
-                  className="dataset-link"
-                  href={`https://catalog.data.gov/dataset/${dataset.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {truncate(dataset.title, 74)}
-                </a>
-              </td>
-              <td title={dataset.organization}>{truncate(dataset.organization, 42)}</td>
-              <td>{formatDateTime(dataset.metadataModified)}</td>
-              <td>{formatDateTime(dataset.metadataCreated)}</td>
-              <td>{dataset.resourceCount}</td>
-              <td>
-                <div className="format-pills">
-                  {dataset.formats.length === 0 ? (
-                    <span className="format-pill format-pill--muted">N/A</span>
-                  ) : (
-                    dataset.formats.map((format) => (
-                      <span key={`${dataset.id}-${format}`} className="format-pill">
-                        {format}
-                      </span>
-                    ))
-                  )}
-                </div>
+          {rows.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="dataset-table__empty">
+                No datasets match your current filters.
               </td>
             </tr>
-          ))}
+          ) : (
+            rows.map((dataset) => (
+              <tr key={dataset.id}>
+                <td title={dataset.title}>
+                  <a
+                    className="dataset-link"
+                    href={`https://catalog.data.gov/dataset/${dataset.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {truncate(dataset.title, 74)}
+                  </a>
+                </td>
+                <td title={dataset.organization}>{truncate(dataset.organization, 42)}</td>
+                <td>{formatDateTime(dataset.metadataModified)}</td>
+                <td>{formatDateTime(dataset.metadataCreated)}</td>
+                <td>{dataset.resourceCount}</td>
+                <td>
+                  <div className="format-pills">
+                    {dataset.formats.length === 0 ? (
+                      <span className="format-pill format-pill--muted">N/A</span>
+                    ) : (
+                      dataset.formats.map((format) => (
+                        <span key={`${dataset.id}-${format}`} className="format-pill">
+                          {format}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
