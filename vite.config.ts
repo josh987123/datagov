@@ -9,7 +9,7 @@ export default defineConfig({
         entryFileNames: "assets/app.js",
         chunkFileNames: "assets/chunk-[name].js",
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith(".css")) {
+          if (assetInfo.name && assetInfo.name.slice(-4) === ".css") {
             return "assets/app.css";
           }
 
