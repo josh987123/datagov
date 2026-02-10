@@ -4,6 +4,7 @@ import {
   type ReactNode,
 } from "react";
 import { formatCompact } from "../lib/format";
+import { Link } from "react-router-dom";
 
 export interface MetricTrendPoint {
   label: string;
@@ -149,27 +150,34 @@ export function MetricCard({
   const trendDelta = endValue - startValue;
 
   return (
-    <article className={`metric-card metric-card--${accent}`}>
-      <div className="metric-card__header">
-        <span className="metric-card__title">{title}</span>
-        <span className="metric-card__icon">{icon}</span>
-      </div>
-      <p className="metric-card__value">{value}</p>
-      {showSparkline && geometry ? (
-        <div className="metric-card__sparkline" aria-hidden="true">
-          <svg viewBox={`0 0 ${geometry.width} ${geometry.height}`} preserveAspectRatio="none">
-            <path d={geometry.areaPath} className="metric-card__sparkline-area" />
-            <polyline points={geometry.linePath} className="metric-card__sparkline-line" />
-          </svg>
-          <p className="metric-card__sparkline-caption">
-            Past 5 years:{" "}
-            <span className={trendDelta >= 0 ? "metric-card__sparkline-delta metric-card__sparkline-delta--up" : "metric-card__sparkline-delta metric-card__sparkline-delta--down"}>
-              {formatTrendDelta(trendDelta, value)}
-            </span>
-          </p>
+    <Link
+      to={`/metric/${encodeURIComponent(title)}`}
+      state={{ title, value, hint }}
+      className="metric-card-link"
+      aria-label={`Open detailed view for ${title}`}
+    >
+      <article className={`metric-card metric-card--${accent}`}>
+        <div className="metric-card__header">
+          <span className="metric-card__title">{title}</span>
+          <span className="metric-card__icon">{icon}</span>
         </div>
-      ) : null}
-      <p className="metric-card__hint">{hint}</p>
-    </article>
+        <p className="metric-card__value">{value}</p>
+        {showSparkline && geometry ? (
+          <div className="metric-card__sparkline" aria-hidden="true">
+            <svg viewBox={`0 0 ${geometry.width} ${geometry.height}`} preserveAspectRatio="none">
+              <path d={geometry.areaPath} className="metric-card__sparkline-area" />
+              <polyline points={geometry.linePath} className="metric-card__sparkline-line" />
+            </svg>
+            <p className="metric-card__sparkline-caption">
+              Past 5 years:{" "}
+              <span className={trendDelta >= 0 ? "metric-card__sparkline-delta metric-card__sparkline-delta--up" : "metric-card__sparkline-delta metric-card__sparkline-delta--down"}>
+                {formatTrendDelta(trendDelta, value)}
+              </span>
+            </p>
+          </div>
+        ) : null}
+        <p className="metric-card__hint">{hint}</p>
+      </article>
+    </Link>
   );
 }

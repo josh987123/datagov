@@ -4,7 +4,7 @@
     "organizations": 112,
     "groups": 4,
     "distinctFormats": 999,
-    "updatedLast7Days": 14623,
+    "updatedLast7Days": 14589,
     "createdLast7Days": 314,
     "updatedLast30Days": 88654,
     "createdLast30Days": 39574,
@@ -245,7 +245,7 @@
   "activitySeries": [
     {
       "label": "Last 7 days",
-      "modified": 14623,
+      "modified": 14589,
       "created": 314
     },
     {
@@ -790,11 +790,11 @@
       "diversityScore": 84.5
     },
     "periodComparison": {
-      "updatedCurrent7Days": 14623,
+      "updatedCurrent7Days": 14589,
       "updatedPrevious7Days": 22538,
       "createdCurrent7Days": 314,
       "createdPrevious7Days": 2615,
-      "updatedDeltaPct": -35.1,
+      "updatedDeltaPct": -35.3,
       "createdDeltaPct": -88
     },
     "groupCoverage": {
@@ -22742,5 +22742,5 @@
     "apiBase": "https://catalog.data.gov/api/3/action + BLS + Census + Treasury + BEA (key not set)",
     "snapshotStrategy": "build-time static snapshot from federal data APIs"
   },
-  "generatedAt": "2026-02-10T02:04:25.480Z"
+  "generatedAt": "2026-02-10T04:24:55.459Z"
 }

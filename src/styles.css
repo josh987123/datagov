@@ -261,6 +261,24 @@ body {
   gap: 0.8rem;
 }
 
+.metric-card-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.metric-card-link .metric-card {
+  height: 100%;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.metric-card-link:hover .metric-card,
+.metric-card-link:focus-visible .metric-card {
+  transform: translateY(-2px);
+  border-color: rgba(96, 165, 250, 0.45);
+  background: rgba(15, 23, 42, 0.84);
+}
+
 .metric-card {
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 14px;
@@ -398,6 +416,124 @@ body {
 
 .metric-card__sparkline-delta--down {
   color: #f87171;
+}
+
+.metric-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.metric-detail-hero {
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.7);
+  padding: 0.9rem 0.96rem;
+}
+
+.metric-detail-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #93c5fd;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.metric-detail-back:hover {
+  color: #dbeafe;
+}
+
+.metric-detail-hero h2 {
+  margin: 0.4rem 0 0.2rem;
+  color: #f8fafc;
+  font-size: 1.2rem;
+}
+
+.metric-detail-hero p {
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.metric-detail-current {
+  color: #f8fafc !important;
+  font-size: 1.8rem !important;
+  font-weight: 700;
+}
+
+.metric-detail-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 0.6rem;
+}
+
+.metric-detail-kpi {
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.62);
+  padding: 0.62rem 0.68rem;
+}
+
+.metric-detail-kpi span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metric-detail-kpi strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: #f8fafc;
+  font-size: 1rem;
+}
+
+.metric-detail-commentary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.56rem;
+}
+
+.metric-detail-commentary p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.metric-detail-empty {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.metric-related-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.metric-related-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.9rem;
+  padding: 0.28rem 0.58rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(30, 41, 59, 0.5);
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.metric-related-link:hover {
+  color: #f8fafc;
+  border-color: rgba(99, 102, 241, 0.55);
 }
 
 .panel-grid {

@@ -42,7 +42,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { HashRouter, Navigate, NavLink, Route, Routes } from "react-router-dom";
+import { HashRouter, Navigate, NavLink, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { ChartPanel } from "./components/ChartPanel";
 import { ErrorState } from "./components/ErrorState";
 import { LoadingState } from "./components/LoadingState";
@@ -570,6 +570,360 @@ function IndicatorExplainers({
         ))}
       </div>
     </section>
+  );
+}
+
+interface MetricRouteState {
+  title?: string;
+  value?: string;
+  hint?: string;
+}
+
+type MetricDisplayKind = "currency" | "percent" | "ratio" | "plain";
+
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function parseDisplayNumber(value: string): number {
+  const normalized = value.replaceAll(",", "").replace(/[^0-9.+-]/g, "").trim();
+  const parsed = Number.parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function inferMetricDisplayKind(value: string): MetricDisplayKind {
+  if (value.includes("$")) {
+    return "currency";
+  }
+
+  if (value.includes("%") || value.includes("pp")) {
+    return "percent";
+  }
+
+  if (value.includes("x")) {
+    return "ratio";
+  }
+
+  return "plain";
+}
+
+function formatMetricValue(value: number, kind: MetricDisplayKind): string {
+  if (!Number.isFinite(value)) {
+    return "N/A";
+  }
+
+  if (kind === "currency") {
+    return formatCurrencyCompact(value);
+  }
+
+  if (kind === "percent") {
+    return `${value.toFixed(2)}%`;
+  }
+
+  if (kind === "ratio") {
+    return `${value.toFixed(2)}x`;
+  }
+
+  return formatCompact(value);
+}
+
+function formatMetricDelta(value: number, kind: MetricDisplayKind): string {
+  if (!Number.isFinite(value)) {
+    return "N/A";
+  }
+
+  if (kind === "currency") {
+    return formatCurrencyCompact(value);
+  }
+
+  if (kind === "percent") {
+    const sign = value > 0 ? "+" : "";
+    return `${sign}${value.toFixed(2)}pp`;
+  }
+
+  if (kind === "ratio") {
+    const sign = value > 0 ? "+" : "";
+    return `${sign}${value.toFixed(2)}x`;
+  }
+
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  const absolute = Math.abs(value);
+  return `${sign}${formatCompact(absolute)}`;
+}
+
+function average(values: number[]): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function standardDeviation(values: number[]): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const mean = average(values);
+  const variance = average(values.map((value) => (value - mean) ** 2));
+  return Math.sqrt(variance);
+}
+
+function MetricDetailPage({ trends }: { trends: MetricTrendMap }) {
+  const params = useParams();
+  const location = useLocation();
+  const state = (location.state as MetricRouteState | undefined) ?? {};
+  const routeTitle = params.metricId ? safeDecode(params.metricId) : "";
+  const title = state.title ?? routeTitle;
+
+  if (!title) {
+    return <Navigate to="/" replace />;
+  }
+
+  const series = (trends[title]?.fiveYear ?? []).filter((point) => Number.isFinite(point.value));
+  const displayKind = inferMetricDisplayKind(state.value ?? "");
+  const yearStep = series.length >= 200 ? 252 : 12;
+  const hasSeries = series.length >= 2;
+
+  const latestFromSeries = series.at(-1)?.value ?? 0;
+  const latestValue = state.value ? parseDisplayNumber(state.value) : latestFromSeries;
+  const oneYearReference = hasSeries
+    ? series[Math.max(0, series.length - 1 - yearStep)]?.value ?? series[0].value
+    : 0;
+  const fiveYearReference = hasSeries ? series[0].value : 0;
+  const oneYearDelta = latestValue - oneYearReference;
+  const fiveYearDelta = latestValue - fiveYearReference;
+  const oneYearPct =
+    oneYearReference === 0 ? 0 : (((latestValue / oneYearReference) - 1) * 100);
+  const fiveYearPct =
+    fiveYearReference === 0 ? 0 : (((latestValue / fiveYearReference) - 1) * 100);
+
+  const values = series.map((point) => point.value);
+  const minValue = values.length > 0 ? Math.min(...values) : 0;
+  const maxValue = values.length > 0 ? Math.max(...values) : 0;
+  const meanValue = average(values);
+  const volatility = standardDeviation(values);
+  const range = maxValue - minValue;
+
+  const annualCheckpoints: Array<{ label: string; value: number }> = [];
+  if (hasSeries) {
+    for (let offset = 4; offset >= 0; offset -= 1) {
+      const index = series.length - 1 - offset * yearStep;
+      if (index >= 0 && index < series.length) {
+        annualCheckpoints.push(series[index]);
+      }
+    }
+
+    if (
+      annualCheckpoints.length === 0 ||
+      annualCheckpoints[annualCheckpoints.length - 1].label !== series[series.length - 1].label
+    ) {
+      annualCheckpoints.push(series[series.length - 1]);
+    }
+  }
+
+  const annualChanges: Array<{ label: string; delta: number }> = [];
+  if (hasSeries) {
+    for (let index = yearStep; index < series.length; index += yearStep) {
+      annualChanges.push({
+        label: series[index].label,
+        delta: series[index].value - series[index - yearStep].value,
+      });
+    }
+
+    if (annualChanges.length === 0 && series.length >= 2) {
+      annualChanges.push({
+        label: series[series.length - 1].label,
+        delta: series[series.length - 1].value - series[0].value,
+      });
+    }
+  }
+
+  const tokens = title
+    .toLowerCase()
+    .split(/[^a-z0-9]+/g)
+    .filter((token) => token.length > 2);
+  const relatedMetrics =
+    tokens.length === 0
+      ? []
+      : Object.keys(trends)
+          .filter((candidate) => candidate !== title)
+          .filter((candidate) =>
+            tokens.some((token) => candidate.toLowerCase().includes(token)),
+          )
+          .slice(0, 8);
+
+  const direction = fiveYearDelta > 0 ? "upward" : fiveYearDelta < 0 ? "downward" : "flat";
+  const volatilityBand =
+    meanValue === 0
+      ? "low"
+      : Math.abs((volatility / Math.max(Math.abs(meanValue), 1)) * 100) > 25
+        ? "high"
+        : Math.abs((volatility / Math.max(Math.abs(meanValue), 1)) * 100) > 10
+          ? "moderate"
+          : "low";
+
+  return (
+    <div className="metric-detail-page">
+      <header className="metric-detail-hero">
+        <NavLink to="/" className="metric-detail-back">
+          <span aria-hidden="true">←</span> Back to overview
+        </NavLink>
+        <h2>{title}</h2>
+        <p>{state.hint ?? "Detailed metric profile with trend context and diagnostics."}</p>
+        <p className="metric-detail-current">{state.value ?? formatMetricValue(latestValue, displayKind)}</p>
+      </header>
+
+      <section className="metric-detail-kpis">
+        <article className="metric-detail-kpi">
+          <span>Latest</span>
+          <strong>{state.value ?? formatMetricValue(latestValue, displayKind)}</strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>1Y change</span>
+          <strong>{formatMetricDelta(oneYearDelta, displayKind)}</strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>5Y change</span>
+          <strong>{formatMetricDelta(fiveYearDelta, displayKind)}</strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>1Y % change</span>
+          <strong>{formatSignedPercent(oneYearPct)}</strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>5Y % change</span>
+          <strong>{formatSignedPercent(fiveYearPct)}</strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>5Y min / max</span>
+          <strong>
+            {formatMetricValue(minValue, displayKind)} / {formatMetricValue(maxValue, displayKind)}
+          </strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>5Y average</span>
+          <strong>{formatMetricValue(meanValue, displayKind)}</strong>
+        </article>
+        <article className="metric-detail-kpi">
+          <span>5Y range</span>
+          <strong>{formatMetricDelta(range, displayKind)}</strong>
+        </article>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="5-year trend line" subtitle="Long-run trajectory of this metric">
+          {hasSeries ? (
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={series} margin={{ top: 8, right: 14, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value: number) => formatMetricValue(value, displayKind)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip formatter={(value: number | string | undefined) => formatMetricValue(Number(value ?? 0), displayKind)} />
+                <Line type="monotone" dataKey="value" stroke="#38bdf8" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="metric-detail-empty">
+              A full 5-year trend series is not available for this metric yet.
+            </p>
+          )}
+        </ChartPanel>
+
+        <ChartPanel title="Yearly checkpoints" subtitle="Sampled levels for quick year-over-year context">
+          {annualCheckpoints.length >= 2 ? (
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={annualCheckpoints} margin={{ top: 8, right: 12, left: -8, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value: number) => formatMetricValue(value, displayKind)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip formatter={(value: number | string | undefined) => formatMetricValue(Number(value ?? 0), displayKind)} />
+                <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]}>
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    formatter={(value) => formatMetricValue(Number(value ?? 0), displayKind)}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="metric-detail-empty">
+              Not enough multi-year checkpoints are available for this metric.
+            </p>
+          )}
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Year-over-year change blocks" subtitle="Approximate annual deltas from historical checkpoints">
+          {annualChanges.length > 0 ? (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={annualChanges} margin={{ top: 8, right: 12, left: -8, bottom: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+                <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#94a3b8"
+                  tickFormatter={(value: number) => formatMetricDelta(value, displayKind)}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <Tooltip formatter={(value: number | string | undefined) => formatMetricDelta(Number(value ?? 0), displayKind)} />
+                <Bar dataKey="delta" fill="#14b8a6" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="metric-detail-empty">
+              Annual change blocks are unavailable for this metric.
+            </p>
+          )}
+        </ChartPanel>
+
+        <ChartPanel title="Commentary and interpretation" subtitle="Automated readout from the observed trend">
+          <div className="metric-detail-commentary">
+            <p>
+              The 5-year direction is <strong>{direction}</strong>, moving from{" "}
+              <strong>{formatMetricValue(fiveYearReference, displayKind)}</strong> to{" "}
+              <strong>{formatMetricValue(latestValue, displayKind)}</strong>.
+            </p>
+            <p>
+              Over the latest year, the metric changed by{" "}
+              <strong>{formatMetricDelta(oneYearDelta, displayKind)}</strong> ({formatSignedPercent(oneYearPct)}).
+            </p>
+            <p>
+              Volatility appears <strong>{volatilityBand}</strong> with an observed 5-year range of{" "}
+              <strong>{formatMetricDelta(range, displayKind)}</strong>.
+            </p>
+          </div>
+        </ChartPanel>
+      </section>
+
+      {relatedMetrics.length > 0 ? (
+        <ChartPanel title="Related metrics" subtitle="Click to explore adjacent indicators">
+          <div className="metric-related-links">
+            {relatedMetrics.map((metric) => (
+              <NavLink key={metric} to={`/metric/${encodeURIComponent(metric)}`} className="metric-related-link">
+                {metric}
+              </NavLink>
+            ))}
+          </div>
+        </ChartPanel>
+      ) : null}
+    </div>
   );
 }
 
@@ -2271,6 +2625,7 @@ export default function App() {
               <Route path="/fiscal" element={<FiscalPage data={data} charts={charts} />} />
               <Route path="/demographics" element={<DemographicsPage data={data} charts={charts} />} />
               <Route path="/catalog" element={<CatalogPage data={data} charts={charts} />} />
+            <Route path="/metric/:metricId" element={<MetricDetailPage trends={metricTrends} />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
