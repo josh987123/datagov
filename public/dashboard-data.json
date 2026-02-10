@@ -321,11 +321,6 @@
     ],
     "dailyTrend": [
       {
-        "label": "Jan 27",
-        "modified": 10908,
-        "created": 362
-      },
-      {
         "label": "Jan 28",
         "modified": 6147,
         "created": 1
@@ -389,6 +384,11 @@
         "label": "Feb 09",
         "modified": 1217,
         "created": 34
+      },
+      {
+        "label": "Feb 10",
+        "modified": 118,
+        "created": 66
       }
     ],
     "monthlyTrend": [
@@ -551,11 +551,11 @@
     },
     "periodComparison": {
       "updatedCurrent7Days": 14618,
-      "updatedPrevious7Days": 32987,
+      "updatedPrevious7Days": 22538,
       "createdCurrent7Days": 313,
-      "createdPrevious7Days": 2965,
-      "updatedDeltaPct": -55.7,
-      "createdDeltaPct": -89.4
+      "createdPrevious7Days": 2615,
+      "updatedDeltaPct": -35.1,
+      "createdDeltaPct": -88
     },
     "groupCoverage": {
       "top3Share": 6.4
@@ -602,23 +602,42 @@
     "snapshot": {
       "population": 334914896,
       "medianIncome": 77719,
+      "perCapitaIncome": 43313,
       "medianHomeValue": 340200,
+      "medianRent": 1406,
       "medianAge": 39.2,
       "giniIndex": 0.4828,
       "laborForce": 171742922,
+      "unemploymentPersons": 7395929,
       "unemploymentRate": 4.4,
       "laborForceParticipationRate": 62.4,
+      "employmentPopulationRatio": 59.7,
+      "nonfarmPayrollEmployment": 159526,
       "cpiIndex": 324.054,
       "inflationYoY": 2.68,
       "averageHourlyEarnings": 37.02,
       "hourlyEarningsYoY": 3.76,
       "totalPublicDebt": 38588547251497.72,
       "debtChange30Days": 213197654567.14062,
+      "debtPerCapita": 115218.96371995863,
       "latestOutlays": 541146327504.76,
       "latestReceipts": 454414708491.47,
       "latestDeficit": 86731619013.29,
+      "receiptsToOutlaysRatio": 84,
+      "deficitToOutlaysRatio": 16,
+      "trailing12Outlays": 6921393565161.499,
+      "trailing12Receipts": 5230567411569.95,
+      "trailing12Deficit": 1690826153591.5503,
+      "housingUnits": 145333462,
+      "vacantHousingUnits": 14001102,
+      "ownerOccupiedHousingUnits": 85685869,
+      "renterOccupiedHousingUnits": 45646491,
+      "vacancyRate": 9.6,
+      "homeownershipRate": 65.2,
+      "bachelorsOrHigherShare": 36.2,
       "grossPrivateDomesticInvestment": null,
-      "personalSavingRate": null
+      "personalSavingRate": null,
+      "beaDataAvailable": false
     },
     "trends": {
       "monthlySpending": [
@@ -927,6 +946,106 @@
           "value": 4.4
         }
       ],
+      "laborForceParticipationRate": [
+        {
+          "label": "Jan 25",
+          "value": 62.6
+        },
+        {
+          "label": "Feb 25",
+          "value": 62.5
+        },
+        {
+          "label": "Mar 25",
+          "value": 62.5
+        },
+        {
+          "label": "Apr 25",
+          "value": 62.6
+        },
+        {
+          "label": "May 25",
+          "value": 62.4
+        },
+        {
+          "label": "Jun 25",
+          "value": 62.3
+        },
+        {
+          "label": "Jul 25",
+          "value": 62.2
+        },
+        {
+          "label": "Aug 25",
+          "value": 62.3
+        },
+        {
+          "label": "Sep 25",
+          "value": 62.5
+        },
+        {
+          "label": "Oct 25",
+          "value": 0
+        },
+        {
+          "label": "Nov 25",
+          "value": 62.5
+        },
+        {
+          "label": "Dec 25",
+          "value": 62.4
+        }
+      ],
+      "employmentPopulationRatio": [
+        {
+          "label": "Jan 25",
+          "value": 60.1
+        },
+        {
+          "label": "Feb 25",
+          "value": 59.9
+        },
+        {
+          "label": "Mar 25",
+          "value": 59.9
+        },
+        {
+          "label": "Apr 25",
+          "value": 60
+        },
+        {
+          "label": "May 25",
+          "value": 59.7
+        },
+        {
+          "label": "Jun 25",
+          "value": 59.7
+        },
+        {
+          "label": "Jul 25",
+          "value": 59.6
+        },
+        {
+          "label": "Aug 25",
+          "value": 59.6
+        },
+        {
+          "label": "Sep 25",
+          "value": 59.7
+        },
+        {
+          "label": "Oct 25",
+          "value": 0
+        },
+        {
+          "label": "Nov 25",
+          "value": 59.6
+        },
+        {
+          "label": "Dec 25",
+          "value": 59.7
+        }
+      ],
       "inflationYoY": [
         {
           "label": "Jan 25",
@@ -1025,6 +1144,56 @@
         {
           "label": "Dec 25",
           "value": 3.76
+        }
+      ],
+      "nonfarmPayroll": [
+        {
+          "label": "Jan 25",
+          "value": 1.28
+        },
+        {
+          "label": "Feb 25",
+          "value": 1.2
+        },
+        {
+          "label": "Mar 25",
+          "value": 1.12
+        },
+        {
+          "label": "Apr 25",
+          "value": 1.14
+        },
+        {
+          "label": "May 25",
+          "value": 1.03
+        },
+        {
+          "label": "Jun 25",
+          "value": 0.97
+        },
+        {
+          "label": "Jul 25",
+          "value": 0.95
+        },
+        {
+          "label": "Aug 25",
+          "value": 0.89
+        },
+        {
+          "label": "Sep 25",
+          "value": 0.81
+        },
+        {
+          "label": "Oct 25",
+          "value": 0.67
+        },
+        {
+          "label": "Nov 25",
+          "value": 0.54
+        },
+        {
+          "label": "Dec 25",
+          "value": 0.37
         }
       ]
     }
@@ -1392,5 +1561,5 @@
     "apiBase": "https://catalog.data.gov/api/3/action + BLS + Census + Treasury",
     "snapshotStrategy": "build-time static snapshot from federal data APIs"
   },
-  "generatedAt": "2026-02-09T23:58:56.958Z"
+  "generatedAt": "2026-02-10T00:31:35.934Z"
 }
