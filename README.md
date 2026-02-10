@@ -2,21 +2,22 @@
 
 A comprehensive, polished, and visually rich dashboard centered on **actual federal economic, demographic, spending, debt, labor, and savings/investment indicators**, with catalog metadata retained as optional context.
 
-## What it shows
+## Pages and categories
 
-### Primary: real-world federal indicators
+The dashboard is organized into category pages:
 
-- **Economic and labor data:** unemployment, labor-force participation, CPI inflation, wage growth
-- **Spending and budget flow:** monthly federal outlays, receipts, and deficit/surplus trend
-- **Debt data:** total public debt and daily trajectory with 30-day change
-- **Demographic and household profile:** population, median age, median income, median home value, Gini
-- **Investment and savings context:** BEA private investment and personal saving rate (when API key is available)
-- **Operational signal center:** threshold-based alerts for economic and data-quality health
-
-### Secondary: catalog context
-
-- Catalog structure and metadata trend panels (publishers, formats, tags, freshness, etc.)
-- Recently modified datasets table with collapse/search/sort/CSV export
+1. **Overview**  
+   Cross-domain summary of inflation, unemployment, spending flow, debt trajectory, and alerts.
+2. **Economy**  
+   Income, rent/home value, investment/savings context, wage and payroll trends.
+3. **Labor & Prices**  
+   Unemployment, labor-force participation, employment-population ratio, CPI/wage trajectories.
+4. **Spending & Debt**  
+   Monthly outlays/receipts/deficit series, debt metrics, trailing-12-month fiscal aggregates.
+5. **Demographics**  
+   Population, age, housing composition, homeownership/vacancy, inequality and education attainment.
+6. **Catalog Context** (secondary)  
+   Metadata diagnostics plus searchable/sortable/exportable recent dataset table.
 
 ## Data source
 
@@ -26,7 +27,7 @@ This dashboard combines multiple public federal APIs, including:
 - BLS public API (labor, inflation, earnings)
 - U.S. Census ACS API (demographics and household indicators)
 - Treasury Fiscal Data API (debt and monthly spending flow)
-- BEA API (investment/savings, when `DATA_GOV_API_KEY` is provided)
+- BEA API (investment/savings, when `BEA_API_KEY` is provided)
 
 ### Why it uses a snapshot
 

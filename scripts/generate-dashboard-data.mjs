@@ -11,6 +11,7 @@ const RESOURCE_SAMPLE_ROWS = 200;
 const OUTPUT_FILE = resolve(process.cwd(), "public", "dashboard-data.json");
 const API_KEY =
   process.env.DATA_GOV_API_KEY?.trim() || process.env.VITE_DATA_GOV_API_KEY?.trim() || "";
+const BEA_API_KEY = process.env.BEA_API_KEY?.trim() || "";
 const OPEN_LICENSE_IDS = new Set(["cc-by", "cc-zero", "us-pd", "odc-odbl", "gfdl"]);
 const UNSPECIFIED_LICENSE_IDS = new Set(["notspecified", "unknown"]);
 const BLS_ENDPOINT = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
@@ -417,13 +418,18 @@ async function fetchBlsIndicators() {
   const empty = {
     unemploymentRate: 0,
     laborForceParticipationRate: 0,
+    employmentPopulationRatio: 0,
     cpiIndex: 0,
     inflationYoY: 0,
     averageHourlyEarnings: 0,
     hourlyEarningsYoY: 0,
+    nonfarmPayrollEmployment: 0,
     unemploymentTrend: [],
+    participationTrend: [],
+    employmentPopulationTrend: [],
     inflationTrend: [],
     earningsTrend: [],
+    payrollTrend: [],
   };
 
   try {
@@ -433,7 +439,14 @@ async function fetchBlsIndicators() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        seriesid: ["LNS14000000", "LNS11300000", "CUUR0000SA0", "CES0500000003"],
+        seriesid: [
+          "LNS14000000",
+          "LNS11300000",
+          "LNS12300000",
+          "CUUR0000SA0",
+          "CES0500000003",
+          "CES0000000001",
+        ],
         startyear: startYear,
         endyear: endYear,
       }),
@@ -444,29 +457,41 @@ async function fetchBlsIndicators() {
 
     const unemployment = byId.get("LNS14000000") ?? [];
     const participation = byId.get("LNS11300000") ?? [];
+    const employmentPopulation = byId.get("LNS12300000") ?? [];
     const cpi = byId.get("CUUR0000SA0") ?? [];
     const earnings = byId.get("CES0500000003") ?? [];
+    const payroll = byId.get("CES0000000001") ?? [];
 
     const inflationYoYSeries = computeYearOverYear(cpi);
     const earningsYoYSeries = computeYearOverYear(earnings);
+    const payrollYoYSeries = computeYearOverYear(payroll);
 
     const latestUnemployment = unemployment.at(-1)?.value ?? 0;
     const latestParticipation = participation.at(-1)?.value ?? 0;
+    const latestEmploymentPopulation = employmentPopulation.at(-1)?.value ?? 0;
     const latestCpi = cpi.at(-1)?.value ?? 0;
     const latestInflation = inflationYoYSeries.at(-1)?.value ?? 0;
     const latestEarnings = earnings.at(-1)?.value ?? 0;
     const latestEarningsYoY = earningsYoYSeries.at(-1)?.value ?? 0;
+    const latestPayroll = payroll.at(-1)?.value ?? 0;
 
     return {
       unemploymentRate: latestUnemployment,
       laborForceParticipationRate: latestParticipation,
+      employmentPopulationRatio: latestEmploymentPopulation,
       cpiIndex: latestCpi,
       inflationYoY: latestInflation,
       averageHourlyEarnings: latestEarnings,
       hourlyEarningsYoY: latestEarningsYoY,
+      nonfarmPayrollEmployment: latestPayroll,
       unemploymentTrend: unemployment.slice(-12).map((point) => ({ label: point.label, value: point.value })),
+      participationTrend: participation.slice(-12).map((point) => ({ label: point.label, value: point.value })),
+      employmentPopulationTrend: employmentPopulation
+        .slice(-12)
+        .map((point) => ({ label: point.label, value: point.value })),
       inflationTrend: inflationYoYSeries.slice(-12),
       earningsTrend: earningsYoYSeries.slice(-12),
+      payrollTrend: payrollYoYSeries.slice(-12),
     };
   } catch {
     return empty;
@@ -477,7 +502,7 @@ async function fetchDemographicIndicators() {
   try {
     const payload = await requestJson(ACS_ENDPOINT, {
       queryParams: {
-        get: "B01003_001E,B19013_001E,B19083_001E,B01002_001E,B23025_003E,B23025_005E,B25077_001E,NAME",
+        get: "B01003_001E,B19013_001E,B19301_001E,B19083_001E,B01002_001E,B23025_003E,B23025_005E,B25077_001E,B25064_001E,B25002_001E,B25002_003E,B25003_002E,B25003_003E,B15003_001E,B15003_022E,B15003_023E,B15003_024E,B15003_025E,NAME",
         for: "us:1",
       },
     });
@@ -485,25 +510,45 @@ async function fetchDemographicIndicators() {
     const headers = payload?.[0] ?? [];
     const values = payload?.[1] ?? [];
     const mapped = Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+    const educationBase = parseNumber(mapped.B15003_001E);
+    const bachelorsOrHigher =
+      parseNumber(mapped.B15003_022E) +
+      parseNumber(mapped.B15003_023E) +
+      parseNumber(mapped.B15003_024E) +
+      parseNumber(mapped.B15003_025E);
 
     return {
       population: parseNumber(mapped.B01003_001E),
       medianIncome: parseNumber(mapped.B19013_001E),
+      perCapitaIncome: parseNumber(mapped.B19301_001E),
       giniIndex: parseNumber(mapped.B19083_001E),
       medianAge: parseNumber(mapped.B01002_001E),
       laborForce: parseNumber(mapped.B23025_003E),
       unemploymentPersons: parseNumber(mapped.B23025_005E),
       medianHomeValue: parseNumber(mapped.B25077_001E),
+      medianRent: parseNumber(mapped.B25064_001E),
+      housingUnits: parseNumber(mapped.B25002_001E),
+      vacantHousingUnits: parseNumber(mapped.B25002_003E),
+      ownerOccupiedHousingUnits: parseNumber(mapped.B25003_002E),
+      renterOccupiedHousingUnits: parseNumber(mapped.B25003_003E),
+      bachelorsOrHigherShare: toPercent(bachelorsOrHigher, educationBase),
     };
   } catch {
     return {
       population: 0,
       medianIncome: 0,
+      perCapitaIncome: 0,
       giniIndex: 0,
       medianAge: 0,
       laborForce: 0,
       unemploymentPersons: 0,
       medianHomeValue: 0,
+      medianRent: 0,
+      housingUnits: 0,
+      vacantHousingUnits: 0,
+      ownerOccupiedHousingUnits: 0,
+      renterOccupiedHousingUnits: 0,
+      bachelorsOrHigherShare: 0,
     };
   }
 }
@@ -595,7 +640,7 @@ function parseBeaQuarter(quarterLabel) {
 async function fetchBeaQuarterLine(lineNumber) {
   const payload = await requestJson(BEA_ENDPOINT, {
     queryParams: {
-      UserID: API_KEY,
+      UserID: BEA_API_KEY,
       method: "GetData",
       datasetname: "NIPA",
       TableName: "T10105",
@@ -619,10 +664,11 @@ async function fetchBeaQuarterLine(lineNumber) {
 }
 
 async function fetchBeaIndicators() {
-  if (!API_KEY) {
+  if (!BEA_API_KEY) {
     return {
       grossPrivateDomesticInvestment: null,
       personalSavingRate: null,
+      beaDataAvailable: false,
     };
   }
 
@@ -635,11 +681,13 @@ async function fetchBeaIndicators() {
     return {
       grossPrivateDomesticInvestment: investment,
       personalSavingRate: savingsRate,
+      beaDataAvailable: true,
     };
   } catch {
     return {
       grossPrivateDomesticInvestment: null,
       personalSavingRate: null,
+      beaDataAvailable: false,
     };
   }
 }
@@ -831,33 +879,77 @@ async function generateDashboardData() {
     receipts: 0,
     deficit: 0,
   };
+  const trailing12Spending = spendingSeries.slice(-12);
+  const trailing12Outlays = trailing12Spending.reduce((sum, item) => sum + item.outlays, 0);
+  const trailing12Receipts = trailing12Spending.reduce((sum, item) => sum + item.receipts, 0);
+  const trailing12Deficit = trailing12Spending.reduce((sum, item) => sum + item.deficit, 0);
+
   const unemploymentRate =
     blsIndicators.unemploymentRate > 0
       ? blsIndicators.unemploymentRate
       : demographicIndicators.laborForce > 0
         ? round((demographicIndicators.unemploymentPersons / demographicIndicators.laborForce) * 100, 2)
         : 0;
+  const debtPerCapita =
+    demographicIndicators.population > 0 ? debtSeries.totalDebt / demographicIndicators.population : 0;
+  const vacancyRate = toPercent(
+    demographicIndicators.vacantHousingUnits,
+    demographicIndicators.housingUnits,
+  );
+  const occupiedHousingUnits =
+    demographicIndicators.ownerOccupiedHousingUnits + demographicIndicators.renterOccupiedHousingUnits;
+  const homeownershipRate = toPercent(
+    demographicIndicators.ownerOccupiedHousingUnits,
+    occupiedHousingUnits,
+  );
+  const receiptsToOutlaysRatio = toPercent(
+    latestSpending.receipts,
+    latestSpending.outlays,
+  );
+  const deficitToOutlaysRatio = toPercent(
+    latestSpending.deficit,
+    latestSpending.outlays,
+  );
 
   const economySnapshot = {
     population: demographicIndicators.population,
     medianIncome: demographicIndicators.medianIncome,
+    perCapitaIncome: demographicIndicators.perCapitaIncome,
     medianHomeValue: demographicIndicators.medianHomeValue,
+    medianRent: demographicIndicators.medianRent,
     medianAge: demographicIndicators.medianAge,
     giniIndex: demographicIndicators.giniIndex,
     laborForce: demographicIndicators.laborForce,
+    unemploymentPersons: demographicIndicators.unemploymentPersons,
     unemploymentRate,
     laborForceParticipationRate: blsIndicators.laborForceParticipationRate,
+    employmentPopulationRatio: blsIndicators.employmentPopulationRatio,
+    nonfarmPayrollEmployment: blsIndicators.nonfarmPayrollEmployment,
     cpiIndex: blsIndicators.cpiIndex,
     inflationYoY: blsIndicators.inflationYoY,
     averageHourlyEarnings: blsIndicators.averageHourlyEarnings,
     hourlyEarningsYoY: blsIndicators.hourlyEarningsYoY,
     totalPublicDebt: debtSeries.totalDebt,
     debtChange30Days: debtSeries.debtChange30Days,
+    debtPerCapita,
     latestOutlays: latestSpending.outlays,
     latestReceipts: latestSpending.receipts,
     latestDeficit: latestSpending.deficit,
+    receiptsToOutlaysRatio,
+    deficitToOutlaysRatio,
+    trailing12Outlays,
+    trailing12Receipts,
+    trailing12Deficit,
+    housingUnits: demographicIndicators.housingUnits,
+    vacantHousingUnits: demographicIndicators.vacantHousingUnits,
+    ownerOccupiedHousingUnits: demographicIndicators.ownerOccupiedHousingUnits,
+    renterOccupiedHousingUnits: demographicIndicators.renterOccupiedHousingUnits,
+    vacancyRate,
+    homeownershipRate,
+    bachelorsOrHigherShare: demographicIndicators.bachelorsOrHigherShare,
     grossPrivateDomesticInvestment: beaIndicators.grossPrivateDomesticInvestment,
     personalSavingRate: beaIndicators.personalSavingRate,
+    beaDataAvailable: beaIndicators.beaDataAvailable,
   };
 
   const economyTrends = {
@@ -869,8 +961,11 @@ async function generateDashboardData() {
     })),
     debtDaily: debtSeries.trend,
     unemploymentRate: blsIndicators.unemploymentTrend,
+    laborForceParticipationRate: blsIndicators.participationTrend,
+    employmentPopulationRatio: blsIndicators.employmentPopulationTrend,
     inflationYoY: blsIndicators.inflationTrend,
     hourlyEarningsYoY: blsIndicators.earningsTrend,
+    nonfarmPayroll: blsIndicators.payrollTrend,
   };
 
   const alerts = [

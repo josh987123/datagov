@@ -162,31 +162,53 @@ export interface SourceMetadata {
 export interface EconomySnapshot {
   population: number;
   medianIncome: number;
+  perCapitaIncome: number;
   medianHomeValue: number;
+  medianRent: number;
   medianAge: number;
   giniIndex: number;
   laborForce: number;
+  unemploymentPersons: number;
   unemploymentRate: number;
   laborForceParticipationRate: number;
+  employmentPopulationRatio: number;
+  nonfarmPayrollEmployment: number;
   cpiIndex: number;
   inflationYoY: number;
   averageHourlyEarnings: number;
   hourlyEarningsYoY: number;
   totalPublicDebt: number;
   debtChange30Days: number;
+  debtPerCapita: number;
   latestOutlays: number;
   latestReceipts: number;
   latestDeficit: number;
+  receiptsToOutlaysRatio: number;
+  deficitToOutlaysRatio: number;
+  trailing12Outlays: number;
+  trailing12Receipts: number;
+  trailing12Deficit: number;
+  housingUnits: number;
+  vacantHousingUnits: number;
+  ownerOccupiedHousingUnits: number;
+  renterOccupiedHousingUnits: number;
+  vacancyRate: number;
+  homeownershipRate: number;
+  bachelorsOrHigherShare: number;
   grossPrivateDomesticInvestment: number | null;
   personalSavingRate: number | null;
+  beaDataAvailable: boolean;
 }
 
 export interface EconomyTrends {
   monthlySpending: SpendingTrendPoint[];
   debtDaily: ValueTrendPoint[];
   unemploymentRate: ValueTrendPoint[];
+  laborForceParticipationRate: ValueTrendPoint[];
+  employmentPopulationRatio: ValueTrendPoint[];
   inflationYoY: ValueTrendPoint[];
   hourlyEarningsYoY: ValueTrendPoint[];
+  nonfarmPayroll: ValueTrendPoint[];
 }
 
 export interface EconomyData {
