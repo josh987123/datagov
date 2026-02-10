@@ -54,7 +54,7 @@ import {
   type MetricTrendSeries,
 } from "./components/MetricCard";
 import { RecentDatasetsTable } from "./components/RecentDatasetsTable";
-import { formatCompact, formatDateTime, formatNumber, formatPercent, truncate } from "./lib/format";
+import { formatCompact, formatDateTime, formatPercent, truncate } from "./lib/format";
 import type { DashboardData } from "./types";
 
 const PIE_COLORS = ["#8b5cf6", "#6366f1", "#06b6d4", "#14b8a6", "#22c55e", "#84cc16", "#f59e0b"];
@@ -70,11 +70,11 @@ const CATEGORY_LINKS = [
 
 function formatTooltipValue(value: number | string | undefined): string {
   if (typeof value === "number") {
-    return formatNumber(value);
+    return formatCompact(value);
   }
 
   const parsed = Number(value ?? 0);
-  return formatNumber(Number.isFinite(parsed) ? parsed : 0);
+  return formatCompact(Number.isFinite(parsed) ? parsed : 0);
 }
 
 function formatSignedPercent(value: number): string {
@@ -755,7 +755,7 @@ function OverviewPage({
         />
         <MetricCard
           title="Deficit streak"
-          value={formatNumber(economy.deficitStreakMonths)}
+          value={formatCompact(economy.deficitStreakMonths)}
           hint="Consecutive months with deficits"
           icon={<Landmark size={18} />}
           accent="violet"
@@ -1099,7 +1099,7 @@ function EconomyPage({
           </div>
           <div className="insight-item">
             <span>CPI index level</span>
-            <strong>{formatNumber(Math.round(economy.cpiIndex * 10) / 10)}</strong>
+            <strong>{formatCompact(Math.round(economy.cpiIndex * 10) / 10)}</strong>
           </div>
           <div className="insight-item">
             <span>Labor-force participation</span>
@@ -1192,7 +1192,7 @@ function LaborPricesPage({
         <MetricCard title="Employment-pop ratio" value={`${economy.employmentPopulationRatio.toFixed(1)}%`} hint="Share of population employed" icon={<Building2 size={18} />} accent="emerald" />
         <MetricCard title="Labor force" value={formatCompact(economy.laborForce)} hint="People in labor force" icon={<Layers3 size={18} />} accent="amber" />
         <MetricCard title="Unemployed persons" value={formatCompact(economy.unemploymentPersons)} hint="Count of unemployed persons" icon={<AlertTriangle size={18} />} accent="violet" />
-        <MetricCard title="CPI index" value={formatNumber(Math.round(economy.cpiIndex * 10) / 10)} hint="Consumer Price Index level" icon={<Sparkles size={18} />} accent="cyan" />
+        <MetricCard title="CPI index" value={formatCompact(Math.round(economy.cpiIndex * 10) / 10)} hint="Consumer Price Index level" icon={<Sparkles size={18} />} accent="cyan" />
         <MetricCard title="Inflation (YoY)" value={formatSignedPercent(economy.inflationYoY)} hint="CPI year-over-year change" icon={<CalendarClock size={18} />} accent="emerald" />
         <MetricCard title="Inflation 3m avg" value={formatSignedPercent(economy.inflationYoY3mAvg)} hint="Three-month average inflation" icon={<BarChart3 size={18} />} accent="amber" />
         <MetricCard title="Wage growth (YoY)" value={formatSignedPercent(economy.hourlyEarningsYoY)} hint="Average hourly earnings growth" icon={<Wallet size={18} />} accent="amber" />
@@ -1208,7 +1208,7 @@ function LaborPricesPage({
         <MetricCard title="Sahm rule value" value={`${economy.sahmRuleValue.toFixed(2)}pp`} hint="Unemployment 3m average minus 12m low" icon={<AlertTriangle size={18} />} accent="cyan" />
         <MetricCard title="Participation MoM delta" value={`${economy.laborForceParticipationMoMDelta.toFixed(2)}pp`} hint="Monthly change in participation" icon={<Users size={18} />} accent="emerald" />
         <MetricCard title="Employment-pop MoM delta" value={`${economy.employmentPopulationMoMDelta.toFixed(2)}pp`} hint="Monthly change in employment-population ratio" icon={<Building2 size={18} />} accent="amber" />
-        <MetricCard title="Core CPI index" value={formatNumber(Math.round(economy.coreCpiIndex * 10) / 10)} hint="CPI excluding food and energy" icon={<Sparkles size={18} />} accent="violet" />
+        <MetricCard title="Core CPI index" value={formatCompact(Math.round(economy.coreCpiIndex * 10) / 10)} hint="CPI excluding food and energy" icon={<Sparkles size={18} />} accent="violet" />
         <MetricCard title="Core inflation (YoY)" value={formatSignedPercent(economy.coreInflationYoY)} hint="Core CPI year-over-year change" icon={<Sparkles size={18} />} accent="cyan" />
         <MetricCard title="Core inflation (MoM)" value={formatSignedPercent(economy.coreInflationMoM)} hint="Core CPI month-over-month change" icon={<Sparkles size={18} />} accent="emerald" />
         <MetricCard title="CPI MoM" value={formatSignedPercent(economy.cpiMoM)} hint="Headline CPI month-over-month change" icon={<CalendarClock size={18} />} accent="amber" />
@@ -1456,12 +1456,12 @@ function FiscalPage({
         <MetricCard title="Outlays 3m avg" value={formatCurrencyCompact(economy.outlays3mAvg)} hint="Three-month average outlays" icon={<Landmark size={18} />} accent="amber" />
         <MetricCard title="Receipts 3m avg" value={formatCurrencyCompact(economy.receipts3mAvg)} hint="Three-month average receipts" icon={<Wallet size={18} />} accent="violet" />
         <MetricCard title="Fiscal impulse (YoY)" value={`${economy.fiscalImpulseYoY.toFixed(2)}pp`} hint="Outlays YoY minus receipts YoY" icon={<BarChart3 size={18} />} accent="cyan" />
-        <MetricCard title="Deficit streak months" value={formatNumber(economy.deficitStreakMonths)} hint="Consecutive months with deficits" icon={<AlertTriangle size={18} />} accent="emerald" />
+        <MetricCard title="Deficit streak months" value={formatCompact(economy.deficitStreakMonths)} hint="Consecutive months with deficits" icon={<AlertTriangle size={18} />} accent="emerald" />
         <MetricCard title="Receipts/outlays ratio" value={`${economy.receiptsToOutlaysRatio.toFixed(1)}%`} hint="Coverage of outlays by receipts" icon={<ShieldCheck size={18} />} accent="cyan" />
         <MetricCard title="Outlays YoY" value={formatSignedPercent(economy.outlaysYoY)} hint="Trailing-12-month outlay growth rate" icon={<BarChart3 size={18} />} accent="emerald" />
         <MetricCard title="Receipts YoY" value={formatSignedPercent(economy.receiptsYoY)} hint="Trailing-12-month receipts growth rate" icon={<BarChart3 size={18} />} accent="amber" />
         <MetricCard title="Deficit YoY" value={formatSignedPercent(economy.deficitYoY)} hint="Trailing-12-month deficit growth rate" icon={<BarChart3 size={18} />} accent="violet" />
-        <MetricCard title="Surplus months (12m)" value={formatNumber(economy.surplusMonthsLast12)} hint="Months where receipts exceeded outlays" icon={<CheckCircle2 size={18} />} accent="cyan" />
+        <MetricCard title="Surplus months (12m)" value={formatCompact(economy.surplusMonthsLast12)} hint="Months where receipts exceeded outlays" icon={<CheckCircle2 size={18} />} accent="cyan" />
       </section>
 
       <section className="panel-grid panel-grid--two">
@@ -1652,7 +1652,7 @@ function DemographicsPage({
   return (
     <div className="page-stack">
       <section className="metrics-grid">
-        <MetricCard title="Population" value={formatNumber(Math.round(economy.population))} hint="ACS U.S. population estimate" icon={<Users size={18} />} accent="violet" />
+        <MetricCard title="Population" value={formatCompact(Math.round(economy.population))} hint="ACS U.S. population estimate" icon={<Users size={18} />} accent="violet" />
         <MetricCard title="Households" value={formatCompact(economy.households)} hint="Total U.S. households" icon={<Users size={18} />} accent="cyan" />
         <MetricCard title="Median age" value={economy.medianAge.toFixed(1)} hint="Median age in years" icon={<CalendarClock size={18} />} accent="cyan" />
         <MetricCard title="Median household income" value={formatCurrencyCompact(economy.medianIncome)} hint="Income midpoint estimate" icon={<Wallet size={18} />} accent="emerald" />
@@ -1935,29 +1935,29 @@ function CatalogPage({
 
       <section className="metrics-grid">
         <MetricCard title="Catalog datasets" value={formatCompact(data.kpis.totalDatasets)} hint="Total metadata records indexed" icon={<Database size={18} />} accent="violet" />
-        <MetricCard title="Active publishers" value={formatNumber(data.kpis.organizations)} hint="Organizations with indexed datasets" icon={<Building2 size={18} />} accent="cyan" />
-        <MetricCard title="Catalog groups" value={formatNumber(data.kpis.groups)} hint="Distinct group collections" icon={<FolderTree size={18} />} accent="emerald" />
+        <MetricCard title="Active publishers" value={formatCompact(data.kpis.organizations)} hint="Organizations with indexed datasets" icon={<Building2 size={18} />} accent="cyan" />
+        <MetricCard title="Catalog groups" value={formatCompact(data.kpis.groups)} hint="Distinct group collections" icon={<FolderTree size={18} />} accent="emerald" />
         <MetricCard title="Freshness score" value={formatPercent(data.kpis.freshnessScore / 100)} hint="Updated within last 90 days" icon={<Sparkles size={18} />} accent="amber" />
         <MetricCard title="Updated last 7d" value={formatCompact(data.kpis.updatedLast7Days)} hint="Records modified in the latest week" icon={<RefreshCcw size={18} />} accent="violet" />
         <MetricCard title="Created last 7d" value={formatCompact(data.kpis.createdLast7Days)} hint="New records created in the latest week" icon={<CalendarClock size={18} />} accent="cyan" />
         <MetricCard title="Updated last 30d" value={formatCompact(data.kpis.updatedLast30Days)} hint="Records modified in last 30 days" icon={<RefreshCcw size={18} />} accent="emerald" />
         <MetricCard title="Updated last 365d" value={formatCompact(data.kpis.updatedLast365Days)} hint="Records modified in last year" icon={<CalendarClock size={18} />} accent="amber" />
-        <MetricCard title="Updates/day (30d)" value={formatNumber(Math.round(data.analytics.velocity.updatesPerDay30))} hint="Average daily update flow" icon={<BarChart3 size={18} />} accent="violet" />
-        <MetricCard title="Create/day (30d)" value={formatNumber(Math.round(data.analytics.velocity.creationsPerDay30))} hint="Average daily new-record flow" icon={<BarChart3 size={18} />} accent="cyan" />
+        <MetricCard title="Updates/day (30d)" value={formatCompact(Math.round(data.analytics.velocity.updatesPerDay30))} hint="Average daily update flow" icon={<BarChart3 size={18} />} accent="violet" />
+        <MetricCard title="Create/day (30d)" value={formatCompact(Math.round(data.analytics.velocity.creationsPerDay30))} hint="Average daily new-record flow" icon={<BarChart3 size={18} />} accent="cyan" />
         <MetricCard title="Update/create ratio" value={formatRatio(data.analytics.velocity.updateToCreateRatio)} hint="Update intensity relative to creation" icon={<Gauge size={18} />} accent="emerald" />
         <MetricCard title="Weekly momentum" value={formatSignedPercent(data.analytics.velocity.weeklyMomentum)} hint="Week-over-week update change" icon={<Sparkles size={18} />} accent="amber" />
         <MetricCard title="Top-5 publisher share" value={`${data.analytics.concentration.top5Share.toFixed(1)}%`} hint="Share owned by top 5 publishers" icon={<Building2 size={18} />} accent="violet" />
         <MetricCard title="Top-1 publisher share" value={`${data.analytics.concentration.top1Share.toFixed(1)}%`} hint="Share held by largest publisher" icon={<Building2 size={18} />} accent="amber" />
         <MetricCard title="Top-10 publisher share" value={`${data.analytics.concentration.top10Share.toFixed(1)}%`} hint="Share held by top 10 publishers" icon={<Building2 size={18} />} accent="violet" />
-        <MetricCard title="Publisher concentration (HHI)" value={formatNumber(Math.round(data.analytics.concentration.hhi))} hint="Higher value means more concentration" icon={<ShieldCheck size={18} />} accent="cyan" />
+        <MetricCard title="Publisher concentration (HHI)" value={formatCompact(Math.round(data.analytics.concentration.hhi))} hint="Higher value means more concentration" icon={<ShieldCheck size={18} />} accent="cyan" />
         <MetricCard title="Top-3 group share" value={`${data.analytics.groupCoverage.top3Share.toFixed(1)}%`} hint="Catalog share in largest 3 groups" icon={<FolderTree size={18} />} accent="emerald" />
         <MetricCard title="Avg resources/dataset" value={data.analytics.resourceCoverage.avgResources.toFixed(1)} hint="Average resources attached per dataset" icon={<Database size={18} />} accent="emerald" />
         <MetricCard title="Median resources/dataset" value={data.analytics.resourceCoverage.medianResources.toFixed(1)} hint="Median resources per dataset in sample" icon={<Database size={18} />} accent="amber" />
-        <MetricCard title="Max resources/dataset" value={formatNumber(data.analytics.resourceCoverage.maxResources)} hint="Highest resource count in sample" icon={<Database size={18} />} accent="violet" />
-        <MetricCard title="Resource sample size" value={formatNumber(data.analytics.resourceCoverage.sampleSize)} hint="Datasets used for resource diagnostics" icon={<Layers3 size={18} />} accent="cyan" />
+        <MetricCard title="Max resources/dataset" value={formatCompact(data.analytics.resourceCoverage.maxResources)} hint="Highest resource count in sample" icon={<Database size={18} />} accent="violet" />
+        <MetricCard title="Resource sample size" value={formatCompact(data.analytics.resourceCoverage.sampleSize)} hint="Datasets used for resource diagnostics" icon={<Layers3 size={18} />} accent="cyan" />
         <MetricCard title="Total sampled resources" value={formatCompact(data.analytics.resourceCoverage.totalResources)} hint="Total resources across sample" icon={<Layers3 size={18} />} accent="emerald" />
         <MetricCard title="No-resource share" value={`${data.analytics.resourceCoverage.noResourceShare.toFixed(1)}%`} hint="Datasets with zero resources in sample" icon={<AlertTriangle size={18} />} accent="amber" />
-        <MetricCard title="No-resource datasets" value={formatNumber(data.analytics.resourceCoverage.datasetsWithNoResources)} hint="Count of zero-resource datasets in sample" icon={<AlertTriangle size={18} />} accent="violet" />
+        <MetricCard title="No-resource datasets" value={formatCompact(data.analytics.resourceCoverage.datasetsWithNoResources)} hint="Count of zero-resource datasets in sample" icon={<AlertTriangle size={18} />} accent="violet" />
         <MetricCard title="Open-license share" value={`${data.analytics.licenseSummary.openShare.toFixed(1)}%`} hint="Portion tagged with open licenses" icon={<CheckCircle2 size={18} />} accent="violet" />
         <MetricCard title="Unspecified license share" value={`${data.analytics.licenseSummary.unspecifiedShare.toFixed(1)}%`} hint="Datasets missing/unclear license data" icon={<AlertTriangle size={18} />} accent="cyan" />
         <MetricCard title="Open license count" value={formatCompact(data.analytics.licenseSummary.openCount)} hint="Datasets tagged with open licenses" icon={<CheckCircle2 size={18} />} accent="emerald" />
@@ -2130,8 +2130,8 @@ function CatalogPage({
                 </button>
               </div>
               <p className="recent-summary">
-                Showing {formatNumber(visibleRecentDatasets.length)} of{" "}
-                {formatNumber(matchingRecentDatasets.length)} matching datasets
+                Showing {formatCompact(visibleRecentDatasets.length)} of{" "}
+                {formatCompact(matchingRecentDatasets.length)} matching datasets
               </p>
             </div>
             <RecentDatasetsTable rows={visibleRecentDatasets} />
