@@ -49,6 +49,7 @@ packages/
 Optional link-checking is supported and controlled by env flags:
 
 - `LINK_CHECK_ENABLED`
+- `AUTO_INGEST_ON_EMPTY`
 - `LINK_CHECK_MAX_PER_RUN`
 - `LINK_CHECK_TIMEOUT_MS`
 
@@ -188,6 +189,7 @@ In Render dashboard:
 
 - API service:
   - verify `INGEST_TOKEN` exists
+  - keep `AUTO_INGEST_ON_EMPTY=true` for first-run auto population
   - optionally set `CKAN_API_KEY`
 - Web service:
   - optionally set `AUTH_EMAIL`, `AUTH_PASSWORD` (to enable auth scaffold)

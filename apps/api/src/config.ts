@@ -15,6 +15,10 @@ const envSchema = z.object({
     .union([z.string(), z.boolean()])
     .transform((value) => String(value).toLowerCase() === "true")
     .default(false),
+  AUTO_INGEST_ON_EMPTY: z
+    .union([z.string(), z.boolean()])
+    .transform((value) => String(value).toLowerCase() === "true")
+    .default(true),
   LINK_CHECK_MAX_PER_RUN: z.coerce.number().int().min(0).max(500).default(30),
   LINK_CHECK_TIMEOUT_MS: z.coerce.number().int().min(500).max(15000).default(3500),
   INGEST_TOKEN: z.string().min(1, "INGEST_TOKEN is required"),

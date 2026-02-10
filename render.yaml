@@ -32,6 +32,8 @@ services:
         value: 20
       - key: LINK_CHECK_ENABLED
         value: "false"
+      - key: AUTO_INGEST_ON_EMPTY
+        value: "true"
       - key: LINK_CHECK_MAX_PER_RUN
         value: 30
       - key: LINK_CHECK_TIMEOUT_MS
