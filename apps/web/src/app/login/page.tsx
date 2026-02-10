@@ -20,7 +20,24 @@ export default function LoginPage(): JSX.Element {
   }
 
   useEffect(() => {
-    void refreshSession();
+    let cancelled = false;
+
+    fetch("/api/auth/session")
+      .then((response) => response.json())
+      .then((data: SessionState) => {
+        if (!cancelled) {
+          setSession(data);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSession({ authenticated: false });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
