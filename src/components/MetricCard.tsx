@@ -1,8 +1,6 @@
 import {
   createContext,
   useContext,
-  useMemo,
-  useState,
   type ReactNode,
 } from "react";
 
@@ -25,54 +23,25 @@ const EMPTY_TREND: MetricTrendSeries = {
 
 const MetricTrendContext = createContext<MetricTrendMap>({});
 
-function parseNumericFromDisplay(value: string): number {
-  const normalized = value.replaceAll(",", "").replace(/[^0-9.+-]/g, "").trim();
-  const parsed = Number.parseFloat(normalized);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
-
-function buildFallbackTrend(value: number): MetricTrendSeries {
-  const now = new Date();
-  const fiveYear = Array.from({ length: 60 }, (_, index) => {
-    const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (59 - index), 1));
-    const label = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      year: "2-digit",
-      timeZone: "UTC",
-    }).format(date);
-
-    return {
-      label,
-      value,
-    };
-  });
-
-  return {
-    oneYear: fiveYear.slice(-12),
-    fiveYear,
-  };
-}
-
 function normalizePoints(points: MetricTrendPoint[]): MetricTrendPoint[] {
   return points.filter((point) => Number.isFinite(point.value));
 }
 
-function clampTrend(points: MetricTrendPoint[]): MetricTrendPoint[] {
-  if (points.length >= 2) {
-    return points;
+function hasVisibleVariation(points: MetricTrendPoint[]): boolean {
+  if (points.length < 2) {
+    return false;
   }
 
-  if (points.length === 1) {
-    return [
-      { ...points[0], label: `${points[0].label}-a` },
-      { ...points[0], label: `${points[0].label}-b` },
-    ];
+  const values = points.map((point) => point.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min;
+  if (!Number.isFinite(range) || range <= 0) {
+    return false;
   }
 
-  return [
-    { label: "start", value: 0 },
-    { label: "end", value: 0 },
-  ];
+  const scale = Math.max(Math.abs(max), Math.abs(min), 1);
+  return range / scale >= 0.001;
 }
 
 function sparklineGeometry(points: MetricTrendPoint[]) {
@@ -136,13 +105,11 @@ export function MetricCard({
   accent = "violet",
   trend,
 }: MetricCardProps) {
-  const [range, setRange] = useState<"1y" | "5y">("1y");
   const trendMap = useContext(MetricTrendContext);
   const resolvedTrend = trend ?? trendMap[title] ?? EMPTY_TREND;
-  const fallback = useMemo(() => buildFallbackTrend(parseNumericFromDisplay(value)), [value]);
-  const rawPoints = range === "1y" ? resolvedTrend.oneYear : resolvedTrend.fiveYear;
-  const displayPoints = clampTrend(normalizePoints(rawPoints.length > 0 ? rawPoints : range === "1y" ? fallback.oneYear : fallback.fiveYear));
-  const geometry = sparklineGeometry(displayPoints);
+  const displayPoints = normalizePoints(resolvedTrend.fiveYear);
+  const showSparkline = hasVisibleVariation(displayPoints);
+  const geometry = showSparkline ? sparklineGeometry(displayPoints) : null;
   const startValue = displayPoints[0]?.value ?? 0;
   const endValue = displayPoints[displayPoints.length - 1]?.value ?? 0;
   const trendDelta = endValue - startValue;
@@ -151,40 +118,24 @@ export function MetricCard({
     <article className={`metric-card metric-card--${accent}`}>
       <div className="metric-card__header">
         <span className="metric-card__title">{title}</span>
-        <span className="metric-card__header-controls">
-          <span className="metric-card__range-toggle" role="group" aria-label={`${title} trend range`}>
-            <button
-              type="button"
-              className={range === "1y" ? "metric-card__range-button metric-card__range-button--active" : "metric-card__range-button"}
-              onClick={() => setRange("1y")}
-            >
-              1Y
-            </button>
-            <button
-              type="button"
-              className={range === "5y" ? "metric-card__range-button metric-card__range-button--active" : "metric-card__range-button"}
-              onClick={() => setRange("5y")}
-            >
-              5Y
-            </button>
-          </span>
-          <span className="metric-card__icon">{icon}</span>
-        </span>
+        <span className="metric-card__icon">{icon}</span>
       </div>
       <p className="metric-card__value">{value}</p>
-      <div className="metric-card__sparkline" aria-hidden="true">
-        <svg viewBox={`0 0 ${geometry.width} ${geometry.height}`} preserveAspectRatio="none">
-          <path d={geometry.areaPath} className="metric-card__sparkline-area" />
-          <polyline points={geometry.linePath} className="metric-card__sparkline-line" />
-        </svg>
-        <p className="metric-card__sparkline-caption">
-          {range === "1y" ? "Past year" : "Past 5 years"}:{" "}
-          <span className={trendDelta >= 0 ? "metric-card__sparkline-delta metric-card__sparkline-delta--up" : "metric-card__sparkline-delta metric-card__sparkline-delta--down"}>
-            {trendDelta >= 0 ? "+" : ""}
-            {trendDelta.toFixed(2)}
-          </span>
-        </p>
-      </div>
+      {showSparkline && geometry ? (
+        <div className="metric-card__sparkline" aria-hidden="true">
+          <svg viewBox={`0 0 ${geometry.width} ${geometry.height}`} preserveAspectRatio="none">
+            <path d={geometry.areaPath} className="metric-card__sparkline-area" />
+            <polyline points={geometry.linePath} className="metric-card__sparkline-line" />
+          </svg>
+          <p className="metric-card__sparkline-caption">
+            Past 5 years:{" "}
+            <span className={trendDelta >= 0 ? "metric-card__sparkline-delta metric-card__sparkline-delta--up" : "metric-card__sparkline-delta metric-card__sparkline-delta--down"}>
+              {trendDelta >= 0 ? "+" : ""}
+              {trendDelta.toFixed(2)}
+            </span>
+          </p>
+        </div>
+      ) : null}
       <p className="metric-card__hint">{hint}</p>
     </article>
   );
