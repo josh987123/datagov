@@ -33,3 +33,10 @@ export function formatDateTime(value: string | null): string {
     minute: "2-digit"
   });
 }
+
+export function formatPercent(value: number | null | undefined, maximumFractionDigits = 1): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "0%";
+  }
+  return `${(value * 100).toFixed(maximumFractionDigits)}%`;
+}

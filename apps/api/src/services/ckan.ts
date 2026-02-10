@@ -14,12 +14,18 @@ export interface CkanOrganization {
 
 export interface CkanResource {
   url?: string;
+  format?: string;
+  mimetype?: string;
+  datastore_active?: boolean;
+  resource_type?: string;
 }
 
 export interface CkanPackage {
   id: string;
   title: string;
   notes?: string;
+  license_title?: string;
+  license_id?: string;
   metadata_created?: string;
   metadata_modified?: string;
   url?: string;
@@ -103,4 +109,63 @@ export function extractSourceUrl(pkg: CkanPackage): string | null {
   }
   const firstResource = pkg.resources?.find((resource) => resource.url && resource.url.trim());
   return firstResource?.url?.trim() ?? null;
+}
+
+const OPEN_FORMAT_KEYWORDS = new Set([
+  "csv",
+  "json",
+  "xml",
+  "geojson",
+  "parquet",
+  "tsv",
+  "rdf",
+  "txt"
+]);
+
+const API_HINT_KEYWORDS = ["api", "query", "endpoint", "datastore"];
+
+function toSignalText(resource: CkanResource): string {
+  return `${resource.format ?? ""} ${resource.mimetype ?? ""} ${resource.resource_type ?? ""} ${resource.url ?? ""}`
+    .trim()
+    .toLowerCase();
+}
+
+export function evaluateResourceSignals(resources: CkanResource[] | undefined): {
+  resourceCount: number;
+  hasOpenFormat: boolean;
+  hasApiResource: boolean;
+} {
+  const list = resources ?? [];
+  let hasOpenFormat = false;
+  let hasApiResource = false;
+
+  for (const resource of list) {
+    const signal = toSignalText(resource);
+    if (!hasOpenFormat) {
+      for (const keyword of OPEN_FORMAT_KEYWORDS) {
+        if (signal.includes(keyword)) {
+          hasOpenFormat = true;
+          break;
+        }
+      }
+    }
+
+    if (!hasApiResource) {
+      if (resource.datastore_active) {
+        hasApiResource = true;
+      } else {
+        hasApiResource = API_HINT_KEYWORDS.some((keyword) => signal.includes(keyword));
+      }
+    }
+
+    if (hasOpenFormat && hasApiResource) {
+      break;
+    }
+  }
+
+  return {
+    resourceCount: list.length,
+    hasOpenFormat,
+    hasApiResource
+  };
 }

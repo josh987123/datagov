@@ -1,5 +1,9 @@
 import type {
+  AgenciesResponse,
+  AgencyDetailResponse,
   DatasetsResponse,
+  IngestRunsResponse,
+  MetricsInsightsResponse,
   MetricsSummaryResponse,
   MetricsTrendsResponse
 } from "@datagov/shared";
@@ -30,6 +34,9 @@ export async function getDatasets(params: {
   search?: string;
   agency?: string;
   tag?: string;
+  minQuality?: number;
+  staleOnly?: boolean;
+  sort?: "recent" | "quality" | "openness" | "freshness";
   page?: number;
   pageSize?: number;
 }): Promise<DatasetsResponse> {
@@ -37,8 +44,38 @@ export async function getDatasets(params: {
   if (params.search) query.set("search", params.search);
   if (params.agency) query.set("agency", params.agency);
   if (params.tag) query.set("tag", params.tag);
+  if (typeof params.minQuality === "number") query.set("minQuality", String(params.minQuality));
+  if (params.staleOnly) query.set("staleOnly", "true");
+  if (params.sort) query.set("sort", params.sort);
   if (params.page) query.set("page", String(params.page));
   if (params.pageSize) query.set("pageSize", String(params.pageSize));
 
   return fetchApi<DatasetsResponse>(`/datasets?${query.toString()}`);
+}
+
+export async function getMetricsInsights(days = 90): Promise<MetricsInsightsResponse> {
+  return fetchApi<MetricsInsightsResponse>(`/metrics/insights?days=${days}`);
+}
+
+export async function getIngestRuns(limit = 20): Promise<IngestRunsResponse> {
+  return fetchApi<IngestRunsResponse>(`/ingest/runs?limit=${limit}`);
+}
+
+export async function getAgencies(params: {
+  search?: string;
+  minQuality?: number;
+  page?: number;
+  pageSize?: number;
+}): Promise<AgenciesResponse> {
+  const query = new URLSearchParams();
+  if (params.search) query.set("search", params.search);
+  if (typeof params.minQuality === "number") query.set("minQuality", String(params.minQuality));
+  if (params.page) query.set("page", String(params.page));
+  if (params.pageSize) query.set("pageSize", String(params.pageSize));
+
+  return fetchApi<AgenciesResponse>(`/agencies?${query.toString()}`);
+}
+
+export async function getAgencyDetail(agencyId: number, days = 180): Promise<AgencyDetailResponse> {
+  return fetchApi<AgencyDetailResponse>(`/agencies/${agencyId}?days=${days}`);
 }

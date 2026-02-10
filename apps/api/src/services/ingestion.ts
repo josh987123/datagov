@@ -1,7 +1,9 @@
 import type { IngestRunSummary } from "@datagov/shared";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../db.js";
 import { env } from "../config.js";
 import {
+  evaluateResourceSignals,
   extractSourceUrl,
   fetchPackagePage,
   normalizeAgencyName,
@@ -10,6 +12,13 @@ import {
 } from "./ckan.js";
 import { mapIngestRun } from "./serializers.js";
 import { startOfUtcDay, subtractDays } from "../utils/date.js";
+import {
+  computeDaysSinceModified,
+  computeFreshnessScore,
+  computeOpennessScore,
+  computeQualityScore
+} from "./scoring.js";
+import { checkLinkHealth } from "./link-health.js";
 
 interface RunIngestionOptions {
   pageSize?: number;
@@ -61,25 +70,72 @@ async function recordDailySnapshots(ingestRunId: number): Promise<void> {
   const last7Cutoff = subtractDays(now, 7);
   const last30Cutoff = subtractDays(now, 30);
 
-  const [totalDatasets, datasetsAdded7d, datasetsAdded30d] = await Promise.all([
+  const [totalDatasets, datasetsAdded7d, datasetsAdded30d, staleDatasetCount, openFormatCount, apiResourceCount, brokenLinkCount] =
+    await Promise.all([
     prisma.dataset.count(),
     prisma.dataset.count({ where: { firstSeenAt: { gte: last7Cutoff } } }),
-    prisma.dataset.count({ where: { firstSeenAt: { gte: last30Cutoff } } })
+    prisma.dataset.count({ where: { firstSeenAt: { gte: last30Cutoff } } }),
+    prisma.dataset.count({ where: { OR: [{ daysSinceModified: { gte: 365 } }, { metadataModified: null }] } }),
+    prisma.dataset.count({ where: { hasOpenFormat: true } }),
+    prisma.dataset.count({ where: { hasApiResource: true } }),
+    prisma.dataset.count({ where: { linkStatus: "BROKEN" } })
   ]);
+
+  const averages = await prisma.dataset.aggregate({
+    _avg: {
+      qualityScore: true,
+      opennessScore: true
+    }
+  });
+
+  const previousSnapshot = await prisma.dailySnapshot.findFirst({
+    where: {
+      snapshotDate: { lt: snapshotDate }
+    },
+    orderBy: {
+      snapshotDate: "desc"
+    },
+    select: {
+      totalDatasets: true
+    }
+  });
+
+  const avgQualityScore = Number((averages._avg.qualityScore ?? 0).toFixed(2));
+  const avgOpennessScore = Number((averages._avg.opennessScore ?? 0).toFixed(2));
+  const staleDatasetShare = totalDatasets > 0 ? Number((staleDatasetCount / totalDatasets).toFixed(4)) : 0;
+  const openFormatShare = totalDatasets > 0 ? Number((openFormatCount / totalDatasets).toFixed(4)) : 0;
+  const apiResourceShare = totalDatasets > 0 ? Number((apiResourceCount / totalDatasets).toFixed(4)) : 0;
+  const netDatasetChange = previousSnapshot ? totalDatasets - previousSnapshot.totalDatasets : 0;
 
   await prisma.dailySnapshot.upsert({
     where: { snapshotDate },
     update: {
       totalDatasets,
+      netDatasetChange,
       datasetsAdded7d,
       datasetsAdded30d,
+      avgQualityScore,
+      avgOpennessScore,
+      staleDatasetCount,
+      staleDatasetShare,
+      openFormatShare,
+      apiResourceShare,
+      brokenLinkCount,
       lastIngestRunId: ingestRunId
     },
     create: {
       snapshotDate,
       totalDatasets,
+      netDatasetChange,
       datasetsAdded7d,
       datasetsAdded30d,
+      avgQualityScore,
+      avgOpennessScore,
+      staleDatasetCount,
+      staleDatasetShare,
+      openFormatShare,
+      apiResourceShare,
+      brokenLinkCount,
       lastIngestRunId: ingestRunId
     }
   });
@@ -119,6 +175,8 @@ export async function runIngestion(options: RunIngestionOptions = {}): Promise<I
 
   const agencyCache = new Map<string, number>();
   const tagCache = new Map<string, number>();
+  let linkChecksPerformed = 0;
+  const linkCheckMax = env.LINK_CHECK_MAX_PER_RUN;
 
   const ingestRun = await prisma.ingestRun.create({
     data: {
@@ -150,6 +208,7 @@ export async function runIngestion(options: RunIngestionOptions = {}): Promise<I
         }
 
         processedCount += 1;
+        const now = new Date();
 
         const agencyName = normalizeAgencyName(pkg.organization);
         let agencyId: number | null = null;
@@ -159,25 +218,89 @@ export async function runIngestion(options: RunIngestionOptions = {}): Promise<I
 
         const existingDataset = await prisma.dataset.findUnique({
           where: { ckanId: pkg.id },
-          select: { id: true }
+          select: {
+            id: true,
+            sourceUrl: true,
+            linkCheckedAt: true
+          }
         });
 
-        const datasetPayload = {
+        const normalizedTags = Array.from(
+          new Set(
+            (pkg.tags ?? [])
+              .map((tag) => normalizeTagName(tag))
+              .filter((tagName): tagName is string => Boolean(tagName))
+          )
+        );
+
+        const sourceUrl = extractSourceUrl(pkg);
+        const metadataModified = parseDate(pkg.metadata_modified);
+        const metadataCreated = parseDate(pkg.metadata_created);
+        const resourceSignals = evaluateResourceSignals(pkg.resources);
+        const hasDescription = Boolean(pkg.notes?.trim());
+        const hasLicense = Boolean(pkg.license_id?.trim() || pkg.license_title?.trim());
+        const daysSinceModified = computeDaysSinceModified(metadataModified);
+        const freshnessScore = computeFreshnessScore(daysSinceModified);
+        const qualityScore = computeQualityScore({
+          hasDescription,
+          tagCount: normalizedTags.length,
+          resourceCount: resourceSignals.resourceCount,
+          hasLicense,
+          freshnessScore
+        });
+        const opennessScore = computeOpennessScore({
+          hasOpenFormat: resourceSignals.hasOpenFormat,
+          hasApiResource: resourceSignals.hasApiResource,
+          hasLicense,
+          resourceCount: resourceSignals.resourceCount
+        });
+
+        const datasetPayload: Prisma.DatasetUncheckedCreateInput = {
+          ckanId: pkg.id,
           title: pkg.title?.trim() || "Untitled dataset",
           notes: pkg.notes?.trim() || null,
-          metadataCreated: parseDate(pkg.metadata_created),
-          metadataModified: parseDate(pkg.metadata_modified),
-          sourceUrl: extractSourceUrl(pkg),
+          metadataCreated,
+          metadataModified,
+          sourceUrl,
           organizationId: agencyId,
-          lastSeenAt: new Date()
+          lastSeenAt: now,
+          resourceCount: resourceSignals.resourceCount,
+          tagCount: normalizedTags.length,
+          hasOpenFormat: resourceSignals.hasOpenFormat,
+          hasApiResource: resourceSignals.hasApiResource,
+          hasDescription,
+          hasLicense,
+          freshnessScore,
+          qualityScore,
+          opennessScore,
+          daysSinceModified
         };
+
+        const shouldEvaluateLink =
+          env.LINK_CHECK_ENABLED &&
+          Boolean(sourceUrl) &&
+          linkChecksPerformed < linkCheckMax &&
+          (!existingDataset?.linkCheckedAt ||
+            Date.now() - existingDataset.linkCheckedAt.getTime() > 14 * 24 * 60 * 60 * 1000 ||
+            existingDataset.sourceUrl !== sourceUrl);
+
+        if (shouldEvaluateLink && sourceUrl) {
+          const health = await checkLinkHealth(sourceUrl, env.LINK_CHECK_TIMEOUT_MS);
+          datasetPayload.linkStatus = health.status;
+          datasetPayload.linkHttpStatus = health.httpStatus;
+          datasetPayload.linkCheckedAt = health.checkedAt;
+          linkChecksPerformed += 1;
+        }
+
+        const updatePayload: Prisma.DatasetUncheckedUpdateInput = { ...datasetPayload };
+        delete updatePayload.ckanId;
 
         let datasetId: number;
         if (existingDataset) {
           updatedCount += 1;
           const updatedDataset = await prisma.dataset.update({
             where: { id: existingDataset.id },
-            data: datasetPayload,
+            data: updatePayload,
             select: { id: true }
           });
           datasetId = updatedDataset.id;
@@ -192,14 +315,6 @@ export async function runIngestion(options: RunIngestionOptions = {}): Promise<I
           });
           datasetId = createdDataset.id;
         }
-
-        const normalizedTags = Array.from(
-          new Set(
-            (pkg.tags ?? [])
-              .map((tag) => normalizeTagName(tag))
-              .filter((tagName): tagName is string => Boolean(tagName))
-          )
-        );
 
         await prisma.datasetTag.deleteMany({
           where: { datasetId }
@@ -231,7 +346,11 @@ export async function runIngestion(options: RunIngestionOptions = {}): Promise<I
         totalFromSource,
         processedCount,
         insertedCount,
-        updatedCount
+        updatedCount,
+        message:
+          linkChecksPerformed > 0
+            ? `Completed with ${linkChecksPerformed} link health checks.`
+            : "Completed without link health checks."
       }
     });
 

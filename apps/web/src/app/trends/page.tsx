@@ -1,7 +1,9 @@
 import { DatasetGrowthChart } from "@/components/charts/dataset-growth-chart";
+import { ExposureTrendsChart } from "@/components/charts/exposure-trends-chart";
+import { ScoreTrendsChart } from "@/components/charts/score-trends-chart";
 import { TopAgenciesTrendChart } from "@/components/charts/top-agencies-trend-chart";
 import { getMetricsTrends } from "@/lib/api";
-import { formatCompactNumber } from "@/lib/format";
+import { formatCompactNumber, formatPercent } from "@/lib/format";
 
 interface TrendsPageProps {
   searchParams: Promise<{
@@ -14,6 +16,7 @@ export default async function TrendsPage({ searchParams }: TrendsPageProps) {
   const days = Math.min(365, Math.max(7, Number(params.days ?? "30") || 30));
   const trends = await getMetricsTrends(days);
   const latestTotal = trends.totals.length > 0 ? trends.totals[trends.totals.length - 1].totalDatasets : 0;
+  const latest = trends.totals.length > 0 ? trends.totals[trends.totals.length - 1] : null;
 
   return (
     <main className="space-y-4">
@@ -41,6 +44,30 @@ export default async function TrendsPage({ searchParams }: TrendsPageProps) {
       </section>
 
       <DatasetGrowthChart data={trends.totals} />
+      {latest ? (
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Net daily growth</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{formatCompactNumber(latest.netDatasetChange)}</p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg quality</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{latest.avgQualityScore.toFixed(1)}</p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg openness</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{latest.avgOpennessScore.toFixed(1)}</p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Stale share</p>
+            <p className="mt-2 text-2xl font-semibold text-slate-900">{formatPercent(latest.staleDatasetShare)}</p>
+          </article>
+        </section>
+      ) : null}
+      <section className="grid gap-6 xl:grid-cols-2">
+        <ScoreTrendsChart data={trends.totals} />
+        <ExposureTrendsChart data={trends.totals} />
+      </section>
       <TopAgenciesTrendChart series={trends.topAgenciesOverTime} />
     </main>
   );

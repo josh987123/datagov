@@ -1,6 +1,6 @@
-# Data.gov Metrics Dashboard (Monorepo)
+# US Data Dashboard (Monorepo)
 
-Production-ready full-stack dashboard for Data.gov CKAN metrics.
+Production-ready full-stack analytics platform for Data.gov CKAN metadata.
 
 ## Stack
 
@@ -30,17 +30,36 @@ packages/
   - tags
   - timestamps (`metadata_created`, `metadata_modified`)
 - Deduplicates by CKAN dataset identifier (`ckanId`)
+- Computes intelligence fields per dataset:
+  - `qualityScore` (metadata depth + freshness + resources + license)
+  - `opennessScore` (open formats + API-like resources + license)
+  - `freshnessScore`, `daysSinceModified`
+  - open/API flags and optional link health status
 - Tracks daily snapshots:
   - total datasets
+  - net daily dataset change
   - datasets added in last 7/30 days
+  - quality/openness averages
+  - stale/open/API coverage shares
+  - broken link counts
   - per-agency daily counts for trend charts
+
+Optional link-checking is supported and controlled by env flags:
+
+- `LINK_CHECK_ENABLED`
+- `LINK_CHECK_MAX_PER_RUN`
+- `LINK_CHECK_TIMEOUT_MS`
 
 ### API endpoints
 
 - `GET /health`
 - `GET /metrics/summary`
 - `GET /metrics/trends?days=30`
-- `GET /datasets?search=&agency=&tag=&page=`
+- `GET /metrics/insights?days=90`
+- `GET /datasets?search=&agency=&tag=&minQuality=&staleOnly=&sort=&page=`
+- `GET /agencies?search=&minQuality=&page=`
+- `GET /agencies/:agencyId?days=180`
+- `GET /ingest/runs?limit=25`
 - `POST /ingest/run` (protected by `x-ingest-token`)
 
 Includes:
@@ -50,17 +69,30 @@ Includes:
 ### Frontend pages
 
 - **Overview**
-  - total datasets
-  - datasets added in 7/30 days
-  - top agencies
-  - common tags
-  - last ingest run status/time
+  - KPI cards for volume, quality, openness, staleness, and link health
+  - growth/score/exposure trend visualization
+  - automated insight previews
+  - ingest timeline and top-agency summary
+- **Insights**
+  - interpretable auto-generated findings with severity and recommendations
+  - configurable analysis window
+- **Agencies**
+  - leaderboard with scale, quality, openness, stale share, and 30d growth
+  - filterable and paginated
+- **Agency detail**
+  - per-agency trend line
+  - freshness distribution
+  - top tags
+  - recent datasets + quality/openness snapshots
 - **Datasets**
   - searchable + paginated table
-  - filters by agency and tag
+  - filters by agency, tag, quality threshold, stale-only
+  - sorting by recent/quality/openness/freshness
 - **Trends**
-  - dataset growth over time chart
-  - top agencies over time chart
+  - dataset growth over time
+  - quality/openness trend lines
+  - staleness/open/API exposure trends
+  - top agencies over time
 - **Auth (scaffold)**
   - optional simple email/password scaffold routes and login page
 
@@ -87,6 +119,7 @@ Optional auth scaffold (web):
 - `AUTH_EMAIL`
 - `AUTH_PASSWORD`
 - `AUTH_SECRET`
+- `AUTH_COOKIE_NAME`
 
 ## Local development
 
@@ -157,3 +190,16 @@ A lightweight CI workflow is included at:
 - `.github/workflows/ci.yml`
 
 It installs dependencies, runs lint, and builds the monorepo.
+
+## Scheduled ingest
+
+A cron workflow is included at:
+
+- `.github/workflows/scheduled-ingest.yml`
+
+It triggers the ingest endpoint every 6 hours (and supports manual dispatch).
+
+Required repository secrets:
+
+- `INGEST_ENDPOINT` (e.g. `https://api.your-domain.com`)
+- `INGEST_TOKEN` (must match API `INGEST_TOKEN`)

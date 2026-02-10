@@ -13,6 +13,12 @@ enum IngestRunStatus {
   FAILED
 }
 
+enum LinkHealthStatus {
+  UNKNOWN
+  HEALTHY
+  BROKEN
+}
+
 model Agency {
   id             Int                  @id @default(autoincrement())
   ckanId         String?              @unique
@@ -28,6 +34,19 @@ model Dataset {
   ckanId           String      @unique
   title            String
   notes            String?
+  resourceCount    Int         @default(0)
+  tagCount         Int         @default(0)
+  hasOpenFormat    Boolean     @default(false)
+  hasApiResource   Boolean     @default(false)
+  hasDescription   Boolean     @default(false)
+  hasLicense       Boolean     @default(false)
+  freshnessScore   Float       @default(0)
+  qualityScore     Float       @default(0)
+  opennessScore    Float       @default(0)
+  daysSinceModified Int?
+  linkStatus       LinkHealthStatus @default(UNKNOWN)
+  linkCheckedAt    DateTime?
+  linkHttpStatus   Int?
   metadataCreated  DateTime?
   metadataModified DateTime?
   sourceUrl        String?
@@ -75,16 +94,24 @@ model IngestRun {
 }
 
 model DailySnapshot {
-  id             Int                  @id @default(autoincrement())
-  snapshotDate   DateTime             @unique
-  totalDatasets  Int
+  id              Int                  @id @default(autoincrement())
+  snapshotDate    DateTime             @unique
+  totalDatasets   Int
+  netDatasetChange Int                 @default(0)
   datasetsAdded7d Int
   datasetsAdded30d Int
+  avgQualityScore Float                @default(0)
+  avgOpennessScore Float               @default(0)
+  staleDatasetCount Int                @default(0)
+  staleDatasetShare Float              @default(0)
+  openFormatShare Float                @default(0)
+  apiResourceShare Float               @default(0)
+  brokenLinkCount Int                  @default(0)
   lastIngestRunId Int?
-  lastIngestRun   IngestRun?          @relation(fields: [lastIngestRunId], references: [id], onDelete: SetNull)
+  lastIngestRun   IngestRun?           @relation(fields: [lastIngestRunId], references: [id], onDelete: SetNull)
   agencies        DailyAgencySnapshot[]
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
 }
 
 model DailyAgencySnapshot {
