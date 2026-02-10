@@ -124,18 +124,31 @@ async function fetchDashboardSnapshot(): Promise<DashboardData> {
 interface ChartVm {
   monthlySpending: Array<{ label: string; outlays: number; receipts: number; deficit: number }>;
   debtDaily: Array<{ label: string; value: number }>;
+  debtDailyChange: Array<{ label: string; value: number }>;
   unemploymentTrend: Array<{ label: string; value: number }>;
+  underemploymentTrend: Array<{ label: string; value: number }>;
+  unemploymentGapTrend: Array<{ label: string; value: number }>;
   participationTrend: Array<{ label: string; value: number }>;
   employmentPopulationTrend: Array<{ label: string; value: number }>;
   inflationTrend: Array<{ label: string; value: number }>;
+  coreInflationTrend: Array<{ label: string; value: number }>;
+  cpiMoMTrend: Array<{ label: string; value: number }>;
   earningsTrend: Array<{ label: string; value: number }>;
+  earningsMoMTrend: Array<{ label: string; value: number }>;
+  weeklyEarningsYoYTrend: Array<{ label: string; value: number }>;
   realWageTrend: Array<{ label: string; value: number }>;
   deficitShareTrend: Array<{ label: string; value: number }>;
+  deficit3mAvgTrend: Array<{ label: string; value: number }>;
+  outlays3mAvgTrend: Array<{ label: string; value: number }>;
+  receipts3mAvgTrend: Array<{ label: string; value: number }>;
   payrollTrend: Array<{ label: string; value: number }>;
+  payrollMoMTrend: Array<{ label: string; value: number }>;
   macroTrend: Array<{
     label: string;
     unemployment: number;
+    underemployment: number;
     inflation: number;
+    coreInflation: number;
     wageGrowth: number;
     realWage: number;
   }>;
@@ -152,34 +165,60 @@ interface ChartVm {
 
 function buildChartVm(data: DashboardData): ChartVm {
   const unemploymentTrend = (data.economy.trends.unemploymentRate ?? []).slice(-120);
+  const underemploymentTrend = (data.economy.trends.underemploymentRate ?? []).slice(-120);
+  const unemploymentGapTrend = (data.economy.trends.unemploymentGap ?? []).slice(-120);
   const participationTrend = (data.economy.trends.laborForceParticipationRate ?? []).slice(-120);
   const employmentPopulationTrend = (data.economy.trends.employmentPopulationRatio ?? []).slice(-120);
   const inflationTrend = (data.economy.trends.inflationYoY ?? []).slice(-120);
+  const coreInflationTrend = (data.economy.trends.coreInflationYoY ?? []).slice(-120);
+  const cpiMoMTrend = (data.economy.trends.cpiMoM ?? []).slice(-120);
   const earningsTrend = (data.economy.trends.hourlyEarningsYoY ?? []).slice(-120);
+  const earningsMoMTrend = (data.economy.trends.hourlyEarningsMoM ?? []).slice(-120);
+  const weeklyEarningsYoYTrend = (data.economy.trends.weeklyEarningsYoY ?? []).slice(-120);
   const realWageTrend = (data.economy.trends.realWageYoY ?? []).slice(-120);
   const payrollTrend = (data.economy.trends.nonfarmPayroll ?? []).slice(-120);
+  const payrollMoMTrend = (data.economy.trends.payrollMoMChange ?? []).slice(-120);
   const monthlySpending = (data.economy.trends.monthlySpending ?? []).slice(-60);
   const debtDaily = (data.economy.trends.debtDaily ?? []).slice(-365);
+  const debtDailyChange = (data.economy.trends.debtDailyChange ?? []).slice(-365);
   const deficitShareTrend = (data.economy.trends.deficitShareOfOutlays ?? []).slice(-60);
+  const deficit3mAvgTrend = (data.economy.trends.deficit3mAvg ?? []).slice(-60);
+  const outlays3mAvgTrend = (data.economy.trends.outlays3mAvg ?? []).slice(-60);
+  const receipts3mAvgTrend = (data.economy.trends.receipts3mAvg ?? []).slice(-60);
   const inflationMap = new Map(inflationTrend.map((point) => [point.label, point.value]));
+  const underemploymentMap = new Map(underemploymentTrend.map((point) => [point.label, point.value]));
+  const coreInflationMap = new Map(coreInflationTrend.map((point) => [point.label, point.value]));
   const wageMap = new Map(earningsTrend.map((point) => [point.label, point.value]));
   const realWageMap = new Map(realWageTrend.map((point) => [point.label, point.value]));
 
   return {
     monthlySpending,
     debtDaily,
+    debtDailyChange,
     unemploymentTrend,
+    underemploymentTrend,
+    unemploymentGapTrend,
     participationTrend,
     employmentPopulationTrend,
     inflationTrend,
+    coreInflationTrend,
+    cpiMoMTrend,
     earningsTrend,
+    earningsMoMTrend,
+    weeklyEarningsYoYTrend,
     realWageTrend,
     deficitShareTrend,
+    deficit3mAvgTrend,
+    outlays3mAvgTrend,
+    receipts3mAvgTrend,
     payrollTrend,
+    payrollMoMTrend,
     macroTrend: unemploymentTrend.map((point) => ({
       label: point.label,
       unemployment: point.value,
+      underemployment: underemploymentMap.get(point.label) ?? 0,
       inflation: inflationMap.get(point.label) ?? 0,
+      coreInflation: coreInflationMap.get(point.label) ?? 0,
       wageGrowth: wageMap.get(point.label) ?? 0,
       realWage: realWageMap.get(point.label) ?? 0,
     })),
@@ -296,6 +335,12 @@ function OverviewPage({
   charts: ChartVm;
 }) {
   const economy = data.economy.snapshot;
+  const cpiMoMMap = new Map(charts.cpiMoMTrend.map((point) => [point.label, point.value]));
+  const wageMoMVsCpi = charts.earningsMoMTrend.map((point) => ({
+    label: point.label,
+    wageMoM: point.value,
+    cpiMoM: cpiMoMMap.get(point.label) ?? 0,
+  }));
 
   return (
     <div className="page-stack">
@@ -384,6 +429,97 @@ function OverviewPage({
           icon={<Landmark size={18} />}
           accent="amber"
         />
+        <MetricCard
+          title="Underemployment (U6)"
+          value={`${economy.underemploymentRate.toFixed(1)}%`}
+          hint="Broader labor underutilization rate"
+          icon={<Gauge size={18} />}
+          accent="violet"
+        />
+        <MetricCard
+          title="U6 - U3 gap"
+          value={`${economy.underemploymentGap.toFixed(1)}pp`}
+          hint="Broader slack versus headline unemployment"
+          icon={<Users size={18} />}
+          accent="cyan"
+        />
+        <MetricCard
+          title="Sahm rule value"
+          value={`${economy.sahmRuleValue.toFixed(2)}pp`}
+          hint="3m unemployment avg above 12m low"
+          icon={<AlertTriangle size={18} />}
+          accent="emerald"
+        />
+        <MetricCard
+          title="Core inflation (YoY)"
+          value={formatSignedPercent(economy.coreInflationYoY)}
+          hint="CPI excluding food and energy"
+          icon={<Sparkles size={18} />}
+          accent="amber"
+        />
+        <MetricCard
+          title="Inflation gap to 2%"
+          value={`${economy.inflationGapToTarget.toFixed(2)}pp`}
+          hint="Distance from common inflation target"
+          icon={<CalendarClock size={18} />}
+          accent="violet"
+        />
+        <MetricCard
+          title="Debt held by public share"
+          value={`${economy.debtHeldByPublicShare.toFixed(1)}%`}
+          hint="Publicly held share of total debt"
+          icon={<Database size={18} />}
+          accent="cyan"
+        />
+        <MetricCard
+          title="Debt growth (1y)"
+          value={formatSignedPercent(economy.debtChange365DaysPct)}
+          hint="Total debt percent change over 1 year"
+          icon={<BarChart3 size={18} />}
+          accent="emerald"
+        />
+        <MetricCard
+          title="Debt daily volatility (30d)"
+          value={formatCurrencyCompact(economy.debtDailyVolatility30)}
+          hint="Std-dev of daily debt change"
+          icon={<Layers3 size={18} />}
+          accent="amber"
+        />
+        <MetricCard
+          title="Severe rent burden"
+          value={`${economy.severeRentBurdenShare.toFixed(1)}%`}
+          hint="Renter households spending 35%+ income on rent"
+          icon={<Home size={18} />}
+          accent="violet"
+        />
+        <MetricCard
+          title="Long commute share"
+          value={`${economy.longCommuteShare.toFixed(1)}%`}
+          hint="Workers commuting 45+ minutes"
+          icon={<Globe2 size={18} />}
+          accent="cyan"
+        />
+        <MetricCard
+          title="Zero-vehicle households"
+          value={`${economy.zeroVehicleShare.toFixed(1)}%`}
+          hint="Households with no vehicle available"
+          icon={<Building2 size={18} />}
+          accent="emerald"
+        />
+        <MetricCard
+          title="Dependency ratio"
+          value={`${economy.dependencyRatio.toFixed(1)}%`}
+          hint="(Under-18 + 65+) relative to working-age population"
+          icon={<Users size={18} />}
+          accent="amber"
+        />
+        <MetricCard
+          title="Deficit streak"
+          value={formatNumber(economy.deficitStreakMonths)}
+          hint="Consecutive months with deficits"
+          icon={<Landmark size={18} />}
+          accent="violet"
+        />
       </section>
 
       <section className="panel-grid panel-grid--two">
@@ -428,6 +564,34 @@ function OverviewPage({
               <Line type="monotone" dataKey="inflation" name="Inflation YoY" stroke="#f59e0b" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="wageGrowth" name="Wage YoY" stroke="#14b8a6" strokeWidth={2} dot={false} />
             </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Headline vs core inflation" subtitle="Comparing broad CPI and core CPI YoY">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={charts.macroTrend.slice(-48)} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Legend />
+              <Line type="monotone" dataKey="inflation" name="Headline CPI YoY" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="coreInflation" name="Core CPI YoY" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Daily debt change (recent)" subtitle="Absolute daily movement in total public debt">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={charts.debtDailyChange.slice(-20)} margin={{ top: 8, right: 10, left: -6, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
+              <Tooltip formatter={formatTooltipValue} />
+              <Bar dataKey="value" fill="#ef4444" radius={[8, 8, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
       </section>
@@ -503,6 +667,14 @@ function EconomyPage({
   charts: ChartVm;
 }) {
   const economy = data.economy.snapshot;
+  const rollingReceiptsMap = new Map(charts.receipts3mAvgTrend.map((point) => [point.label, point.value]));
+  const rollingDeficitMap = new Map(charts.deficit3mAvgTrend.map((point) => [point.label, point.value]));
+  const rollingFiscalTrend = charts.outlays3mAvgTrend.map((point) => ({
+    label: point.label,
+    outlays3m: point.value,
+    receipts3m: rollingReceiptsMap.get(point.label) ?? 0,
+    deficit3m: rollingDeficitMap.get(point.label) ?? 0,
+  }));
 
   return (
     <div className="page-stack">
@@ -523,6 +695,24 @@ function EconomyPage({
         <MetricCard title="Annual rent / income" value={`${(economy.annualRentToIncomeRatio * 100).toFixed(1)}%`} hint="Rent burden proxy" icon={<Building2 size={18} />} accent="cyan" />
         <MetricCard title="Internet access rate" value={`${economy.internetAccessRate.toFixed(1)}%`} hint="Households with internet access" icon={<Globe2 size={18} />} accent="emerald" />
         <MetricCard title="Bachelor+ attainment" value={`${economy.bachelorsOrHigherShare.toFixed(1)}%`} hint="Education attainment benchmark" icon={<Users size={18} />} accent="amber" />
+        <MetricCard title="High school+ attainment" value={`${economy.highSchoolOrHigherShare.toFixed(1)}%`} hint="Adults 25+ with high school or higher" icon={<Users size={18} />} accent="violet" />
+        <MetricCard title="Less than high school" value={`${economy.lessThanHighSchoolShare.toFixed(1)}%`} hint="Adults 25+ below high school level" icon={<Users size={18} />} accent="cyan" />
+        <MetricCard title="Average weekly hours" value={economy.averageWeeklyHours.toFixed(1)} hint="BLS average weekly hours" icon={<CalendarClock size={18} />} accent="emerald" />
+        <MetricCard title="Weekly hours YoY" value={formatSignedPercent(economy.averageWeeklyHoursYoY)} hint="Year-over-year hours change" icon={<CalendarClock size={18} />} accent="amber" />
+        <MetricCard title="Hourly earnings MoM" value={formatSignedPercent(economy.hourlyEarningsMoM)} hint="Month-over-month wage change" icon={<Wallet size={18} />} accent="violet" />
+        <MetricCard title="Weekly earnings" value={formatCurrencyCompact(economy.weeklyEarnings)} hint="Hourly earnings × weekly hours" icon={<Wallet size={18} />} accent="cyan" />
+        <MetricCard title="Weekly earnings YoY" value={formatSignedPercent(economy.weeklyEarningsYoY)} hint="Year-over-year weekly earnings growth" icon={<Wallet size={18} />} accent="emerald" />
+        <MetricCard title="Real weekly earnings YoY" value={formatSignedPercent(economy.realWeeklyEarningsYoY)} hint="Weekly earnings growth net of inflation" icon={<Sparkles size={18} />} accent="amber" />
+        <MetricCard title="Payroll MoM change" value={formatCompact(economy.payrollMoMChange)} hint="Absolute monthly payroll index change" icon={<Layers3 size={18} />} accent="violet" />
+        <MetricCard title="Payroll YoY change" value={formatSignedPercent(economy.payrollYoYChange)} hint="Year-over-year payroll growth" icon={<Layers3 size={18} />} accent="cyan" />
+        <MetricCard title="Payroll 3m avg change" value={formatCompact(economy.payroll3mAvgChange)} hint="Smoothed monthly payroll change" icon={<Layers3 size={18} />} accent="emerald" />
+        <MetricCard title="Core inflation YoY" value={formatSignedPercent(economy.coreInflationYoY)} hint="Core CPI year-over-year change" icon={<Sparkles size={18} />} accent="amber" />
+        <MetricCard title="Core inflation MoM" value={formatSignedPercent(economy.coreInflationMoM)} hint="Core CPI month-over-month change" icon={<Sparkles size={18} />} accent="violet" />
+        <MetricCard title="CPI MoM" value={formatSignedPercent(economy.cpiMoM)} hint="Headline CPI month-over-month change" icon={<Gauge size={18} />} accent="cyan" />
+        <MetricCard title="Inflation-core spread" value={`${economy.inflationVsCoreSpread.toFixed(2)}pp`} hint="Headline inflation minus core inflation" icon={<Gauge size={18} />} accent="emerald" />
+        <MetricCard title="Severe rent burden" value={`${economy.severeRentBurdenShare.toFixed(1)}%`} hint="Renters paying 35%+ income on rent" icon={<Home size={18} />} accent="amber" />
+        <MetricCard title="Owner cost burden" value={`${economy.ownerCostBurdenShare.toFixed(1)}%`} hint="Owners paying 30%+ income on housing costs" icon={<Home size={18} />} accent="violet" />
+        <MetricCard title="Persons per household" value={economy.personsPerHousehold.toFixed(2)} hint="Average household size estimate" icon={<Users size={18} />} accent="cyan" />
       </section>
 
       <section className="panel-grid panel-grid--two">
@@ -597,6 +787,69 @@ function EconomyPage({
               <strong>{economy.bachelorsOrHigherShare.toFixed(1)}%</strong>
             </div>
           </div>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Headline vs core inflation trend" subtitle="Comparing broad and core inflation regimes">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={charts.macroTrend.slice(-60)} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Legend />
+              <Line type="monotone" dataKey="inflation" name="Headline YoY" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="coreInflation" name="Core YoY" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="realWage" name="Real wage YoY" stroke="#10b981" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Monthly wage vs CPI momentum" subtitle="Short-term wage inflation versus price inflation">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={wageMoMVsCpi.slice(-36)} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Legend />
+              <Line type="monotone" dataKey="wageMoM" name="Earnings MoM" stroke="#06b6d4" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="cpiMoM" name="CPI MoM" stroke="#f97316" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Weekly earnings growth (YoY)" subtitle="Combined earnings-and-hours growth profile">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={charts.weeklyEarningsYoYTrend.slice(-60)} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Line type="monotone" dataKey="value" name="Weekly earnings YoY" stroke="#22c55e" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Payroll monthly change" subtitle="Month-over-month payroll level change with labels">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={charts.payrollMoMTrend.slice(-24)} margin={{ top: 8, right: 12, left: -8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
+              <Tooltip formatter={formatTooltipValue} />
+              <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => formatCompact(Number(value ?? 0))}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </ChartPanel>
       </section>
 
@@ -677,6 +930,12 @@ function LaborPricesPage({
 }) {
   const economy = data.economy.snapshot;
   const latestPayrollYoY = charts.payrollTrend.at(-1)?.value ?? 0;
+  const earningsMoMMap = new Map(charts.earningsMoMTrend.map((point) => [point.label, point.value]));
+  const momTrend = charts.cpiMoMTrend.map((point) => ({
+    label: point.label,
+    cpiMoM: point.value,
+    earningsMoM: earningsMoMMap.get(point.label) ?? 0,
+  }));
   const laborTrend = charts.participationTrend.map((point) => {
     const employmentPoint = charts.employmentPopulationTrend.find((entry) => entry.label === point.label);
     return {
@@ -703,6 +962,22 @@ function LaborPricesPage({
         <MetricCard title="Real wage growth" value={formatSignedPercent(economy.realWageYoY)} hint="Wage growth minus inflation" icon={<Gauge size={18} />} accent="cyan" />
         <MetricCard title="Real wage 3m avg" value={formatSignedPercent(economy.realWageYoY3mAvg)} hint="Smoothed real wage trajectory" icon={<Gauge size={18} />} accent="emerald" />
         <MetricCard title="Payroll growth YoY" value={formatSignedPercent(latestPayrollYoY)} hint="Nonfarm payroll year-over-year" icon={<Layers3 size={18} />} accent="amber" />
+        <MetricCard title="Unemployment MoM delta" value={`${economy.unemploymentRateMoMDelta.toFixed(2)}pp`} hint="Monthly change in unemployment rate" icon={<Gauge size={18} />} accent="violet" />
+        <MetricCard title="Unemployment YoY delta" value={`${economy.unemploymentRateYoYDelta.toFixed(2)}pp`} hint="Annual change in unemployment rate" icon={<Gauge size={18} />} accent="cyan" />
+        <MetricCard title="Underemployment (U6)" value={`${economy.underemploymentRate.toFixed(1)}%`} hint="Broader labor underutilization metric" icon={<Users size={18} />} accent="emerald" />
+        <MetricCard title="U6-U3 gap" value={`${economy.underemploymentGap.toFixed(1)}pp`} hint="Difference between broad and headline unemployment" icon={<Users size={18} />} accent="amber" />
+        <MetricCard title="Long-term unemployment share" value={`${economy.longTermUnemploymentShare.toFixed(1)}%`} hint="Unemployed for 27+ weeks as share of unemployed" icon={<AlertTriangle size={18} />} accent="violet" />
+        <MetricCard title="Sahm rule value" value={`${economy.sahmRuleValue.toFixed(2)}pp`} hint="Unemployment 3m average minus 12m low" icon={<AlertTriangle size={18} />} accent="cyan" />
+        <MetricCard title="Participation MoM delta" value={`${economy.laborForceParticipationMoMDelta.toFixed(2)}pp`} hint="Monthly change in participation" icon={<Users size={18} />} accent="emerald" />
+        <MetricCard title="Employment-pop MoM delta" value={`${economy.employmentPopulationMoMDelta.toFixed(2)}pp`} hint="Monthly change in employment-population ratio" icon={<Building2 size={18} />} accent="amber" />
+        <MetricCard title="Core CPI index" value={formatNumber(Math.round(economy.coreCpiIndex * 10) / 10)} hint="CPI excluding food and energy" icon={<Sparkles size={18} />} accent="violet" />
+        <MetricCard title="Core inflation (YoY)" value={formatSignedPercent(economy.coreInflationYoY)} hint="Core CPI year-over-year change" icon={<Sparkles size={18} />} accent="cyan" />
+        <MetricCard title="Core inflation (MoM)" value={formatSignedPercent(economy.coreInflationMoM)} hint="Core CPI month-over-month change" icon={<Sparkles size={18} />} accent="emerald" />
+        <MetricCard title="CPI MoM" value={formatSignedPercent(economy.cpiMoM)} hint="Headline CPI month-over-month change" icon={<CalendarClock size={18} />} accent="amber" />
+        <MetricCard title="Hourly earnings MoM" value={formatSignedPercent(economy.hourlyEarningsMoM)} hint="Monthly wage growth pace" icon={<Wallet size={18} />} accent="violet" />
+        <MetricCard title="Weekly earnings YoY" value={formatSignedPercent(economy.weeklyEarningsYoY)} hint="Combined hours and wage growth YoY" icon={<Wallet size={18} />} accent="cyan" />
+        <MetricCard title="Real weekly earnings YoY" value={formatSignedPercent(economy.realWeeklyEarningsYoY)} hint="Weekly earnings growth net of inflation" icon={<Gauge size={18} />} accent="emerald" />
+        <MetricCard title="Payroll MoM change" value={formatCompact(economy.payrollMoMChange)} hint="Absolute monthly payroll index move" icon={<Layers3 size={18} />} accent="amber" />
       </section>
 
       <section className="panel-grid panel-grid--two">
@@ -728,6 +1003,68 @@ function LaborPricesPage({
               <Legend />
               <Line type="monotone" dataKey="participation" name="Participation" stroke="#22c55e" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="employmentPopulation" name="Employment-population" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Unemployment vs underemployment" subtitle="Headline U3 against broader U6 unemployment">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={charts.macroTrend} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Legend />
+              <Line type="monotone" dataKey="unemployment" name="U3 unemployment" stroke="#0ea5e9" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="underemployment" name="U6 underemployment" stroke="#ef4444" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Underemployment gap (U6-U3)" subtitle="Broader slack above headline unemployment">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={charts.unemploymentGapTrend.slice(-24)} margin={{ top: 8, right: 10, left: -8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}pp`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}pp`} />
+              <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(1)}pp`}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Monthly inflation vs wage pace" subtitle="Short-term CPI and hourly earnings momentum">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={momTrend.slice(-36)} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Legend />
+              <Line type="monotone" dataKey="cpiMoM" name="CPI MoM" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="earningsMoM" name="Earnings MoM" stroke="#06b6d4" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Weekly earnings growth (YoY)" subtitle="Income momentum including hours worked">
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={charts.weeklyEarningsYoYTrend.slice(-60)} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Line type="monotone" dataKey="value" name="Weekly earnings YoY" stroke="#22c55e" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </ChartPanel>
@@ -842,6 +1179,17 @@ function FiscalPage({
         <MetricCard title="Debt change (30d)" value={formatCurrencyCompact(economy.debtChange30Days)} hint="Recent debt movement" icon={<BarChart3 size={18} />} accent="cyan" />
         <MetricCard title="Debt change (1y)" value={formatCurrencyCompact(economy.debtChange365Days)} hint="Year-over-year debt movement" icon={<Gauge size={18} />} accent="emerald" />
         <MetricCard title="Debt YoY growth" value={formatSignedPercent(economy.debtYoYGrowthPct)} hint="Debt growth percentage over one year" icon={<Sparkles size={18} />} accent="amber" />
+        <MetricCard title="Debt held by public" value={formatCurrencyCompact(economy.debtHeldByPublic)} hint="Portion held by investors/public" icon={<Database size={18} />} accent="violet" />
+        <MetricCard title="Intragov holdings" value={formatCurrencyCompact(economy.intragovernmentalHoldings)} hint="Debt held by government accounts" icon={<Database size={18} />} accent="cyan" />
+        <MetricCard title="Debt held by public share" value={`${economy.debtHeldByPublicShare.toFixed(1)}%`} hint="Public-held share of total debt" icon={<ShieldCheck size={18} />} accent="emerald" />
+        <MetricCard title="Debt intragov share" value={`${economy.intragovShare.toFixed(1)}%`} hint="Intragovernmental share of total debt" icon={<ShieldCheck size={18} />} accent="amber" />
+        <MetricCard title="Debt change (7d %)" value={formatSignedPercent(economy.debtChange7DaysPct)} hint="Percent move over one week" icon={<BarChart3 size={18} />} accent="violet" />
+        <MetricCard title="Debt change (30d %)" value={formatSignedPercent(economy.debtChange30DaysPct)} hint="Percent move over one month" icon={<BarChart3 size={18} />} accent="cyan" />
+        <MetricCard title="Debt change (1y %)" value={formatSignedPercent(economy.debtChange365DaysPct)} hint="Percent move over one year" icon={<BarChart3 size={18} />} accent="emerald" />
+        <MetricCard title="Avg daily debt change (30d)" value={formatCurrencyCompact(economy.avgDailyDebtChange30)} hint="Average daily debt movement over 30 days" icon={<CalendarClock size={18} />} accent="amber" />
+        <MetricCard title="Debt volatility (30d)" value={formatCurrencyCompact(economy.debtDailyVolatility30)} hint="Std-dev of daily debt changes" icon={<Gauge size={18} />} accent="violet" />
+        <MetricCard title="Max daily debt increase (30d)" value={formatCurrencyCompact(economy.maxDailyDebtIncrease30)} hint="Largest daily increase in last 30 days" icon={<Layers3 size={18} />} accent="cyan" />
+        <MetricCard title="Max daily debt decrease (30d)" value={formatCurrencyCompact(economy.maxDailyDebtDecrease30)} hint="Largest daily decrease in last 30 days" icon={<Layers3 size={18} />} accent="emerald" />
         <MetricCard title="Debt per capita" value={formatCurrencyCompact(economy.debtPerCapita)} hint="Debt normalized by population" icon={<Users size={18} />} accent="emerald" />
         <MetricCard title="Debt-to-income ratio" value={formatRatio(economy.debtToIncomeRatio)} hint="Debt per capita / per-capita income" icon={<ShieldCheck size={18} />} accent="violet" />
         <MetricCard title="Latest outlays" value={formatCurrencyCompact(economy.latestOutlays)} hint="Most recent monthly outlays" icon={<Landmark size={18} />} accent="amber" />
@@ -853,6 +1201,16 @@ function FiscalPage({
         <MetricCard title="Trailing 12m outlays" value={formatCurrencyCompact(economy.trailing12Outlays)} hint="Sum of latest 12 months" icon={<FolderTree size={18} />} accent="emerald" />
         <MetricCard title="Trailing 12m receipts" value={formatCurrencyCompact(economy.trailing12Receipts)} hint="Sum of latest 12 months" icon={<FileBarChart2 size={18} />} accent="amber" />
         <MetricCard title="Trailing 12m deficit" value={formatCurrencyCompact(economy.trailing12Deficit)} hint="12-month cumulative balance" icon={<CalendarClock size={18} />} accent="violet" />
+        <MetricCard title="Avg monthly outlays (12m)" value={formatCurrencyCompact(economy.avgMonthlyOutlays12)} hint="Average monthly outlays over trailing year" icon={<FolderTree size={18} />} accent="cyan" />
+        <MetricCard title="Avg monthly receipts (12m)" value={formatCurrencyCompact(economy.avgMonthlyReceipts12)} hint="Average monthly receipts over trailing year" icon={<FileBarChart2 size={18} />} accent="emerald" />
+        <MetricCard title="Avg monthly deficit (12m)" value={formatCurrencyCompact(economy.avgMonthlyDeficit12)} hint="Average monthly deficit over trailing year" icon={<CalendarClock size={18} />} accent="amber" />
+        <MetricCard title="Deficit volatility (12m)" value={formatCurrencyCompact(economy.deficitVolatility12)} hint="Std-dev of monthly deficit over trailing year" icon={<Gauge size={18} />} accent="violet" />
+        <MetricCard title="Deficit peak-to-trough (12m)" value={formatCurrencyCompact(economy.deficitPeakToTrough12)} hint="Range between largest and smallest monthly deficit" icon={<Gauge size={18} />} accent="cyan" />
+        <MetricCard title="Deficit share 3m avg" value={`${economy.deficitShare3mAvg.toFixed(1)}%`} hint="3-month average deficit as share of outlays" icon={<ShieldCheck size={18} />} accent="emerald" />
+        <MetricCard title="Outlays 3m avg" value={formatCurrencyCompact(economy.outlays3mAvg)} hint="Three-month average outlays" icon={<Landmark size={18} />} accent="amber" />
+        <MetricCard title="Receipts 3m avg" value={formatCurrencyCompact(economy.receipts3mAvg)} hint="Three-month average receipts" icon={<Wallet size={18} />} accent="violet" />
+        <MetricCard title="Fiscal impulse (YoY)" value={`${economy.fiscalImpulseYoY.toFixed(2)}pp`} hint="Outlays YoY minus receipts YoY" icon={<BarChart3 size={18} />} accent="cyan" />
+        <MetricCard title="Deficit streak months" value={formatNumber(economy.deficitStreakMonths)} hint="Consecutive months with deficits" icon={<AlertTriangle size={18} />} accent="emerald" />
         <MetricCard title="Receipts/outlays ratio" value={`${economy.receiptsToOutlaysRatio.toFixed(1)}%`} hint="Coverage of outlays by receipts" icon={<ShieldCheck size={18} />} accent="cyan" />
         <MetricCard title="Outlays YoY" value={formatSignedPercent(economy.outlaysYoY)} hint="Trailing-12-month outlay growth rate" icon={<BarChart3 size={18} />} accent="emerald" />
         <MetricCard title="Receipts YoY" value={formatSignedPercent(economy.receiptsYoY)} hint="Trailing-12-month receipts growth rate" icon={<BarChart3 size={18} />} accent="amber" />
@@ -891,6 +1249,41 @@ function FiscalPage({
               <Tooltip formatter={formatTooltipValue} />
               <Area type="monotone" dataKey="value" name="Total debt" stroke="#f43f5e" fill="url(#debtFillFiscal)" />
             </AreaChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Rolling 3-month fiscal averages" subtitle="Smoothed outlays, receipts, and deficit trends">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={rollingFiscalTrend} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
+              <Tooltip formatter={formatTooltipValue} />
+              <Legend />
+              <Line type="monotone" dataKey="outlays3m" name="Outlays 3m avg" stroke="#fb923c" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="receipts3m" name="Receipts 3m avg" stroke="#22c55e" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="deficit3m" name="Deficit 3m avg" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Daily debt change profile" subtitle="Recent daily debt deltas with labels">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={charts.debtDailyChange.slice(-20)} margin={{ top: 8, right: 10, left: -8, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
+              <Tooltip formatter={formatTooltipValue} />
+              <Bar dataKey="value" fill="#ef4444" radius={[8, 8, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => formatCompact(Number(value ?? 0))}
+                />
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         </ChartPanel>
       </section>
@@ -999,6 +1392,16 @@ function DemographicsPage({
     { label: "Bachelor+", value: economy.bachelorsOrHigherShare },
     { label: "Rent/income", value: economy.annualRentToIncomeRatio * 100 },
   ];
+  const ageStructure = [
+    { label: "Children (<18)", value: economy.childPopulationShare },
+    { label: "Working age (18-64)", value: economy.workingAgePopulationShare },
+    { label: "Seniors (65+)", value: economy.seniorPopulationShare },
+  ];
+  const housingStructureRates = [
+    { label: "Single-family", value: economy.singleFamilyHousingShare },
+    { label: "Multifamily", value: economy.multiFamilyHousingShare },
+    { label: "Mobile home", value: economy.mobileHomeShare },
+  ];
 
   return (
     <div className="page-stack">
@@ -1015,8 +1418,24 @@ function DemographicsPage({
         <MetricCard title="Home value / income" value={formatRatio(economy.homeValueToIncomeRatio)} hint="Housing affordability pressure" icon={<Home size={18} />} accent="emerald" />
         <MetricCard title="Annual rent / income" value={`${(economy.annualRentToIncomeRatio * 100).toFixed(1)}%`} hint="Rent burden pressure" icon={<Building2 size={18} />} accent="amber" />
         <MetricCard title="Homeownership rate" value={`${economy.homeownershipRate.toFixed(1)}%`} hint="Owner share of occupied units" icon={<ShieldCheck size={18} />} accent="emerald" />
+        <MetricCard title="Renter share (occupied)" value={`${economy.renterShareOfOccupied.toFixed(1)}%`} hint="Renter share of occupied housing" icon={<ShieldCheck size={18} />} accent="amber" />
         <MetricCard title="Housing vacancy rate" value={`${economy.vacancyRate.toFixed(1)}%`} hint="Vacant share of housing units" icon={<Database size={18} />} accent="amber" />
+        <MetricCard title="Severe rent burden" value={`${economy.severeRentBurdenShare.toFixed(1)}%`} hint="Renters paying 35%+ income on rent" icon={<Home size={18} />} accent="violet" />
+        <MetricCard title="Owner cost burden" value={`${economy.ownerCostBurdenShare.toFixed(1)}%`} hint="Owners paying 30%+ income on housing costs" icon={<Home size={18} />} accent="cyan" />
+        <MetricCard title="Single-family housing share" value={`${economy.singleFamilyHousingShare.toFixed(1)}%`} hint="Share of units in 1-unit structures" icon={<Building2 size={18} />} accent="emerald" />
+        <MetricCard title="Multifamily housing share" value={`${economy.multiFamilyHousingShare.toFixed(1)}%`} hint="Share of units in multifamily structures" icon={<Building2 size={18} />} accent="amber" />
+        <MetricCard title="Mobile-home share" value={`${economy.mobileHomeShare.toFixed(1)}%`} hint="Share of housing units that are mobile homes" icon={<FolderTree size={18} />} accent="violet" />
+        <MetricCard title="Persons per household" value={economy.personsPerHousehold.toFixed(2)} hint="Average household size" icon={<Users size={18} />} accent="cyan" />
+        <MetricCard title="Child population share" value={`${economy.childPopulationShare.toFixed(1)}%`} hint="Share of population under 18" icon={<Users size={18} />} accent="emerald" />
+        <MetricCard title="Senior population share" value={`${economy.seniorPopulationShare.toFixed(1)}%`} hint="Share of population age 65+" icon={<Users size={18} />} accent="amber" />
+        <MetricCard title="Working-age share" value={`${economy.workingAgePopulationShare.toFixed(1)}%`} hint="Share of population age 18-64" icon={<Users size={18} />} accent="violet" />
+        <MetricCard title="Dependency ratio" value={`${economy.dependencyRatio.toFixed(1)}%`} hint="Dependents relative to working-age population" icon={<Layers3 size={18} />} accent="cyan" />
+        <MetricCard title="Female population share" value={`${economy.femalePopulationShare.toFixed(1)}%`} hint="Female share of total population" icon={<Users size={18} />} accent="emerald" />
         <MetricCard title="Bachelor+ attainment" value={`${economy.bachelorsOrHigherShare.toFixed(1)}%`} hint="Adults 25+ with bachelor's or higher" icon={<Layers3 size={18} />} accent="violet" />
+        <MetricCard title="High school+ attainment" value={`${economy.highSchoolOrHigherShare.toFixed(1)}%`} hint="Adults 25+ with high school or higher" icon={<Layers3 size={18} />} accent="amber" />
+        <MetricCard title="Less than high school" value={`${economy.lessThanHighSchoolShare.toFixed(1)}%`} hint="Adults 25+ below high school level" icon={<Layers3 size={18} />} accent="violet" />
+        <MetricCard title="Long commute share" value={`${economy.longCommuteShare.toFixed(1)}%`} hint="Workers commuting 45+ minutes" icon={<CalendarClock size={18} />} accent="cyan" />
+        <MetricCard title="Zero-vehicle households" value={`${economy.zeroVehicleShare.toFixed(1)}%`} hint="Households with no vehicle access" icon={<Database size={18} />} accent="emerald" />
         <MetricCard title="Gini index" value={economy.giniIndex.toFixed(3)} hint="Income inequality index" icon={<Sparkles size={18} />} accent="cyan" />
       </section>
 
@@ -1078,6 +1497,44 @@ function DemographicsPage({
               <strong>{economy.internetAccessRate.toFixed(1)}%</strong>
             </div>
           </div>
+        </ChartPanel>
+      </section>
+
+      <section className="panel-grid panel-grid--two">
+        <ChartPanel title="Population age structure" subtitle="Children, working-age, and seniors share">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={ageStructure} margin={{ top: 8, right: 10, left: -6, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(0)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Bar dataKey="value" fill="#06b6d4" radius={[8, 8, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartPanel>
+
+        <ChartPanel title="Housing structure mix" subtitle="Single-family, multifamily, and mobile-home share">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={housingStructureRates} margin={{ top: 8, right: 10, left: -6, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
+              <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(0)}%`} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
+              <Bar dataKey="value" fill="#8b5cf6" radius={[8, 8, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </ChartPanel>
       </section>
 
@@ -1244,11 +1701,25 @@ function CatalogPage({
         <MetricCard title="Update/create ratio" value={formatRatio(data.analytics.velocity.updateToCreateRatio)} hint="Update intensity relative to creation" icon={<Gauge size={18} />} accent="emerald" />
         <MetricCard title="Weekly momentum" value={formatSignedPercent(data.analytics.velocity.weeklyMomentum)} hint="Week-over-week update change" icon={<Sparkles size={18} />} accent="amber" />
         <MetricCard title="Top-5 publisher share" value={`${data.analytics.concentration.top5Share.toFixed(1)}%`} hint="Share owned by top 5 publishers" icon={<Building2 size={18} />} accent="violet" />
+        <MetricCard title="Top-1 publisher share" value={`${data.analytics.concentration.top1Share.toFixed(1)}%`} hint="Share held by largest publisher" icon={<Building2 size={18} />} accent="amber" />
+        <MetricCard title="Top-10 publisher share" value={`${data.analytics.concentration.top10Share.toFixed(1)}%`} hint="Share held by top 10 publishers" icon={<Building2 size={18} />} accent="violet" />
         <MetricCard title="Publisher concentration (HHI)" value={formatNumber(Math.round(data.analytics.concentration.hhi))} hint="Higher value means more concentration" icon={<ShieldCheck size={18} />} accent="cyan" />
+        <MetricCard title="Top-3 group share" value={`${data.analytics.groupCoverage.top3Share.toFixed(1)}%`} hint="Catalog share in largest 3 groups" icon={<FolderTree size={18} />} accent="emerald" />
         <MetricCard title="Avg resources/dataset" value={data.analytics.resourceCoverage.avgResources.toFixed(1)} hint="Average resources attached per dataset" icon={<Database size={18} />} accent="emerald" />
+        <MetricCard title="Median resources/dataset" value={data.analytics.resourceCoverage.medianResources.toFixed(1)} hint="Median resources per dataset in sample" icon={<Database size={18} />} accent="amber" />
+        <MetricCard title="Max resources/dataset" value={formatNumber(data.analytics.resourceCoverage.maxResources)} hint="Highest resource count in sample" icon={<Database size={18} />} accent="violet" />
+        <MetricCard title="Resource sample size" value={formatNumber(data.analytics.resourceCoverage.sampleSize)} hint="Datasets used for resource diagnostics" icon={<Layers3 size={18} />} accent="cyan" />
+        <MetricCard title="Total sampled resources" value={formatCompact(data.analytics.resourceCoverage.totalResources)} hint="Total resources across sample" icon={<Layers3 size={18} />} accent="emerald" />
         <MetricCard title="No-resource share" value={`${data.analytics.resourceCoverage.noResourceShare.toFixed(1)}%`} hint="Datasets with zero resources in sample" icon={<AlertTriangle size={18} />} accent="amber" />
+        <MetricCard title="No-resource datasets" value={formatNumber(data.analytics.resourceCoverage.datasetsWithNoResources)} hint="Count of zero-resource datasets in sample" icon={<AlertTriangle size={18} />} accent="violet" />
         <MetricCard title="Open-license share" value={`${data.analytics.licenseSummary.openShare.toFixed(1)}%`} hint="Portion tagged with open licenses" icon={<CheckCircle2 size={18} />} accent="violet" />
+        <MetricCard title="Unspecified license share" value={`${data.analytics.licenseSummary.unspecifiedShare.toFixed(1)}%`} hint="Datasets missing/unclear license data" icon={<AlertTriangle size={18} />} accent="cyan" />
+        <MetricCard title="Open license count" value={formatCompact(data.analytics.licenseSummary.openCount)} hint="Datasets tagged with open licenses" icon={<CheckCircle2 size={18} />} accent="emerald" />
+        <MetricCard title="Restricted license count" value={formatCompact(data.analytics.licenseSummary.restrictedCount)} hint="Datasets with restrictive/other licenses" icon={<ShieldCheck size={18} />} accent="amber" />
         <MetricCard title="Format diversity score" value={data.analytics.formatInsights.diversityScore.toFixed(2)} hint="Higher score means broader format mix" icon={<Layers3 size={18} />} accent="cyan" />
+        <MetricCard title="Top-3 format share" value={`${data.analytics.formatInsights.top3Share.toFixed(1)}%`} hint="Concentration among top 3 formats" icon={<FileBarChart2 size={18} />} accent="violet" />
+        <MetricCard title="Updated 7d delta" value={formatSignedPercent(data.analytics.periodComparison.updatedDeltaPct)} hint="Current week vs previous week updates" icon={<RefreshCcw size={18} />} accent="cyan" />
+        <MetricCard title="Created 7d delta" value={formatSignedPercent(data.analytics.periodComparison.createdDeltaPct)} hint="Current week vs previous week creations" icon={<CalendarClock size={18} />} accent="emerald" />
       </section>
 
       <section className="panel-grid panel-grid--three">

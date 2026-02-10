@@ -157,6 +157,81 @@ function computeMovingAverage(points, windowSize) {
   return result;
 }
 
+function standardDeviation(values) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const mean = average(values);
+  const variance = average(values.map((value) => (value - mean) ** 2));
+  return Math.sqrt(variance);
+}
+
+function latestAbsoluteChange(points) {
+  if (points.length < 2) {
+    return 0;
+  }
+
+  return round(points.at(-1).value - points.at(-2).value, 2);
+}
+
+function latestYearOverYearDelta(points) {
+  if (points.length < 13) {
+    return 0;
+  }
+
+  return round(points.at(-1).value - points.at(-13).value, 2);
+}
+
+function computeMonthOverMonth(points) {
+  const results = [];
+
+  for (let index = 1; index < points.length; index += 1) {
+    const current = points[index];
+    const previous = points[index - 1];
+    const value = previous.value === 0 ? 0 : ((current.value / previous.value) - 1) * 100;
+    results.push({
+      label: current.label,
+      value: round(value, 2),
+    });
+  }
+
+  return results;
+}
+
+function computeAbsoluteChange(points) {
+  const results = [];
+
+  for (let index = 1; index < points.length; index += 1) {
+    const current = points[index];
+    const previous = points[index - 1];
+    results.push({
+      label: current.label,
+      value: round(current.value - previous.value, 2),
+    });
+  }
+
+  return results;
+}
+
+function computeValueSpreadSeries(leftSeries, rightSeries) {
+  const rightMap = new Map(rightSeries.map((point) => [point.label, point.value]));
+  return leftSeries
+    .filter((point) => rightMap.has(point.label))
+    .map((point) => ({
+      label: point.label,
+      value: round(point.value - (rightMap.get(point.label) ?? 0), 2),
+    }));
+}
+
+function computeRollingAverageSeries(points, windowSize, digits = 2) {
+  const rolling = computeMovingAverage(points, windowSize);
+  return rolling.map((point) => ({
+    label: point.label,
+    value: round(point.value, digits),
+  }));
+}
+
 async function mapWithConcurrency(items, worker, concurrency = QUERY_CONCURRENCY) {
   const results = new Array(items.length);
   let cursor = 0;
@@ -453,24 +528,54 @@ async function fetchBlsIndicators() {
   const empty = {
     unemploymentRate: 0,
     unemploymentRate3mAvg: 0,
+    unemploymentRateMoMDelta: 0,
+    unemploymentRateYoYDelta: 0,
+    underemploymentRate: 0,
+    underemploymentGap: 0,
+    longTermUnemploymentShare: 0,
+    sahmRuleValue: 0,
     laborForceParticipationRate: 0,
+    laborForceParticipationMoMDelta: 0,
     employmentPopulationRatio: 0,
+    employmentPopulationMoMDelta: 0,
     cpiIndex: 0,
+    cpiMoM: 0,
+    coreCpiIndex: 0,
+    coreInflationYoY: 0,
+    coreInflationMoM: 0,
+    inflationGapToTarget: 0,
+    inflationVsCoreSpread: 0,
     inflationYoY: 0,
     inflationYoY3mAvg: 0,
     averageHourlyEarnings: 0,
+    hourlyEarningsMoM: 0,
     hourlyEarningsYoY: 0,
     hourlyEarningsYoY3mAvg: 0,
+    averageWeeklyHours: 0,
+    averageWeeklyHoursYoY: 0,
+    weeklyEarnings: 0,
+    weeklyEarningsYoY: 0,
+    realWeeklyEarningsYoY: 0,
     realWageYoY: 0,
     realWageYoY3mAvg: 0,
     nonfarmPayrollEmployment: 0,
+    payrollMoMChange: 0,
+    payrollYoYChange: 0,
+    payroll3mAvgChange: 0,
     unemploymentTrend: [],
+    underemploymentTrend: [],
+    unemploymentGapTrend: [],
     participationTrend: [],
     employmentPopulationTrend: [],
     inflationTrend: [],
+    coreInflationTrend: [],
+    cpiMoMTrend: [],
     earningsTrend: [],
+    earningsMoMTrend: [],
+    weeklyEarningsYoYTrend: [],
     realWageTrend: [],
     payrollTrend: [],
+    payrollMoMTrend: [],
   };
 
   try {
@@ -482,10 +587,15 @@ async function fetchBlsIndicators() {
       body: JSON.stringify({
         seriesid: [
           "LNS14000000",
+          "LNS13327709",
+          "LNS13025703",
+          "LNS13000000",
           "LNS11300000",
           "LNS12300000",
           "CUUR0000SA0",
+          "CUUR0000SA0L1E",
           "CES0500000003",
+          "CES0500000002",
           "CES0000000001",
         ],
         startyear: startYear,
@@ -497,21 +607,63 @@ async function fetchBlsIndicators() {
     const byId = new Map(seriesRows.map((series) => [series.seriesID, parseBlsSeries(series)]));
 
     const unemployment = byId.get("LNS14000000") ?? [];
+    const underemployment = byId.get("LNS13327709") ?? [];
+    const longTermUnemployed = byId.get("LNS13025703") ?? [];
+    const totalUnemployed = byId.get("LNS13000000") ?? [];
     const participation = byId.get("LNS11300000") ?? [];
     const employmentPopulation = byId.get("LNS12300000") ?? [];
     const cpi = byId.get("CUUR0000SA0") ?? [];
+    const coreCpi = byId.get("CUUR0000SA0L1E") ?? [];
     const earnings = byId.get("CES0500000003") ?? [];
+    const hours = byId.get("CES0500000002") ?? [];
     const payroll = byId.get("CES0000000001") ?? [];
 
     const inflationYoYSeries = computeYearOverYear(cpi);
+    const coreInflationYoYSeries = computeYearOverYear(coreCpi);
+    const cpiMoMSeries = computeMonthOverMonth(cpi);
+    const coreCpiMoMSeries = computeMonthOverMonth(coreCpi);
     const earningsYoYSeries = computeYearOverYear(earnings);
+    const earningsMoMSeries = computeMonthOverMonth(earnings);
+    const hoursYoYSeries = computeYearOverYear(hours);
     const payrollYoYSeries = computeYearOverYear(payroll);
+    const payrollMoMSeries = computeAbsoluteChange(payroll);
     const inflationMap = new Map(inflationYoYSeries.map((point) => [point.label, point.value]));
     const realWageYoYSeries = earningsYoYSeries.map((point) => ({
       label: point.label,
       value: round(point.value - (inflationMap.get(point.label) ?? 0), 2),
     }));
+    const hoursMap = new Map(hours.map((point) => [point.label, point.value]));
+    const weeklyEarningsSeries = earnings
+      .filter((point) => hoursMap.has(point.label))
+      .map((point) => ({
+        date: point.date,
+        label: point.label,
+        value: round(point.value * (hoursMap.get(point.label) ?? 0), 2),
+      }));
+    const weeklyEarningsYoYSeries = computeYearOverYear(weeklyEarningsSeries);
     const unemploymentTrend = unemployment.map((point) => ({ label: point.label, value: point.value }));
+    const underemploymentTrend = underemployment.map((point) => ({ label: point.label, value: point.value }));
+    const unemploymentGapSeries = computeValueSpreadSeries(underemploymentTrend, unemploymentTrend);
+    const unemployedTotalMap = new Map(totalUnemployed.map((point) => [point.label, point.value]));
+    const longTermShareSeries = longTermUnemployed
+      .filter((point) => unemployedTotalMap.has(point.label))
+      .map((point) => ({
+        label: point.label,
+        value:
+          (unemployedTotalMap.get(point.label) ?? 0) === 0
+            ? 0
+            : round((point.value / (unemployedTotalMap.get(point.label) ?? 0)) * 100, 2),
+      }));
+    const unemployment3mSeries = computeRollingAverageSeries(unemploymentTrend, 3, 2);
+    const sahmLast12 = unemployment3mSeries.slice(-12).map((point) => point.value);
+    const sahmRuleValue =
+      unemployment3mSeries.length === 0 || sahmLast12.length === 0
+        ? 0
+        : round(
+            (unemployment3mSeries.at(-1)?.value ?? 0) -
+              Math.min(...sahmLast12),
+            2,
+          );
     const participationTrend = participation.map((point) => ({ label: point.label, value: point.value }));
     const employmentPopulationTrend = employmentPopulation.map((point) => ({
       label: point.label,
@@ -519,54 +671,221 @@ async function fetchBlsIndicators() {
     }));
 
     const latestUnemployment = unemployment.at(-1)?.value ?? 0;
+    const latestUnderemployment = underemployment.at(-1)?.value ?? 0;
     const latestParticipation = participation.at(-1)?.value ?? 0;
     const latestEmploymentPopulation = employmentPopulation.at(-1)?.value ?? 0;
     const latestCpi = cpi.at(-1)?.value ?? 0;
+    const latestCoreCpi = coreCpi.at(-1)?.value ?? 0;
     const latestInflation = inflationYoYSeries.at(-1)?.value ?? 0;
+    const latestCoreInflation = coreInflationYoYSeries.at(-1)?.value ?? 0;
     const latestEarnings = earnings.at(-1)?.value ?? 0;
     const latestEarningsYoY = earningsYoYSeries.at(-1)?.value ?? 0;
+    const latestWeeklyHours = hours.at(-1)?.value ?? 0;
     const latestPayroll = payroll.at(-1)?.value ?? 0;
+    const latestWeeklyEarnings = weeklyEarningsSeries.at(-1)?.value ?? 0;
+    const latestWeeklyEarningsYoY = weeklyEarningsYoYSeries.at(-1)?.value ?? 0;
+    const latestPayrollYoY = payrollYoYSeries.at(-1)?.value ?? 0;
 
     return {
       unemploymentRate: latestUnemployment,
+      unemploymentRateMoMDelta: latestAbsoluteChange(unemployment),
+      unemploymentRateYoYDelta: latestYearOverYearDelta(unemployment),
+      underemploymentRate: latestUnderemployment,
+      underemploymentGap: round(latestUnderemployment - latestUnemployment, 2),
+      longTermUnemploymentShare: longTermShareSeries.at(-1)?.value ?? 0,
+      sahmRuleValue,
       laborForceParticipationRate: latestParticipation,
+      laborForceParticipationMoMDelta: latestAbsoluteChange(participation),
       employmentPopulationRatio: latestEmploymentPopulation,
+      employmentPopulationMoMDelta: latestAbsoluteChange(employmentPopulation),
       cpiIndex: latestCpi,
+      cpiMoM: cpiMoMSeries.at(-1)?.value ?? 0,
+      coreCpiIndex: latestCoreCpi,
+      coreInflationYoY: latestCoreInflation,
+      coreInflationMoM: coreCpiMoMSeries.at(-1)?.value ?? 0,
+      inflationGapToTarget: round(latestInflation - 2, 2),
+      inflationVsCoreSpread: round(latestInflation - latestCoreInflation, 2),
       inflationYoY: latestInflation,
       inflationYoY3mAvg: lastNAverage(inflationYoYSeries, 3),
       averageHourlyEarnings: latestEarnings,
+      hourlyEarningsMoM: earningsMoMSeries.at(-1)?.value ?? 0,
       hourlyEarningsYoY: latestEarningsYoY,
       hourlyEarningsYoY3mAvg: lastNAverage(earningsYoYSeries, 3),
+      averageWeeklyHours: latestWeeklyHours,
+      averageWeeklyHoursYoY: hoursYoYSeries.at(-1)?.value ?? 0,
+      weeklyEarnings: latestWeeklyEarnings,
+      weeklyEarningsYoY: latestWeeklyEarningsYoY,
+      realWeeklyEarningsYoY: round(latestWeeklyEarningsYoY - latestInflation, 2),
       realWageYoY: realWageYoYSeries.at(-1)?.value ?? 0,
       realWageYoY3mAvg: lastNAverage(realWageYoYSeries, 3),
       unemploymentRate3mAvg: lastNAverage(unemploymentTrend, 3),
       nonfarmPayrollEmployment: latestPayroll,
+      payrollMoMChange: payrollMoMSeries.at(-1)?.value ?? 0,
+      payrollYoYChange: latestPayrollYoY,
+      payroll3mAvgChange: lastNAverage(payrollMoMSeries, 3),
       unemploymentTrend,
+      underemploymentTrend,
+      unemploymentGapTrend: unemploymentGapSeries,
       participationTrend,
       employmentPopulationTrend,
       inflationTrend: inflationYoYSeries,
+      coreInflationTrend: coreInflationYoYSeries,
+      cpiMoMTrend: cpiMoMSeries,
       earningsTrend: earningsYoYSeries,
+      earningsMoMTrend: earningsMoMSeries,
+      weeklyEarningsYoYTrend: weeklyEarningsYoYSeries,
       realWageTrend: realWageYoYSeries,
       payrollTrend: payrollYoYSeries,
+      payrollMoMTrend: payrollMoMSeries,
     };
   } catch {
     return empty;
   }
 }
 
-async function fetchDemographicIndicators() {
+async function fetchAcsMap(variables) {
   try {
     const payload = await requestJson(ACS_ENDPOINT, {
       queryParams: {
-        get: "B01003_001E,B11001_001E,B19013_001E,B19301_001E,B19083_001E,B17001_001E,B17001_002E,B01002_001E,B23025_003E,B23025_005E,B25077_001E,B25064_001E,B25002_001E,B25002_003E,B25003_002E,B25003_003E,B28002_001E,B28002_013E,B15003_001E,B15003_022E,B15003_023E,B15003_024E,B15003_025E,NAME",
+        get: variables.join(","),
         for: "us:1",
       },
     });
-
     const headers = payload?.[0] ?? [];
     const values = payload?.[1] ?? [];
-    const mapped = Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+    return Object.fromEntries(headers.map((header, index) => [header, values[index]]));
+  } catch {
+    return {};
+  }
+}
+
+async function fetchDemographicIndicators() {
+  try {
+    const coreVars = [
+      "B01003_001E",
+      "B11001_001E",
+      "B19013_001E",
+      "B19301_001E",
+      "B19083_001E",
+      "B17001_001E",
+      "B17001_002E",
+      "B01002_001E",
+      "B23025_003E",
+      "B23025_005E",
+      "B25077_001E",
+      "B25064_001E",
+      "B25002_001E",
+      "B25002_003E",
+      "B25003_002E",
+      "B25003_003E",
+      "B28002_001E",
+      "B28002_013E",
+      "B15003_001E",
+      "B15003_022E",
+      "B15003_023E",
+      "B15003_024E",
+      "B15003_025E",
+    ];
+    const structureVars = [
+      "B01001_001E",
+      "B01001_002E",
+      "B01001_026E",
+      "B01001_003E",
+      "B01001_004E",
+      "B01001_005E",
+      "B01001_006E",
+      "B01001_027E",
+      "B01001_028E",
+      "B01001_029E",
+      "B01001_030E",
+      "B01001_020E",
+      "B01001_021E",
+      "B01001_022E",
+      "B01001_023E",
+      "B01001_024E",
+      "B01001_025E",
+      "B01001_044E",
+      "B01001_045E",
+      "B01001_046E",
+      "B01001_047E",
+      "B01001_048E",
+      "B01001_049E",
+      "B25070_001E",
+      "B25070_007E",
+      "B25070_008E",
+      "B25070_009E",
+      "B25070_010E",
+      "B25091_001E",
+      "B25091_007E",
+      "B25091_008E",
+      "B25091_009E",
+      "B25091_010E",
+      "B25024_001E",
+      "B25024_002E",
+      "B25024_003E",
+      "B25024_004E",
+      "B25024_005E",
+      "B25024_006E",
+      "B25024_007E",
+      "B25024_008E",
+      "B25024_009E",
+      "B25024_010E",
+      "B25024_011E",
+      "B08303_001E",
+      "B08303_011E",
+      "B08303_012E",
+      "B08303_013E",
+      "B08201_001E",
+      "B08201_002E",
+    ];
+    const educationDetailVars = [
+      "B15003_002E",
+      "B15003_003E",
+      "B15003_004E",
+      "B15003_005E",
+      "B15003_006E",
+      "B15003_007E",
+      "B15003_008E",
+      "B15003_009E",
+      "B15003_010E",
+      "B15003_011E",
+      "B15003_012E",
+      "B15003_013E",
+      "B15003_014E",
+      "B15003_015E",
+      "B15003_016E",
+    ];
+
+    const [coreMapped, structureMapped, educationMapped] = await Promise.all([
+      fetchAcsMap(coreVars),
+      fetchAcsMap(structureVars),
+      fetchAcsMap(educationDetailVars),
+    ]);
+    const mapped = {
+      ...coreMapped,
+      ...structureMapped,
+      ...educationMapped,
+    };
+    const population = parseNumber(mapped.B01003_001E);
+    const households = parseNumber(mapped.B11001_001E);
     const educationBase = parseNumber(mapped.B15003_001E);
+    const lessThanHighSchool = [
+      "B15003_002E",
+      "B15003_003E",
+      "B15003_004E",
+      "B15003_005E",
+      "B15003_006E",
+      "B15003_007E",
+      "B15003_008E",
+      "B15003_009E",
+      "B15003_010E",
+      "B15003_011E",
+      "B15003_012E",
+      "B15003_013E",
+      "B15003_014E",
+      "B15003_015E",
+      "B15003_016E",
+    ].reduce((sum, key) => sum + parseNumber(mapped[key]), 0);
     const bachelorsOrHigher =
       parseNumber(mapped.B15003_022E) +
       parseNumber(mapped.B15003_023E) +
@@ -577,9 +896,63 @@ async function fetchDemographicIndicators() {
     const internetTotal = parseNumber(mapped.B28002_001E);
     const noInternet = parseNumber(mapped.B28002_013E);
 
+    const ageTotal = parseNumber(mapped.B01001_001E);
+    const femalePopulation = parseNumber(mapped.B01001_026E);
+    const childPopulation =
+      parseNumber(mapped.B01001_003E) +
+      parseNumber(mapped.B01001_004E) +
+      parseNumber(mapped.B01001_005E) +
+      parseNumber(mapped.B01001_006E) +
+      parseNumber(mapped.B01001_027E) +
+      parseNumber(mapped.B01001_028E) +
+      parseNumber(mapped.B01001_029E) +
+      parseNumber(mapped.B01001_030E);
+    const seniorPopulation =
+      parseNumber(mapped.B01001_020E) +
+      parseNumber(mapped.B01001_021E) +
+      parseNumber(mapped.B01001_022E) +
+      parseNumber(mapped.B01001_023E) +
+      parseNumber(mapped.B01001_024E) +
+      parseNumber(mapped.B01001_025E) +
+      parseNumber(mapped.B01001_044E) +
+      parseNumber(mapped.B01001_045E) +
+      parseNumber(mapped.B01001_046E) +
+      parseNumber(mapped.B01001_047E) +
+      parseNumber(mapped.B01001_048E) +
+      parseNumber(mapped.B01001_049E);
+    const workingAgePopulation = Math.max(ageTotal - childPopulation - seniorPopulation, 0);
+
+    const renterBurdenTotal = parseNumber(mapped.B25070_001E);
+    const severeRentBurden = parseNumber(mapped.B25070_008E) + parseNumber(mapped.B25070_009E) + parseNumber(mapped.B25070_010E);
+    const ownerBurdenTotal = parseNumber(mapped.B25091_001E);
+    const ownerBurdenOver30 =
+      parseNumber(mapped.B25091_007E) +
+      parseNumber(mapped.B25091_008E) +
+      parseNumber(mapped.B25091_009E) +
+      parseNumber(mapped.B25091_010E);
+
+    const structureTotal = parseNumber(mapped.B25024_001E);
+    const singleFamilyCount = parseNumber(mapped.B25024_002E) + parseNumber(mapped.B25024_003E);
+    const multiFamilyCount =
+      parseNumber(mapped.B25024_004E) +
+      parseNumber(mapped.B25024_005E) +
+      parseNumber(mapped.B25024_006E) +
+      parseNumber(mapped.B25024_007E) +
+      parseNumber(mapped.B25024_008E) +
+      parseNumber(mapped.B25024_009E);
+    const mobileHomeCount = parseNumber(mapped.B25024_010E);
+
+    const commutersTotal = parseNumber(mapped.B08303_001E);
+    const longCommuteCount =
+      parseNumber(mapped.B08303_011E) +
+      parseNumber(mapped.B08303_012E) +
+      parseNumber(mapped.B08303_013E);
+    const vehicleTotal = parseNumber(mapped.B08201_001E);
+    const zeroVehicleHouseholds = parseNumber(mapped.B08201_002E);
+
     return {
-      population: parseNumber(mapped.B01003_001E),
-      households: parseNumber(mapped.B11001_001E),
+      population,
+      households,
       medianIncome: parseNumber(mapped.B19013_001E),
       perCapitaIncome: parseNumber(mapped.B19301_001E),
       giniIndex: parseNumber(mapped.B19083_001E),
@@ -594,6 +967,21 @@ async function fetchDemographicIndicators() {
       vacantHousingUnits: parseNumber(mapped.B25002_003E),
       ownerOccupiedHousingUnits: parseNumber(mapped.B25003_002E),
       renterOccupiedHousingUnits: parseNumber(mapped.B25003_003E),
+      severeRentBurdenShare: toPercent(severeRentBurden, renterBurdenTotal),
+      ownerCostBurdenShare: toPercent(ownerBurdenOver30, ownerBurdenTotal),
+      singleFamilyHousingShare: toPercent(singleFamilyCount, structureTotal),
+      multiFamilyHousingShare: toPercent(multiFamilyCount, structureTotal),
+      mobileHomeShare: toPercent(mobileHomeCount, structureTotal),
+      personsPerHousehold: households === 0 ? 0 : round(population / households, 2),
+      childPopulationShare: toPercent(childPopulation, ageTotal),
+      seniorPopulationShare: toPercent(seniorPopulation, ageTotal),
+      workingAgePopulationShare: toPercent(workingAgePopulation, ageTotal),
+      dependencyRatio: workingAgePopulation === 0 ? 0 : round(((childPopulation + seniorPopulation) / workingAgePopulation) * 100, 2),
+      femalePopulationShare: toPercent(femalePopulation, ageTotal),
+      highSchoolOrHigherShare: toPercent(educationBase - lessThanHighSchool, educationBase),
+      lessThanHighSchoolShare: toPercent(lessThanHighSchool, educationBase),
+      longCommuteShare: toPercent(longCommuteCount, commutersTotal),
+      zeroVehicleShare: toPercent(zeroVehicleHouseholds, vehicleTotal),
       bachelorsOrHigherShare: toPercent(bachelorsOrHigher, educationBase),
     };
   } catch {
@@ -614,6 +1002,21 @@ async function fetchDemographicIndicators() {
       vacantHousingUnits: 0,
       ownerOccupiedHousingUnits: 0,
       renterOccupiedHousingUnits: 0,
+      severeRentBurdenShare: 0,
+      ownerCostBurdenShare: 0,
+      singleFamilyHousingShare: 0,
+      multiFamilyHousingShare: 0,
+      mobileHomeShare: 0,
+      personsPerHousehold: 0,
+      childPopulationShare: 0,
+      seniorPopulationShare: 0,
+      workingAgePopulationShare: 0,
+      dependencyRatio: 0,
+      femalePopulationShare: 0,
+      highSchoolOrHigherShare: 0,
+      lessThanHighSchoolShare: 0,
+      longCommuteShare: 0,
+      zeroVehicleShare: 0,
       bachelorsOrHigherShare: 0,
     };
   }
@@ -661,7 +1064,7 @@ async function fetchDebtSeries() {
   try {
     const payload = await requestJson(TREASURY_DEBT_ENDPOINT, {
       queryParams: {
-        fields: "record_date,tot_pub_debt_out_amt",
+        fields: "record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt",
         sort: "-record_date",
         "page[size]": 900,
       },
@@ -673,32 +1076,69 @@ async function fetchDebtSeries() {
     const baseline30 = rows[Math.min(30, Math.max(rows.length - 1, 0))];
     const baseline365 = rows[Math.min(365, Math.max(rows.length - 1, 0))];
     const latestValue = parseNumber(latest?.tot_pub_debt_out_amt);
+    const latestDebtHeldPublic = parseNumber(latest?.debt_held_public_amt);
+    const latestIntragov = parseNumber(latest?.intragov_hold_amt);
     const value7 = parseNumber(baseline7?.tot_pub_debt_out_amt);
     const value30 = parseNumber(baseline30?.tot_pub_debt_out_amt);
     const value365 = parseNumber(baseline365?.tot_pub_debt_out_amt);
+    const trend = rows
+      .slice(0, DEBT_HISTORY_DAYS)
+      .reverse()
+      .map((row) => ({
+        label: safeLabelFromDate(row.record_date),
+        value: parseNumber(row.tot_pub_debt_out_amt),
+      }));
+    const changeTrend = [];
+
+    for (let index = 1; index < trend.length; index += 1) {
+      changeTrend.push({
+        label: trend[index].label,
+        value: round(trend[index].value - trend[index - 1].value, 2),
+      });
+    }
+
+    const recent30Changes = changeTrend.slice(-30).map((point) => point.value);
 
     return {
       totalDebt: latestValue,
+      debtHeldByPublic: latestDebtHeldPublic,
+      intragovernmentalHoldings: latestIntragov,
+      debtHeldByPublicShare: toPercent(latestDebtHeldPublic, latestValue),
+      intragovShare: toPercent(latestIntragov, latestValue),
       debtChange7Days: latestValue - value7,
       debtChange30Days: latestValue - value30,
       debtChange365Days: latestValue - value365,
+      debtChange7DaysPct: value7 === 0 ? 0 : round(((latestValue / value7) - 1) * 100, 2),
+      debtChange30DaysPct: value30 === 0 ? 0 : round(((latestValue / value30) - 1) * 100, 2),
+      debtChange365DaysPct: value365 === 0 ? 0 : round(((latestValue / value365) - 1) * 100, 2),
       debtYoYGrowthPct: value365 === 0 ? 0 : round(((latestValue / value365) - 1) * 100, 2),
-      trend: rows
-        .slice(0, DEBT_HISTORY_DAYS)
-        .reverse()
-        .map((row) => ({
-          label: safeLabelFromDate(row.record_date),
-          value: parseNumber(row.tot_pub_debt_out_amt),
-        })),
+      avgDailyDebtChange30: recent30Changes.length === 0 ? 0 : round(average(recent30Changes), 2),
+      debtDailyVolatility30: recent30Changes.length === 0 ? 0 : round(standardDeviation(recent30Changes), 2),
+      maxDailyDebtIncrease30: recent30Changes.length === 0 ? 0 : round(Math.max(...recent30Changes), 2),
+      maxDailyDebtDecrease30: recent30Changes.length === 0 ? 0 : round(Math.min(...recent30Changes), 2),
+      trend,
+      changeTrend,
     };
   } catch {
     return {
       totalDebt: 0,
+      debtHeldByPublic: 0,
+      intragovernmentalHoldings: 0,
+      debtHeldByPublicShare: 0,
+      intragovShare: 0,
       debtChange7Days: 0,
       debtChange30Days: 0,
       debtChange365Days: 0,
+      debtChange7DaysPct: 0,
+      debtChange30DaysPct: 0,
+      debtChange365DaysPct: 0,
       debtYoYGrowthPct: 0,
+      avgDailyDebtChange30: 0,
+      debtDailyVolatility30: 0,
+      maxDailyDebtIncrease30: 0,
+      maxDailyDebtDecrease30: 0,
       trend: [],
+      changeTrend: [],
     };
   }
 }
@@ -957,16 +1397,76 @@ async function generateDashboardData() {
     deficit: 0,
   };
   const priorYearSpending = spendingSeries.slice(-24, -12);
+  const trailing3Spending = spendingSeries.slice(-3);
   const trailing12Spending = spendingSeries.slice(-12);
   const trailing12Outlays = trailing12Spending.reduce((sum, item) => sum + item.outlays, 0);
   const trailing12Receipts = trailing12Spending.reduce((sum, item) => sum + item.receipts, 0);
   const trailing12Deficit = trailing12Spending.reduce((sum, item) => sum + item.deficit, 0);
+  const avgMonthlyOutlays12 =
+    trailing12Spending.length === 0 ? 0 : round(trailing12Outlays / trailing12Spending.length, 2);
+  const avgMonthlyReceipts12 =
+    trailing12Spending.length === 0 ? 0 : round(trailing12Receipts / trailing12Spending.length, 2);
+  const avgMonthlyDeficit12 =
+    trailing12Spending.length === 0 ? 0 : round(trailing12Deficit / trailing12Spending.length, 2);
+  const outlays3mAvg =
+    trailing3Spending.length === 0
+      ? 0
+      : round(
+          trailing3Spending.reduce((sum, item) => sum + item.outlays, 0) / trailing3Spending.length,
+          2,
+        );
+  const receipts3mAvg =
+    trailing3Spending.length === 0
+      ? 0
+      : round(
+          trailing3Spending.reduce((sum, item) => sum + item.receipts, 0) / trailing3Spending.length,
+          2,
+        );
+  const deficit3mAvg =
+    trailing3Spending.length === 0
+      ? 0
+      : round(
+          trailing3Spending.reduce((sum, item) => sum + item.deficit, 0) / trailing3Spending.length,
+          2,
+        );
+  const deficitShare3mAvg =
+    trailing3Spending.length === 0
+      ? 0
+      : round(
+          average(
+            trailing3Spending.map((item) =>
+              item.outlays === 0 ? 0 : (item.deficit / item.outlays) * 100,
+            ),
+          ),
+          2,
+        );
+  const deficitVolatility12 = round(
+    standardDeviation(trailing12Spending.map((item) => item.deficit)),
+    2,
+  );
+  const deficitPeakToTrough12 =
+    trailing12Spending.length === 0
+      ? 0
+      : round(
+          Math.max(...trailing12Spending.map((item) => item.deficit)) -
+            Math.min(...trailing12Spending.map((item) => item.deficit)),
+          2,
+        );
+  let deficitStreakMonths = 0;
+  for (let index = spendingSeries.length - 1; index >= 0; index -= 1) {
+    if (spendingSeries[index].deficit > 0) {
+      deficitStreakMonths += 1;
+      continue;
+    }
+    break;
+  }
   const prior12Outlays = priorYearSpending.reduce((sum, item) => sum + item.outlays, 0);
   const prior12Receipts = priorYearSpending.reduce((sum, item) => sum + item.receipts, 0);
   const prior12Deficit = priorYearSpending.reduce((sum, item) => sum + item.deficit, 0);
   const outlaysYoY = percentChange(trailing12Outlays, prior12Outlays);
   const receiptsYoY = percentChange(trailing12Receipts, prior12Receipts);
   const deficitYoY = percentChange(trailing12Deficit, prior12Deficit);
+  const fiscalImpulseYoY = round(outlaysYoY - receiptsYoY, 2);
   const surplusMonthsLast12 = trailing12Spending.filter((item) => item.deficit < 0).length;
   const largestDeficitMonthRow = trailing12Spending.reduce(
     (best, item) => (item.deficit > best.deficit ? item : best),
@@ -1011,6 +1511,10 @@ async function generateDashboardData() {
     demographicIndicators.ownerOccupiedHousingUnits,
     occupiedHousingUnits,
   );
+  const renterShareOfOccupied = toPercent(
+    demographicIndicators.renterOccupiedHousingUnits,
+    occupiedHousingUnits,
+  );
   const receiptsToOutlaysRatio = toPercent(
     latestSpending.receipts,
     latestSpending.outlays,
@@ -1020,10 +1524,25 @@ async function generateDashboardData() {
     latestSpending.outlays,
   );
   const realWageTrend = blsIndicators.realWageTrend ?? [];
+  const outlaysSeries = spendingSeries.map((item) => ({
+    label: item.label,
+    value: item.outlays,
+  }));
+  const receiptsSeries = spendingSeries.map((item) => ({
+    label: item.label,
+    value: item.receipts,
+  }));
+  const deficitSeries = spendingSeries.map((item) => ({
+    label: item.label,
+    value: item.deficit,
+  }));
   const deficitShareOfOutlaysTrend = spendingSeries.map((item) => ({
     label: item.label,
     value: item.outlays === 0 ? 0 : round((item.deficit / item.outlays) * 100, 2),
   }));
+  const outlays3mAvgTrend = computeRollingAverageSeries(outlaysSeries, 3, 2);
+  const receipts3mAvgTrend = computeRollingAverageSeries(receiptsSeries, 3, 2);
+  const deficit3mAvgTrend = computeRollingAverageSeries(deficitSeries, 3, 2);
 
   const economySnapshot = {
     population: demographicIndicators.population,
@@ -1040,22 +1559,56 @@ async function generateDashboardData() {
     unemploymentPersons: demographicIndicators.unemploymentPersons,
     unemploymentRate,
     unemploymentRate3mAvg: blsIndicators.unemploymentRate3mAvg,
+    unemploymentRateMoMDelta: blsIndicators.unemploymentRateMoMDelta,
+    unemploymentRateYoYDelta: blsIndicators.unemploymentRateYoYDelta,
+    underemploymentRate: blsIndicators.underemploymentRate,
+    underemploymentGap: blsIndicators.underemploymentGap,
+    longTermUnemploymentShare: blsIndicators.longTermUnemploymentShare,
+    sahmRuleValue: blsIndicators.sahmRuleValue,
     laborForceParticipationRate: blsIndicators.laborForceParticipationRate,
+    laborForceParticipationMoMDelta: blsIndicators.laborForceParticipationMoMDelta,
     employmentPopulationRatio: blsIndicators.employmentPopulationRatio,
+    employmentPopulationMoMDelta: blsIndicators.employmentPopulationMoMDelta,
     nonfarmPayrollEmployment: blsIndicators.nonfarmPayrollEmployment,
+    payrollMoMChange: blsIndicators.payrollMoMChange,
+    payrollYoYChange: blsIndicators.payrollYoYChange,
+    payroll3mAvgChange: blsIndicators.payroll3mAvgChange,
     cpiIndex: blsIndicators.cpiIndex,
+    cpiMoM: blsIndicators.cpiMoM,
+    coreCpiIndex: blsIndicators.coreCpiIndex,
+    coreInflationYoY: blsIndicators.coreInflationYoY,
+    coreInflationMoM: blsIndicators.coreInflationMoM,
+    inflationGapToTarget: blsIndicators.inflationGapToTarget,
+    inflationVsCoreSpread: blsIndicators.inflationVsCoreSpread,
     inflationYoY: blsIndicators.inflationYoY,
     inflationYoY3mAvg: blsIndicators.inflationYoY3mAvg,
     averageHourlyEarnings: blsIndicators.averageHourlyEarnings,
+    hourlyEarningsMoM: blsIndicators.hourlyEarningsMoM,
     hourlyEarningsYoY: blsIndicators.hourlyEarningsYoY,
     hourlyEarningsYoY3mAvg: blsIndicators.hourlyEarningsYoY3mAvg,
+    averageWeeklyHours: blsIndicators.averageWeeklyHours,
+    averageWeeklyHoursYoY: blsIndicators.averageWeeklyHoursYoY,
+    weeklyEarnings: blsIndicators.weeklyEarnings,
+    weeklyEarningsYoY: blsIndicators.weeklyEarningsYoY,
+    realWeeklyEarningsYoY: blsIndicators.realWeeklyEarningsYoY,
     realWageYoY: blsIndicators.realWageYoY,
     realWageYoY3mAvg: blsIndicators.realWageYoY3mAvg,
     totalPublicDebt: debtSeries.totalDebt,
+    debtHeldByPublic: debtSeries.debtHeldByPublic,
+    intragovernmentalHoldings: debtSeries.intragovernmentalHoldings,
+    debtHeldByPublicShare: debtSeries.debtHeldByPublicShare,
+    intragovShare: debtSeries.intragovShare,
     debtChange7Days: debtSeries.debtChange7Days,
     debtChange30Days: debtSeries.debtChange30Days,
     debtChange365Days: debtSeries.debtChange365Days,
+    debtChange7DaysPct: debtSeries.debtChange7DaysPct,
+    debtChange30DaysPct: debtSeries.debtChange30DaysPct,
+    debtChange365DaysPct: debtSeries.debtChange365DaysPct,
     debtYoYGrowthPct: debtSeries.debtYoYGrowthPct,
+    avgDailyDebtChange30: debtSeries.avgDailyDebtChange30,
+    debtDailyVolatility30: debtSeries.debtDailyVolatility30,
+    maxDailyDebtIncrease30: debtSeries.maxDailyDebtIncrease30,
+    maxDailyDebtDecrease30: debtSeries.maxDailyDebtDecrease30,
     debtPerCapita,
     debtToIncomeRatio,
     latestOutlays: latestSpending.outlays,
@@ -1063,15 +1616,25 @@ async function generateDashboardData() {
     latestDeficit: latestSpending.deficit,
     receiptsToOutlaysRatio,
     deficitToOutlaysRatio,
+    deficitShare3mAvg,
+    outlays3mAvg,
+    receipts3mAvg,
     outlaysPerCapita,
     receiptsPerCapita,
     deficitPerCapita,
     trailing12Outlays,
     trailing12Receipts,
     trailing12Deficit,
+    avgMonthlyOutlays12,
+    avgMonthlyReceipts12,
+    avgMonthlyDeficit12,
+    deficitVolatility12,
+    deficitPeakToTrough12,
+    fiscalImpulseYoY,
     outlaysYoY,
     receiptsYoY,
     deficitYoY,
+    deficitStreakMonths,
     surplusMonthsLast12,
     largestDeficitMonth: largestDeficitMonthRow.label,
     largestDeficitAmount: largestDeficitMonthRow.deficit,
@@ -1083,6 +1646,22 @@ async function generateDashboardData() {
     renterOccupiedHousingUnits: demographicIndicators.renterOccupiedHousingUnits,
     vacancyRate,
     homeownershipRate,
+    renterShareOfOccupied,
+    severeRentBurdenShare: demographicIndicators.severeRentBurdenShare,
+    ownerCostBurdenShare: demographicIndicators.ownerCostBurdenShare,
+    singleFamilyHousingShare: demographicIndicators.singleFamilyHousingShare,
+    multiFamilyHousingShare: demographicIndicators.multiFamilyHousingShare,
+    mobileHomeShare: demographicIndicators.mobileHomeShare,
+    personsPerHousehold: demographicIndicators.personsPerHousehold,
+    childPopulationShare: demographicIndicators.childPopulationShare,
+    seniorPopulationShare: demographicIndicators.seniorPopulationShare,
+    workingAgePopulationShare: demographicIndicators.workingAgePopulationShare,
+    dependencyRatio: demographicIndicators.dependencyRatio,
+    femalePopulationShare: demographicIndicators.femalePopulationShare,
+    highSchoolOrHigherShare: demographicIndicators.highSchoolOrHigherShare,
+    lessThanHighSchoolShare: demographicIndicators.lessThanHighSchoolShare,
+    longCommuteShare: demographicIndicators.longCommuteShare,
+    zeroVehicleShare: demographicIndicators.zeroVehicleShare,
     bachelorsOrHigherShare: demographicIndicators.bachelorsOrHigherShare,
     homeValueToIncomeRatio,
     annualRentToIncomeRatio,
@@ -1099,14 +1678,25 @@ async function generateDashboardData() {
       deficit: point.deficit,
     })),
     debtDaily: debtSeries.trend,
+    debtDailyChange: debtSeries.changeTrend,
     unemploymentRate: blsIndicators.unemploymentTrend,
+    underemploymentRate: blsIndicators.underemploymentTrend,
+    unemploymentGap: blsIndicators.unemploymentGapTrend,
     laborForceParticipationRate: blsIndicators.participationTrend,
     employmentPopulationRatio: blsIndicators.employmentPopulationTrend,
     inflationYoY: blsIndicators.inflationTrend,
+    coreInflationYoY: blsIndicators.coreInflationTrend,
+    cpiMoM: blsIndicators.cpiMoMTrend,
     hourlyEarningsYoY: blsIndicators.earningsTrend,
+    hourlyEarningsMoM: blsIndicators.earningsMoMTrend,
+    weeklyEarningsYoY: blsIndicators.weeklyEarningsYoYTrend,
     realWageYoY: realWageTrend,
     deficitShareOfOutlays: deficitShareOfOutlaysTrend,
+    deficit3mAvg: deficit3mAvgTrend,
+    outlays3mAvg: outlays3mAvgTrend,
+    receipts3mAvg: receipts3mAvgTrend,
     nonfarmPayroll: blsIndicators.payrollTrend,
+    payrollMoMChange: blsIndicators.payrollMoMTrend,
   };
 
   const alerts = [
@@ -1144,6 +1734,41 @@ async function generateDashboardData() {
       level: toAlertLevel(weeklyMomentum, 0.95, 0.75, "lower-is-risk"),
       metric: `${weeklyMomentum}x`,
       detail: "Current 7-day updates versus the 30-day baseline.",
+    },
+    {
+      id: "sahm-rule",
+      title: "Labor stress (Sahm rule proxy)",
+      level: toAlertLevel(blsIndicators.sahmRuleValue, 0.3, 0.5),
+      metric: `${blsIndicators.sahmRuleValue.toFixed(2)}pp`,
+      detail: "Current unemployment 3m average relative to its 12-month minimum.",
+    },
+    {
+      id: "real-wage",
+      title: "Real wage pressure",
+      level: toAlertLevel(blsIndicators.realWageYoY, 0, -1, "lower-is-risk"),
+      metric: `${blsIndicators.realWageYoY.toFixed(2)}%`,
+      detail: "Inflation-adjusted hourly earnings growth year-over-year.",
+    },
+    {
+      id: "fiscal-deficit-share",
+      title: "Deficit pressure",
+      level: toAlertLevel(deficitShare3mAvg, 20, 30),
+      metric: `${deficitShare3mAvg.toFixed(1)}%`,
+      detail: "3-month average deficit as a share of outlays.",
+    },
+    {
+      id: "debt-growth",
+      title: "Debt growth speed",
+      level: toAlertLevel(debtSeries.debtYoYGrowthPct, 5, 8),
+      metric: `${debtSeries.debtYoYGrowthPct.toFixed(2)}%`,
+      detail: "Total public debt growth relative to one year ago.",
+    },
+    {
+      id: "housing-burden",
+      title: "Housing cost burden",
+      level: toAlertLevel(demographicIndicators.severeRentBurdenShare, 20, 30),
+      metric: `${demographicIndicators.severeRentBurdenShare.toFixed(1)}%`,
+      detail: "Renter households paying at least 35% of income toward rent.",
     },
   ];
 
