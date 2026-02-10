@@ -4,11 +4,11 @@
     "organizations": 112,
     "groups": 4,
     "distinctFormats": 999,
-    "updatedLast7Days": 14618,
+    "updatedLast7Days": 14622,
     "createdLast7Days": 313,
-    "updatedLast30Days": 88651,
+    "updatedLast30Days": 88653,
     "createdLast30Days": 39573,
-    "updatedLast90Days": 169773,
+    "updatedLast90Days": 169775,
     "updatedLast365Days": 265768,
     "freshnessScore": 43.8
   },
@@ -245,22 +245,22 @@
   "activitySeries": [
     {
       "label": "Last 7 days",
-      "modified": 14618,
+      "modified": 14622,
       "created": 313
     },
     {
       "label": "Last 30 days",
-      "modified": 88651,
+      "modified": 88653,
       "created": 39573
     },
     {
       "label": "Last 90 days",
-      "modified": 169773,
+      "modified": 169775,
       "created": 114856
     },
     {
       "label": "Last 180 days",
-      "modified": 206829,
+      "modified": 206830,
       "created": 134805
     },
     {
@@ -278,17 +278,17 @@
     "freshnessBuckets": [
       {
         "label": "0-30 days",
-        "count": 88651,
+        "count": 88653,
         "share": 22.9
       },
       {
         "label": "31-180 days",
-        "count": 118178,
+        "count": 118177,
         "share": 30.5
       },
       {
         "label": "181-365 days",
-        "count": 58939,
+        "count": 58938,
         "share": 15.2
       },
       {
@@ -419,7 +419,7 @@
       },
       {
         "label": "Jul 25",
-        "modified": 5426,
+        "modified": 5425,
         "created": 9718
       },
       {
@@ -439,7 +439,7 @@
       },
       {
         "label": "Nov 25",
-        "modified": 3563,
+        "modified": 3562,
         "created": 326
       },
       {
@@ -449,7 +449,7 @@
       },
       {
         "label": "Jan 26",
-        "modified": 68196,
+        "modified": 68194,
         "created": 46317
       }
     ],
@@ -502,11 +502,11 @@
       },
       {
         "label": "1",
-        "count": 30
+        "count": 31
       },
       {
         "label": "2-5",
-        "count": 79
+        "count": 77
       },
       {
         "label": "6-10",
@@ -514,11 +514,11 @@
       },
       {
         "label": "11+",
-        "count": 22
+        "count": 23
       }
     ],
     "velocity": {
-      "updatesPerDay30": 2955,
+      "updatesPerDay30": 2955.1,
       "creationsPerDay30": 1319.1,
       "updateToCreateRatio": 2.24,
       "weeklyMomentum": 0.71
@@ -538,10 +538,10 @@
     },
     "resourceCoverage": {
       "sampleSize": 200,
-      "totalResources": 688,
-      "avgResources": 3.4,
+      "totalResources": 755,
+      "avgResources": 3.8,
       "medianResources": 2,
-      "maxResources": 26,
+      "maxResources": 77,
       "datasetsWithNoResources": 68,
       "noResourceShare": 34
     },
@@ -550,7 +550,7 @@
       "diversityScore": 84.5
     },
     "periodComparison": {
-      "updatedCurrent7Days": 14618,
+      "updatedCurrent7Days": 14622,
       "updatedPrevious7Days": 22538,
       "createdCurrent7Days": 313,
       "createdPrevious7Days": 2615,
@@ -595,6 +595,41 @@
         "level": "risk",
         "metric": "0.71x",
         "detail": "Current 7-day updates versus the 30-day baseline."
+      },
+      {
+        "id": "sahm-rule",
+        "title": "Labor stress (Sahm rule proxy)",
+        "level": "watch",
+        "metric": "0.30pp",
+        "detail": "Current unemployment 3m average relative to its 12-month minimum."
+      },
+      {
+        "id": "real-wage",
+        "title": "Real wage pressure",
+        "level": "good",
+        "metric": "0.75%",
+        "detail": "Inflation-adjusted hourly earnings growth year-over-year."
+      },
+      {
+        "id": "fiscal-deficit-share",
+        "title": "Deficit pressure",
+        "level": "risk",
+        "metric": "30.4%",
+        "detail": "3-month average deficit as a share of outlays."
+      },
+      {
+        "id": "debt-growth",
+        "title": "Debt growth speed",
+        "level": "risk",
+        "metric": "9.58%",
+        "detail": "Total public debt growth relative to one year ago."
+      },
+      {
+        "id": "housing-burden",
+        "title": "Housing cost burden",
+        "level": "risk",
+        "metric": "39.6%",
+        "detail": "Renter households paying at least 35% of income toward rent."
       }
     ]
   },
@@ -614,22 +649,56 @@
       "unemploymentPersons": 7395929,
       "unemploymentRate": 3.8,
       "unemploymentRate3mAvg": 3.8,
+      "unemploymentRateMoMDelta": 0.1,
+      "unemploymentRateYoYDelta": 0.3,
+      "underemploymentRate": 7.2,
+      "underemploymentGap": 3.4,
+      "longTermUnemploymentShare": 0.32,
+      "sahmRuleValue": 0.3,
       "laborForceParticipationRate": 62.5,
+      "laborForceParticipationMoMDelta": -0.3,
       "employmentPopulationRatio": 60.1,
+      "employmentPopulationMoMDelta": -0.3,
       "nonfarmPayrollEmployment": 156930,
+      "payrollMoMChange": 269,
+      "payrollYoYChange": 1.68,
+      "payroll3mAvgChange": 198.67,
       "cpiIndex": 306.746,
+      "cpiMoM": -0.1,
+      "coreCpiIndex": 311.907,
+      "coreInflationYoY": 3.93,
+      "coreInflationMoM": 0.1,
+      "inflationGapToTarget": 1.35,
+      "inflationVsCoreSpread": -0.58,
       "inflationYoY": 3.35,
       "inflationYoY3mAvg": 3.24,
       "averageHourlyEarnings": 34.31,
+      "hourlyEarningsMoM": 0.35,
       "hourlyEarningsYoY": 4.1,
       "hourlyEarningsYoY3mAvg": 4.13,
+      "averageWeeklyHours": 34.4,
+      "averageWeeklyHoursYoY": 0,
+      "weeklyEarnings": 1180.26,
+      "weeklyEarningsYoY": 4.1,
+      "realWeeklyEarningsYoY": 0.75,
       "realWageYoY": 0.75,
       "realWageYoY3mAvg": 0.89,
       "totalPublicDebt": 38588547251497.72,
+      "debtHeldByPublic": 30969650188685.63,
+      "intragovernmentalHoldings": 7618897062812.09,
+      "debtHeldByPublicShare": 80.3,
+      "intragovShare": 19.7,
       "debtChange7Days": 46004779610.875,
       "debtChange30Days": 213197654567.14062,
       "debtChange365Days": 3372646881404.6484,
+      "debtChange7DaysPct": 0.12,
+      "debtChange30DaysPct": 0.56,
+      "debtChange365DaysPct": 9.58,
       "debtYoYGrowthPct": 9.58,
+      "avgDailyDebtChange30": 7106588485.57,
+      "debtDailyVolatility30": 38510820031.86,
+      "maxDailyDebtIncrease30": 141855466611.63,
+      "maxDailyDebtDecrease30": -91190613626,
       "debtPerCapita": 115218.96371995863,
       "debtToIncomeRatio": 2.6601473857723694,
       "latestOutlays": 541146327504.76,
@@ -637,15 +706,25 @@
       "latestDeficit": 86731619013.29,
       "receiptsToOutlaysRatio": 84,
       "deficitToOutlaysRatio": 16,
+      "deficitShare3mAvg": 30.45,
+      "outlays3mAvg": 579715366016.05,
+      "receipts3mAvg": 398262417725.04,
       "outlaysPerCapita": 1615.772645432767,
       "receiptsPerCapita": 1356.8065019463033,
       "deficitPerCapita": 258.96614348646347,
       "trailing12Outlays": 6921393565161.499,
       "trailing12Receipts": 5230567411569.95,
       "trailing12Deficit": 1690826153591.5503,
+      "avgMonthlyOutlays12": 576782797096.79,
+      "avgMonthlyReceipts12": 435880617630.83,
+      "avgMonthlyDeficit12": 140902179465.96,
+      "deficitVolatility12": 188529561209.39,
+      "deficitPeakToTrough12": 605530842806.61,
+      "fiscalImpulseYoY": -104.8,
       "outlaysYoY": 512.5,
       "receiptsYoY": 617.3,
       "deficitYoY": 321.9,
+      "deficitStreakMonths": 3,
       "surplusMonthsLast12": 2,
       "largestDeficitMonth": "May 25",
       "largestDeficitAmount": 347130893691.65,
@@ -657,6 +736,22 @@
       "renterOccupiedHousingUnits": 45646491,
       "vacancyRate": 9.6,
       "homeownershipRate": 65.2,
+      "renterShareOfOccupied": 34.8,
+      "severeRentBurdenShare": 39.6,
+      "ownerCostBurdenShare": 16,
+      "singleFamilyHousingShare": 67.4,
+      "multiFamilyHousingShare": 26.9,
+      "mobileHomeShare": 5.5,
+      "personsPerHousehold": 2.55,
+      "childPopulationShare": 21.7,
+      "seniorPopulationShare": 17.7,
+      "workingAgePopulationShare": 60.6,
+      "dependencyRatio": 65.02,
+      "femalePopulationShare": 50.5,
+      "highSchoolOrHigherShare": 89.8,
+      "lessThanHighSchoolShare": 10.2,
+      "longCommuteShare": 17,
+      "zeroVehicleShare": 8.4,
       "bachelorsOrHigherShare": 36.2,
       "homeValueToIncomeRatio": 4.377307994184176,
       "annualRentToIncomeRatio": 0.2170897721277937,
@@ -2433,6 +2528,1684 @@
           "value": 38588547251497.72
         }
       ],
+      "debtDailyChange": [
+        {
+          "label": "Jun 04",
+          "value": 20271745761.98
+        },
+        {
+          "label": "Jun 05",
+          "value": 4265145515.57
+        },
+        {
+          "label": "Jun 06",
+          "value": 10731619661.5
+        },
+        {
+          "label": "Jun 07",
+          "value": 2259393565.34
+        },
+        {
+          "label": "Jun 10",
+          "value": 36528049343.35
+        },
+        {
+          "label": "Jun 11",
+          "value": -6484308159.62
+        },
+        {
+          "label": "Jun 12",
+          "value": -21622084338.8
+        },
+        {
+          "label": "Jun 13",
+          "value": 2266924880.24
+        },
+        {
+          "label": "Jun 14",
+          "value": -2499231423.85
+        },
+        {
+          "label": "Jun 17",
+          "value": 69417431853.7
+        },
+        {
+          "label": "Jun 18",
+          "value": -16387923051.95
+        },
+        {
+          "label": "Jun 20",
+          "value": -8260583327.38
+        },
+        {
+          "label": "Jun 21",
+          "value": 7897442556.09
+        },
+        {
+          "label": "Jun 24",
+          "value": 14854703821.83
+        },
+        {
+          "label": "Jun 25",
+          "value": -203781530.65
+        },
+        {
+          "label": "Jun 26",
+          "value": -23709421492.38
+        },
+        {
+          "label": "Jun 27",
+          "value": -1912339716.96
+        },
+        {
+          "label": "Jun 28",
+          "value": 108857504147.32
+        },
+        {
+          "label": "Jul 01",
+          "value": 9425197393.33
+        },
+        {
+          "label": "Jul 02",
+          "value": 24980802540.51
+        },
+        {
+          "label": "Jul 03",
+          "value": -18471441273.18
+        },
+        {
+          "label": "Jul 05",
+          "value": 4632297540.91
+        },
+        {
+          "label": "Jul 08",
+          "value": 5188772233.06
+        },
+        {
+          "label": "Jul 09",
+          "value": 26981450219.5
+        },
+        {
+          "label": "Jul 10",
+          "value": -23049851362.59
+        },
+        {
+          "label": "Jul 11",
+          "value": 27617887840.9
+        },
+        {
+          "label": "Jul 12",
+          "value": 273880441.17
+        },
+        {
+          "label": "Jul 15",
+          "value": 22434127097.27
+        },
+        {
+          "label": "Jul 16",
+          "value": 28506639546.29
+        },
+        {
+          "label": "Jul 17",
+          "value": -16877073383.69
+        },
+        {
+          "label": "Jul 18",
+          "value": 22686158179.34
+        },
+        {
+          "label": "Jul 19",
+          "value": -1711447813.37
+        },
+        {
+          "label": "Jul 22",
+          "value": 5887166546.43
+        },
+        {
+          "label": "Jul 23",
+          "value": 37982332146.17
+        },
+        {
+          "label": "Jul 24",
+          "value": -18543029818.34
+        },
+        {
+          "label": "Jul 25",
+          "value": 27962205636.15
+        },
+        {
+          "label": "Jul 26",
+          "value": 3737674105.34
+        },
+        {
+          "label": "Jul 29",
+          "value": 3137751090.33
+        },
+        {
+          "label": "Jul 30",
+          "value": 38794047388.27
+        },
+        {
+          "label": "Jul 31",
+          "value": 61560671613.76
+        },
+        {
+          "label": "Aug 01",
+          "value": -45368302159.51
+        },
+        {
+          "label": "Aug 02",
+          "value": -7973652586.53
+        },
+        {
+          "label": "Aug 05",
+          "value": 7827681898.15
+        },
+        {
+          "label": "Aug 06",
+          "value": 26530119390.1
+        },
+        {
+          "label": "Aug 07",
+          "value": 8969850077.07
+        },
+        {
+          "label": "Aug 08",
+          "value": 28571632108.16
+        },
+        {
+          "label": "Aug 09",
+          "value": -800845622.04
+        },
+        {
+          "label": "Aug 12",
+          "value": 4323029332.84
+        },
+        {
+          "label": "Aug 13",
+          "value": 33499420645.4
+        },
+        {
+          "label": "Aug 14",
+          "value": -22724920400.27
+        },
+        {
+          "label": "Aug 15",
+          "value": 31539116255.95
+        },
+        {
+          "label": "Aug 16",
+          "value": -1935587026.89
+        },
+        {
+          "label": "Aug 19",
+          "value": 10805922024.61
+        },
+        {
+          "label": "Aug 20",
+          "value": 37866256855
+        },
+        {
+          "label": "Aug 21",
+          "value": -21901090819.29
+        },
+        {
+          "label": "Aug 22",
+          "value": 16351520272.34
+        },
+        {
+          "label": "Aug 23",
+          "value": 3616300939.03
+        },
+        {
+          "label": "Aug 26",
+          "value": 11217800700.68
+        },
+        {
+          "label": "Aug 27",
+          "value": 64307101969.16
+        },
+        {
+          "label": "Aug 28",
+          "value": -19795732291.13
+        },
+        {
+          "label": "Aug 29",
+          "value": 10079874570.43
+        },
+        {
+          "label": "Aug 30",
+          "value": -23719302644.23
+        },
+        {
+          "label": "Sep 03",
+          "value": 63629797819.91
+        },
+        {
+          "label": "Sep 04",
+          "value": 24138097405.05
+        },
+        {
+          "label": "Sep 05",
+          "value": 1747416721.13
+        },
+        {
+          "label": "Sep 06",
+          "value": -2485649169.94
+        },
+        {
+          "label": "Sep 09",
+          "value": 3545766080.4
+        },
+        {
+          "label": "Sep 10",
+          "value": -15470581053.2
+        },
+        {
+          "label": "Sep 11",
+          "value": -21977077723.41
+        },
+        {
+          "label": "Sep 12",
+          "value": -35304857952.62
+        },
+        {
+          "label": "Sep 13",
+          "value": -5098165555.46
+        },
+        {
+          "label": "Sep 16",
+          "value": 77687980235.82
+        },
+        {
+          "label": "Sep 17",
+          "value": 4372741173.36
+        },
+        {
+          "label": "Sep 18",
+          "value": -19572689658.02
+        },
+        {
+          "label": "Sep 19",
+          "value": -3622998273.62
+        },
+        {
+          "label": "Sep 20",
+          "value": -7935886707.39
+        },
+        {
+          "label": "Sep 23",
+          "value": 4925643215.16
+        },
+        {
+          "label": "Sep 24",
+          "value": -310902978.87
+        },
+        {
+          "label": "Sep 25",
+          "value": -20360311915.47
+        },
+        {
+          "label": "Sep 26",
+          "value": -7597879500.62
+        },
+        {
+          "label": "Sep 27",
+          "value": 24970059448.17
+        },
+        {
+          "label": "Sep 30",
+          "value": 143336584771.26
+        },
+        {
+          "label": "Oct 01",
+          "value": 204273438010.41
+        },
+        {
+          "label": "Oct 02",
+          "value": 8813240853.36
+        },
+        {
+          "label": "Oct 03",
+          "value": 36234484.25
+        },
+        {
+          "label": "Oct 04",
+          "value": 2717973513.22
+        },
+        {
+          "label": "Oct 07",
+          "value": 2102982738.88
+        },
+        {
+          "label": "Oct 08",
+          "value": 35087866360.88
+        },
+        {
+          "label": "Oct 09",
+          "value": -23864403580.63
+        },
+        {
+          "label": "Oct 10",
+          "value": -13207177619.86
+        },
+        {
+          "label": "Oct 11",
+          "value": 26685598581.08
+        },
+        {
+          "label": "Oct 15",
+          "value": 43952126112.2
+        },
+        {
+          "label": "Oct 16",
+          "value": -7758261160.59
+        },
+        {
+          "label": "Oct 17",
+          "value": 25570924059.52
+        },
+        {
+          "label": "Oct 18",
+          "value": 647675978.97
+        },
+        {
+          "label": "Oct 21",
+          "value": 3018067383.27
+        },
+        {
+          "label": "Oct 22",
+          "value": 30071958950.34
+        },
+        {
+          "label": "Oct 23",
+          "value": -25450638493.33
+        },
+        {
+          "label": "Oct 24",
+          "value": 31786215776.16
+        },
+        {
+          "label": "Oct 25",
+          "value": 6234808703.73
+        },
+        {
+          "label": "Oct 28",
+          "value": 2013848082.92
+        },
+        {
+          "label": "Oct 29",
+          "value": 31115102530.57
+        },
+        {
+          "label": "Oct 30",
+          "value": -1508920369.85
+        },
+        {
+          "label": "Oct 31",
+          "value": 104588583868.85
+        },
+        {
+          "label": "Nov 01",
+          "value": -84997950394.55
+        },
+        {
+          "label": "Nov 04",
+          "value": 17797792312.88
+        },
+        {
+          "label": "Nov 05",
+          "value": 26706582343.82
+        },
+        {
+          "label": "Nov 06",
+          "value": 950943020.67
+        },
+        {
+          "label": "Nov 07",
+          "value": 31495679078.79
+        },
+        {
+          "label": "Nov 08",
+          "value": 1842142177.56
+        },
+        {
+          "label": "Nov 12",
+          "value": 18369221824.04
+        },
+        {
+          "label": "Nov 13",
+          "value": -13503156519.55
+        },
+        {
+          "label": "Nov 14",
+          "value": 15270596824.36
+        },
+        {
+          "label": "Nov 15",
+          "value": -6356036663.94
+        },
+        {
+          "label": "Nov 18",
+          "value": 4799354783.8
+        },
+        {
+          "label": "Nov 19",
+          "value": 28314700994.95
+        },
+        {
+          "label": "Nov 20",
+          "value": -18385065604.15
+        },
+        {
+          "label": "Nov 21",
+          "value": 61088608867.27
+        },
+        {
+          "label": "Nov 22",
+          "value": 12528550954.38
+        },
+        {
+          "label": "Nov 25",
+          "value": 5127756858.41
+        },
+        {
+          "label": "Nov 26",
+          "value": 60919641007.77
+        },
+        {
+          "label": "Nov 27",
+          "value": -22973309998.1
+        },
+        {
+          "label": "Nov 29",
+          "value": -3234265192.43
+        },
+        {
+          "label": "Dec 02",
+          "value": 83818994672.36
+        },
+        {
+          "label": "Dec 03",
+          "value": -1768091417.48
+        },
+        {
+          "label": "Dec 04",
+          "value": 1097683571.97
+        },
+        {
+          "label": "Dec 05",
+          "value": -3146609330.41
+        },
+        {
+          "label": "Dec 06",
+          "value": -1327367651.11
+        },
+        {
+          "label": "Dec 09",
+          "value": 6157708605.61
+        },
+        {
+          "label": "Dec 10",
+          "value": -8752882836.33
+        },
+        {
+          "label": "Dec 11",
+          "value": -30921880950.08
+        },
+        {
+          "label": "Dec 12",
+          "value": 943383355.49
+        },
+        {
+          "label": "Dec 13",
+          "value": 611735306.66
+        },
+        {
+          "label": "Dec 16",
+          "value": 58820071044.96
+        },
+        {
+          "label": "Dec 17",
+          "value": -3549878843.03
+        },
+        {
+          "label": "Dec 18",
+          "value": -21741676185.01
+        },
+        {
+          "label": "Dec 19",
+          "value": -479682462.71
+        },
+        {
+          "label": "Dec 20",
+          "value": -5503452047.33
+        },
+        {
+          "label": "Dec 23",
+          "value": 28655543021.05
+        },
+        {
+          "label": "Dec 24",
+          "value": -43457374099.52
+        },
+        {
+          "label": "Dec 26",
+          "value": -34011475059.49
+        },
+        {
+          "label": "Dec 27",
+          "value": 31375666339.82
+        },
+        {
+          "label": "Dec 30",
+          "value": 5973854812.61
+        },
+        {
+          "label": "Dec 31",
+          "value": 68448081229.87
+        },
+        {
+          "label": "Jan 02",
+          "value": -48647692929.7
+        },
+        {
+          "label": "Jan 03",
+          "value": -5810891714.39
+        },
+        {
+          "label": "Jan 06",
+          "value": 7645978114.16
+        },
+        {
+          "label": "Jan 07",
+          "value": 6883314055.62
+        },
+        {
+          "label": "Jan 08",
+          "value": -24930676949.3
+        },
+        {
+          "label": "Jan 09",
+          "value": 12648271413.43
+        },
+        {
+          "label": "Jan 10",
+          "value": 3126386365.77
+        },
+        {
+          "label": "Jan 13",
+          "value": 3935107665.62
+        },
+        {
+          "label": "Jan 14",
+          "value": 27451430443.13
+        },
+        {
+          "label": "Jan 15",
+          "value": -26736402690.23
+        },
+        {
+          "label": "Jan 16",
+          "value": 23340862943.57
+        },
+        {
+          "label": "Jan 17",
+          "value": 9082317167.57
+        },
+        {
+          "label": "Jan 21",
+          "value": 11665087751.2
+        },
+        {
+          "label": "Jan 22",
+          "value": -767071099.82
+        },
+        {
+          "label": "Jan 23",
+          "value": 4511391617.71
+        },
+        {
+          "label": "Jan 24",
+          "value": -774190041.98
+        },
+        {
+          "label": "Jan 27",
+          "value": -2322235490.93
+        },
+        {
+          "label": "Jan 28",
+          "value": 1030980513.89
+        },
+        {
+          "label": "Jan 29",
+          "value": -775689532.14
+        },
+        {
+          "label": "Jan 30",
+          "value": 2281493318.77
+        },
+        {
+          "label": "Jan 31",
+          "value": -1236344563.89
+        },
+        {
+          "label": "Feb 03",
+          "value": -2328485529.07
+        },
+        {
+          "label": "Feb 04",
+          "value": 1023208310.07
+        },
+        {
+          "label": "Feb 05",
+          "value": -777864934.55
+        },
+        {
+          "label": "Feb 06",
+          "value": 2237449900.41
+        },
+        {
+          "label": "Feb 07",
+          "value": -779087264.23
+        },
+        {
+          "label": "Feb 10",
+          "value": -2337214676.18
+        },
+        {
+          "label": "Feb 11",
+          "value": 1023537502.1
+        },
+        {
+          "label": "Feb 12",
+          "value": -780425584.42
+        },
+        {
+          "label": "Feb 13",
+          "value": 2276231805.48
+        },
+        {
+          "label": "Feb 14",
+          "value": -780397149.57
+        },
+        {
+          "label": "Feb 18",
+          "value": 609010678.68
+        },
+        {
+          "label": "Feb 19",
+          "value": -780600969.36
+        },
+        {
+          "label": "Feb 20",
+          "value": 4177350136.66
+        },
+        {
+          "label": "Feb 21",
+          "value": -777843354.51
+        },
+        {
+          "label": "Feb 24",
+          "value": -2333072557.87
+        },
+        {
+          "label": "Feb 25",
+          "value": 871115493.83
+        },
+        {
+          "label": "Feb 26",
+          "value": -768994079.63
+        },
+        {
+          "label": "Feb 27",
+          "value": 1969180231.14
+        },
+        {
+          "label": "Feb 28",
+          "value": -3026466636.83
+        },
+        {
+          "label": "Mar 03",
+          "value": -2296183091.32
+        },
+        {
+          "label": "Mar 04",
+          "value": 830540154.03
+        },
+        {
+          "label": "Mar 05",
+          "value": -762167582.95
+        },
+        {
+          "label": "Mar 06",
+          "value": 1891447318.65
+        },
+        {
+          "label": "Mar 07",
+          "value": -762822155.14
+        },
+        {
+          "label": "Mar 10",
+          "value": -2288477063.39
+        },
+        {
+          "label": "Mar 11",
+          "value": 810788488.77
+        },
+        {
+          "label": "Mar 12",
+          "value": -757753811.44
+        },
+        {
+          "label": "Mar 13",
+          "value": 1821599609.26
+        },
+        {
+          "label": "Mar 14",
+          "value": -753979863.69
+        },
+        {
+          "label": "Mar 17",
+          "value": -2261990862.84
+        },
+        {
+          "label": "Mar 18",
+          "value": 818298824.34
+        },
+        {
+          "label": "Mar 19",
+          "value": -744849986.23
+        },
+        {
+          "label": "Mar 20",
+          "value": 3754225838.19
+        },
+        {
+          "label": "Mar 21",
+          "value": -740738101.5
+        },
+        {
+          "label": "Mar 24",
+          "value": -2222400047.05
+        },
+        {
+          "label": "Mar 25",
+          "value": 834380555.96
+        },
+        {
+          "label": "Mar 26",
+          "value": -736753422.38
+        },
+        {
+          "label": "Mar 27",
+          "value": 1847795668.82
+        },
+        {
+          "label": "Mar 28",
+          "value": -733657802.32
+        },
+        {
+          "label": "Mar 31",
+          "value": -2160251863.73
+        },
+        {
+          "label": "Apr 01",
+          "value": 846252939.66
+        },
+        {
+          "label": "Apr 02",
+          "value": -730461750.04
+        },
+        {
+          "label": "Apr 03",
+          "value": 2068816424.2
+        },
+        {
+          "label": "Apr 04",
+          "value": -733408896.85
+        },
+        {
+          "label": "Apr 07",
+          "value": -2200126909.98
+        },
+        {
+          "label": "Apr 08",
+          "value": 947259208.88
+        },
+        {
+          "label": "Apr 09",
+          "value": -737528900.41
+        },
+        {
+          "label": "Apr 10",
+          "value": 1930095542.34
+        },
+        {
+          "label": "Apr 11",
+          "value": -734928549.83
+        },
+        {
+          "label": "Apr 14",
+          "value": -2204755696.34
+        },
+        {
+          "label": "Apr 15",
+          "value": 1563637649.48
+        },
+        {
+          "label": "Apr 16",
+          "value": -734559006.61
+        },
+        {
+          "label": "Apr 17",
+          "value": 3889322994.63
+        },
+        {
+          "label": "Apr 18",
+          "value": -725614561
+        },
+        {
+          "label": "Apr 21",
+          "value": -2176810319.31
+        },
+        {
+          "label": "Apr 22",
+          "value": 892050420.24
+        },
+        {
+          "label": "Apr 23",
+          "value": -719793441.78
+        },
+        {
+          "label": "Apr 24",
+          "value": 1941854195.11
+        },
+        {
+          "label": "Apr 25",
+          "value": -717895765.44
+        },
+        {
+          "label": "Apr 28",
+          "value": -2153661550.91
+        },
+        {
+          "label": "Apr 29",
+          "value": 894353760.55
+        },
+        {
+          "label": "Apr 30",
+          "value": -1157322150.08
+        },
+        {
+          "label": "May 01",
+          "value": 2019603476.22
+        },
+        {
+          "label": "May 02",
+          "value": -716615777.16
+        },
+        {
+          "label": "May 05",
+          "value": -2149794362.26
+        },
+        {
+          "label": "May 06",
+          "value": 892485102.76
+        },
+        {
+          "label": "May 07",
+          "value": -716763091.95
+        },
+        {
+          "label": "May 08",
+          "value": 2009989220.74
+        },
+        {
+          "label": "May 09",
+          "value": -714979806.43
+        },
+        {
+          "label": "May 12",
+          "value": -2144955982.3
+        },
+        {
+          "label": "May 13",
+          "value": 942743459.73
+        },
+        {
+          "label": "May 14",
+          "value": -717486307.12
+        },
+        {
+          "label": "May 15",
+          "value": 4167990276.92
+        },
+        {
+          "label": "May 16",
+          "value": -714783466.72
+        },
+        {
+          "label": "May 19",
+          "value": -2143864832.12
+        },
+        {
+          "label": "May 20",
+          "value": 904668489.87
+        },
+        {
+          "label": "May 21",
+          "value": -714211100.02
+        },
+        {
+          "label": "May 22",
+          "value": 2040264727.72
+        },
+        {
+          "label": "May 23",
+          "value": -713083492.67
+        },
+        {
+          "label": "May 27",
+          "value": -1234650393.82
+        },
+        {
+          "label": "May 28",
+          "value": -712625685.98
+        },
+        {
+          "label": "May 29",
+          "value": 2035191032.36
+        },
+        {
+          "label": "May 30",
+          "value": 642082638.43
+        },
+        {
+          "label": "Jun 02",
+          "value": -1417735082.32
+        },
+        {
+          "label": "Jun 03",
+          "value": 806761836.12
+        },
+        {
+          "label": "Jun 04",
+          "value": -706026477.01
+        },
+        {
+          "label": "Jun 05",
+          "value": 1888014266.57
+        },
+        {
+          "label": "Jun 06",
+          "value": -704150812.85
+        },
+        {
+          "label": "Jun 09",
+          "value": -2112478252.33
+        },
+        {
+          "label": "Jun 10",
+          "value": 707804690.71
+        },
+        {
+          "label": "Jun 11",
+          "value": -698866308.67
+        },
+        {
+          "label": "Jun 12",
+          "value": 3870369106.74
+        },
+        {
+          "label": "Jun 13",
+          "value": -695576442.13
+        },
+        {
+          "label": "Jun 16",
+          "value": -2086672403.13
+        },
+        {
+          "label": "Jun 17",
+          "value": 727897789.21
+        },
+        {
+          "label": "Jun 18",
+          "value": -690605613.93
+        },
+        {
+          "label": "Jun 20",
+          "value": 1166292602.03
+        },
+        {
+          "label": "Jun 23",
+          "value": -2065001836.3
+        },
+        {
+          "label": "Jun 24",
+          "value": 744910753.69
+        },
+        {
+          "label": "Jun 25",
+          "value": -683769636.25
+        },
+        {
+          "label": "Jun 26",
+          "value": 1936496623.36
+        },
+        {
+          "label": "Jun 27",
+          "value": -681751358.2
+        },
+        {
+          "label": "Jun 30",
+          "value": -3654961560.84
+        },
+        {
+          "label": "Jul 01",
+          "value": 3012890089.83
+        },
+        {
+          "label": "Jul 02",
+          "value": -684500728.74
+        },
+        {
+          "label": "Jul 03",
+          "value": 2071556117.35
+        },
+        {
+          "label": "Jul 07",
+          "value": 366443892720.01
+        },
+        {
+          "label": "Jul 08",
+          "value": 43502211230.03
+        },
+        {
+          "label": "Jul 09",
+          "value": -25170028274.87
+        },
+        {
+          "label": "Jul 10",
+          "value": -5543761895.79
+        },
+        {
+          "label": "Jul 11",
+          "value": 699126308.23
+        },
+        {
+          "label": "Jul 14",
+          "value": 2544804767.58
+        },
+        {
+          "label": "Jul 15",
+          "value": 53265574390.89
+        },
+        {
+          "label": "Jul 16",
+          "value": -23756139683.12
+        },
+        {
+          "label": "Jul 17",
+          "value": 27425602250.91
+        },
+        {
+          "label": "Jul 18",
+          "value": -1361926613.76
+        },
+        {
+          "label": "Jul 21",
+          "value": 7775067750.74
+        },
+        {
+          "label": "Jul 22",
+          "value": 49838687113.16
+        },
+        {
+          "label": "Jul 23",
+          "value": -24594665052.25
+        },
+        {
+          "label": "Jul 24",
+          "value": 34593291291.47
+        },
+        {
+          "label": "Jul 25",
+          "value": 11368913179.55
+        },
+        {
+          "label": "Jul 28",
+          "value": 2026129522.77
+        },
+        {
+          "label": "Jul 29",
+          "value": 68911442612.91
+        },
+        {
+          "label": "Jul 30",
+          "value": -1596957019.82
+        },
+        {
+          "label": "Jul 31",
+          "value": 114746750099.64
+        },
+        {
+          "label": "Aug 01",
+          "value": -90084377248.78
+        },
+        {
+          "label": "Aug 04",
+          "value": 1261863165.06
+        },
+        {
+          "label": "Aug 05",
+          "value": 102287547950.84
+        },
+        {
+          "label": "Aug 06",
+          "value": 20007513246.41
+        },
+        {
+          "label": "Aug 07",
+          "value": 45746108037.66
+        },
+        {
+          "label": "Aug 08",
+          "value": 2285886405.86
+        },
+        {
+          "label": "Aug 11",
+          "value": 6325772287.48
+        },
+        {
+          "label": "Aug 12",
+          "value": 65605183473.76
+        },
+        {
+          "label": "Aug 13",
+          "value": -25084731789.28
+        },
+        {
+          "label": "Aug 14",
+          "value": 44092516827.54
+        },
+        {
+          "label": "Aug 15",
+          "value": 47852047413.16
+        },
+        {
+          "label": "Aug 18",
+          "value": 6794108642.41
+        },
+        {
+          "label": "Aug 19",
+          "value": 64779564394.39
+        },
+        {
+          "label": "Aug 20",
+          "value": -28665332981.23
+        },
+        {
+          "label": "Aug 21",
+          "value": 52097680200.59
+        },
+        {
+          "label": "Aug 22",
+          "value": 1777487255.05
+        },
+        {
+          "label": "Aug 25",
+          "value": 20156755442.01
+        },
+        {
+          "label": "Aug 26",
+          "value": -49336406467.58
+        },
+        {
+          "label": "Aug 27",
+          "value": 79082403190.15
+        },
+        {
+          "label": "Aug 28",
+          "value": 26185068767.22
+        },
+        {
+          "label": "Aug 29",
+          "value": -35888052303.73
+        },
+        {
+          "label": "Sep 02",
+          "value": 139272509609.16
+        },
+        {
+          "label": "Sep 03",
+          "value": -858463636.02
+        },
+        {
+          "label": "Sep 04",
+          "value": 17448151942.59
+        },
+        {
+          "label": "Sep 05",
+          "value": 3460145693.79
+        },
+        {
+          "label": "Sep 08",
+          "value": 7020955463.09
+        },
+        {
+          "label": "Sep 09",
+          "value": 33277970258.14
+        },
+        {
+          "label": "Sep 10",
+          "value": -23143332209.55
+        },
+        {
+          "label": "Sep 11",
+          "value": 20089440070.45
+        },
+        {
+          "label": "Sep 12",
+          "value": -9034237438.44
+        },
+        {
+          "label": "Sep 15",
+          "value": 72183527645.33
+        },
+        {
+          "label": "Sep 16",
+          "value": -31224431579.62
+        },
+        {
+          "label": "Sep 17",
+          "value": -10121447989.73
+        },
+        {
+          "label": "Sep 18",
+          "value": 17187574949.07
+        },
+        {
+          "label": "Sep 19",
+          "value": -4071257465.45
+        },
+        {
+          "label": "Sep 22",
+          "value": 5990883302.68
+        },
+        {
+          "label": "Sep 23",
+          "value": -42048314243.13
+        },
+        {
+          "label": "Sep 24",
+          "value": -15158346030.68
+        },
+        {
+          "label": "Sep 25",
+          "value": 13355832205.83
+        },
+        {
+          "label": "Sep 26",
+          "value": 31811417312.79
+        },
+        {
+          "label": "Sep 29",
+          "value": 6749070453.88
+        },
+        {
+          "label": "Sep 30",
+          "value": 131099928714.41
+        },
+        {
+          "label": "Oct 01",
+          "value": 226506007790.09
+        },
+        {
+          "label": "Oct 02",
+          "value": 17783294381.69
+        },
+        {
+          "label": "Oct 03",
+          "value": -29186981658.44
+        },
+        {
+          "label": "Oct 06",
+          "value": 10585468103.62
+        },
+        {
+          "label": "Oct 07",
+          "value": 26515289207.87
+        },
+        {
+          "label": "Oct 08",
+          "value": -25918706168.44
+        },
+        {
+          "label": "Oct 09",
+          "value": 20092545870.39
+        },
+        {
+          "label": "Oct 10",
+          "value": 1506172962.24
+        },
+        {
+          "label": "Oct 14",
+          "value": 33519460279.22
+        },
+        {
+          "label": "Oct 15",
+          "value": 23679285485.77
+        },
+        {
+          "label": "Oct 16",
+          "value": 23918525141.8
+        },
+        {
+          "label": "Oct 17",
+          "value": 10751980075.9
+        },
+        {
+          "label": "Oct 20",
+          "value": 2967834024.01
+        },
+        {
+          "label": "Oct 21",
+          "value": 39539684268.93
+        },
+        {
+          "label": "Oct 22",
+          "value": -29140428094.7
+        },
+        {
+          "label": "Oct 23",
+          "value": 17464138346.05
+        },
+        {
+          "label": "Oct 24",
+          "value": 888894505.79
+        },
+        {
+          "label": "Oct 27",
+          "value": 33165783295.21
+        },
+        {
+          "label": "Oct 28",
+          "value": 34742477778.95
+        },
+        {
+          "label": "Oct 29",
+          "value": 1609923626.66
+        },
+        {
+          "label": "Oct 30",
+          "value": 30386106120.77
+        },
+        {
+          "label": "Oct 31",
+          "value": -68836463757.98
+        },
+        {
+          "label": "Nov 03",
+          "value": -35727306416.84
+        },
+        {
+          "label": "Nov 04",
+          "value": 42873272998.84
+        },
+        {
+          "label": "Nov 05",
+          "value": 44286599764.94
+        },
+        {
+          "label": "Nov 06",
+          "value": 26741868880.07
+        },
+        {
+          "label": "Nov 07",
+          "value": -1043335754.38
+        },
+        {
+          "label": "Nov 10",
+          "value": 8506801637.38
+        },
+        {
+          "label": "Nov 12",
+          "value": -4514538443.39
+        },
+        {
+          "label": "Nov 13",
+          "value": 29499267469.28
+        },
+        {
+          "label": "Nov 14",
+          "value": 3015777133.08
+        },
+        {
+          "label": "Nov 17",
+          "value": 27452612696.51
+        },
+        {
+          "label": "Nov 18",
+          "value": 84170773548.52
+        },
+        {
+          "label": "Nov 19",
+          "value": 34017505943.16
+        },
+        {
+          "label": "Nov 20",
+          "value": 27594473586.35
+        },
+        {
+          "label": "Nov 21",
+          "value": 6562487466.76
+        },
+        {
+          "label": "Nov 24",
+          "value": 2761671954.1
+        },
+        {
+          "label": "Nov 25",
+          "value": 24550125760.4
+        },
+        {
+          "label": "Nov 26",
+          "value": -25573860899.68
+        },
+        {
+          "label": "Nov 28",
+          "value": 60943513767.54
+        },
+        {
+          "label": "Dec 01",
+          "value": 29461681260.98
+        },
+        {
+          "label": "Dec 02",
+          "value": -1908499470.61
+        },
+        {
+          "label": "Dec 03",
+          "value": -20232637397.74
+        },
+        {
+          "label": "Dec 04",
+          "value": -14162166121.18
+        },
+        {
+          "label": "Dec 05",
+          "value": 1162957726.6
+        },
+        {
+          "label": "Dec 08",
+          "value": 5423305799.58
+        },
+        {
+          "label": "Dec 09",
+          "value": -18845667541.62
+        },
+        {
+          "label": "Dec 10",
+          "value": -24910053801.52
+        },
+        {
+          "label": "Dec 11",
+          "value": -2405383517.9
+        },
+        {
+          "label": "Dec 12",
+          "value": -10253223647.91
+        },
+        {
+          "label": "Dec 15",
+          "value": 79838444338.27
+        },
+        {
+          "label": "Dec 16",
+          "value": -23200678228.49
+        },
+        {
+          "label": "Dec 17",
+          "value": -17182957227.08
+        },
+        {
+          "label": "Dec 18",
+          "value": -3625134994.23
+        },
+        {
+          "label": "Dec 19",
+          "value": -2502120601.65
+        },
+        {
+          "label": "Dec 22",
+          "value": 5543870126.99
+        },
+        {
+          "label": "Dec 23",
+          "value": -3063637385.55
+        },
+        {
+          "label": "Dec 24",
+          "value": -22502895117.41
+        },
+        {
+          "label": "Dec 26",
+          "value": 27689446182.86
+        },
+        {
+          "label": "Dec 29",
+          "value": 5848042626.65
+        },
+        {
+          "label": "Dec 30",
+          "value": -14230473001.59
+        },
+        {
+          "label": "Dec 31",
+          "value": 141855466611.63
+        },
+        {
+          "label": "Jan 02",
+          "value": -91190613626
+        },
+        {
+          "label": "Jan 05",
+          "value": 18269666621.22
+        },
+        {
+          "label": "Jan 06",
+          "value": -10678147968.09
+        },
+        {
+          "label": "Jan 07",
+          "value": 1877418541.68
+        },
+        {
+          "label": "Jan 08",
+          "value": 299751955.77
+        },
+        {
+          "label": "Jan 09",
+          "value": 742866535.08
+        },
+        {
+          "label": "Jan 12",
+          "value": 4370766127.31
+        },
+        {
+          "label": "Jan 13",
+          "value": -3848138739.65
+        },
+        {
+          "label": "Jan 14",
+          "value": -37790085805.64
+        },
+        {
+          "label": "Jan 15",
+          "value": 57045824474.28
+        },
+        {
+          "label": "Jan 16",
+          "value": 7130579368.09
+        },
+        {
+          "label": "Jan 20",
+          "value": 24466030678.57
+        },
+        {
+          "label": "Jan 21",
+          "value": -11329628076.33
+        },
+        {
+          "label": "Jan 22",
+          "value": 17422664266.9
+        },
+        {
+          "label": "Jan 23",
+          "value": 222419821.95
+        },
+        {
+          "label": "Jan 26",
+          "value": 22503020172.74
+        },
+        {
+          "label": "Jan 27",
+          "value": 53590629075.11
+        },
+        {
+          "label": "Jan 28",
+          "value": -24571735768.86
+        },
+        {
+          "label": "Jan 29",
+          "value": 25958650924.52
+        },
+        {
+          "label": "Jan 30",
+          "value": -47133010469.7
+        },
+        {
+          "label": "Feb 02",
+          "value": -5717842460.72
+        },
+        {
+          "label": "Feb 03",
+          "value": 48627750333.66
+        },
+        {
+          "label": "Feb 04",
+          "value": 235679275.86
+        },
+        {
+          "label": "Feb 05",
+          "value": 23103394593.31
+        },
+        {
+          "label": "Feb 06",
+          "value": 930157413.95
+        }
+      ],
       "unemploymentRate": [
         {
           "label": "Jan 14",
@@ -2913,6 +4686,970 @@
         {
           "label": "Dec 23",
           "value": 3.8
+        }
+      ],
+      "underemploymentRate": [
+        {
+          "label": "Jan 14",
+          "value": 12.6
+        },
+        {
+          "label": "Feb 14",
+          "value": 12.6
+        },
+        {
+          "label": "Mar 14",
+          "value": 12.7
+        },
+        {
+          "label": "Apr 14",
+          "value": 12.3
+        },
+        {
+          "label": "May 14",
+          "value": 12.3
+        },
+        {
+          "label": "Jun 14",
+          "value": 12
+        },
+        {
+          "label": "Jul 14",
+          "value": 12.1
+        },
+        {
+          "label": "Aug 14",
+          "value": 12
+        },
+        {
+          "label": "Sep 14",
+          "value": 11.7
+        },
+        {
+          "label": "Oct 14",
+          "value": 11.5
+        },
+        {
+          "label": "Nov 14",
+          "value": 11.4
+        },
+        {
+          "label": "Dec 14",
+          "value": 11.2
+        },
+        {
+          "label": "Jan 15",
+          "value": 11.2
+        },
+        {
+          "label": "Feb 15",
+          "value": 10.9
+        },
+        {
+          "label": "Mar 15",
+          "value": 10.9
+        },
+        {
+          "label": "Apr 15",
+          "value": 10.9
+        },
+        {
+          "label": "May 15",
+          "value": 10.9
+        },
+        {
+          "label": "Jun 15",
+          "value": 10.4
+        },
+        {
+          "label": "Jul 15",
+          "value": 10.3
+        },
+        {
+          "label": "Aug 15",
+          "value": 10.2
+        },
+        {
+          "label": "Sep 15",
+          "value": 10
+        },
+        {
+          "label": "Oct 15",
+          "value": 9.8
+        },
+        {
+          "label": "Nov 15",
+          "value": 10
+        },
+        {
+          "label": "Dec 15",
+          "value": 9.9
+        },
+        {
+          "label": "Jan 16",
+          "value": 9.7
+        },
+        {
+          "label": "Feb 16",
+          "value": 9.6
+        },
+        {
+          "label": "Mar 16",
+          "value": 9.8
+        },
+        {
+          "label": "Apr 16",
+          "value": 9.9
+        },
+        {
+          "label": "May 16",
+          "value": 9.9
+        },
+        {
+          "label": "Jun 16",
+          "value": 9.5
+        },
+        {
+          "label": "Jul 16",
+          "value": 9.6
+        },
+        {
+          "label": "Aug 16",
+          "value": 9.6
+        },
+        {
+          "label": "Sep 16",
+          "value": 9.7
+        },
+        {
+          "label": "Oct 16",
+          "value": 9.6
+        },
+        {
+          "label": "Nov 16",
+          "value": 9.4
+        },
+        {
+          "label": "Dec 16",
+          "value": 9.2
+        },
+        {
+          "label": "Jan 17",
+          "value": 9.2
+        },
+        {
+          "label": "Feb 17",
+          "value": 9
+        },
+        {
+          "label": "Mar 17",
+          "value": 8.8
+        },
+        {
+          "label": "Apr 17",
+          "value": 8.6
+        },
+        {
+          "label": "May 17",
+          "value": 8.5
+        },
+        {
+          "label": "Jun 17",
+          "value": 8.5
+        },
+        {
+          "label": "Jul 17",
+          "value": 8.5
+        },
+        {
+          "label": "Aug 17",
+          "value": 8.6
+        },
+        {
+          "label": "Sep 17",
+          "value": 8.3
+        },
+        {
+          "label": "Oct 17",
+          "value": 8.1
+        },
+        {
+          "label": "Nov 17",
+          "value": 8
+        },
+        {
+          "label": "Dec 17",
+          "value": 8.1
+        },
+        {
+          "label": "Jan 18",
+          "value": 8
+        },
+        {
+          "label": "Feb 18",
+          "value": 8.1
+        },
+        {
+          "label": "Mar 18",
+          "value": 8
+        },
+        {
+          "label": "Apr 18",
+          "value": 7.9
+        },
+        {
+          "label": "May 18",
+          "value": 7.8
+        },
+        {
+          "label": "Jun 18",
+          "value": 7.8
+        },
+        {
+          "label": "Jul 18",
+          "value": 7.5
+        },
+        {
+          "label": "Aug 18",
+          "value": 7.4
+        },
+        {
+          "label": "Sep 18",
+          "value": 7.5
+        },
+        {
+          "label": "Oct 18",
+          "value": 7.5
+        },
+        {
+          "label": "Nov 18",
+          "value": 7.6
+        },
+        {
+          "label": "Dec 18",
+          "value": 7.6
+        },
+        {
+          "label": "Jan 19",
+          "value": 8
+        },
+        {
+          "label": "Feb 19",
+          "value": 7.2
+        },
+        {
+          "label": "Mar 19",
+          "value": 7.4
+        },
+        {
+          "label": "Apr 19",
+          "value": 7.4
+        },
+        {
+          "label": "May 19",
+          "value": 7.1
+        },
+        {
+          "label": "Jun 19",
+          "value": 7.2
+        },
+        {
+          "label": "Jul 19",
+          "value": 6.9
+        },
+        {
+          "label": "Aug 19",
+          "value": 7.2
+        },
+        {
+          "label": "Sep 19",
+          "value": 6.9
+        },
+        {
+          "label": "Oct 19",
+          "value": 6.9
+        },
+        {
+          "label": "Nov 19",
+          "value": 6.8
+        },
+        {
+          "label": "Dec 19",
+          "value": 6.8
+        },
+        {
+          "label": "Jan 20",
+          "value": 7
+        },
+        {
+          "label": "Feb 20",
+          "value": 7
+        },
+        {
+          "label": "Mar 20",
+          "value": 8.8
+        },
+        {
+          "label": "Apr 20",
+          "value": 22.9
+        },
+        {
+          "label": "May 20",
+          "value": 21.1
+        },
+        {
+          "label": "Jun 20",
+          "value": 18
+        },
+        {
+          "label": "Jul 20",
+          "value": 16.5
+        },
+        {
+          "label": "Aug 20",
+          "value": 14.2
+        },
+        {
+          "label": "Sep 20",
+          "value": 12.8
+        },
+        {
+          "label": "Oct 20",
+          "value": 12.1
+        },
+        {
+          "label": "Nov 20",
+          "value": 11.9
+        },
+        {
+          "label": "Dec 20",
+          "value": 11.7
+        },
+        {
+          "label": "Jan 21",
+          "value": 11.2
+        },
+        {
+          "label": "Feb 21",
+          "value": 11.1
+        },
+        {
+          "label": "Mar 21",
+          "value": 10.8
+        },
+        {
+          "label": "Apr 21",
+          "value": 10.3
+        },
+        {
+          "label": "May 21",
+          "value": 10.1
+        },
+        {
+          "label": "Jun 21",
+          "value": 9.8
+        },
+        {
+          "label": "Jul 21",
+          "value": 9.2
+        },
+        {
+          "label": "Aug 21",
+          "value": 8.8
+        },
+        {
+          "label": "Sep 21",
+          "value": 8.4
+        },
+        {
+          "label": "Oct 21",
+          "value": 8.2
+        },
+        {
+          "label": "Nov 21",
+          "value": 7.7
+        },
+        {
+          "label": "Dec 21",
+          "value": 7.3
+        },
+        {
+          "label": "Jan 22",
+          "value": 7.1
+        },
+        {
+          "label": "Feb 22",
+          "value": 7.2
+        },
+        {
+          "label": "Mar 22",
+          "value": 7
+        },
+        {
+          "label": "Apr 22",
+          "value": 7
+        },
+        {
+          "label": "May 22",
+          "value": 7.1
+        },
+        {
+          "label": "Jun 22",
+          "value": 6.7
+        },
+        {
+          "label": "Jul 22",
+          "value": 6.8
+        },
+        {
+          "label": "Aug 22",
+          "value": 6.9
+        },
+        {
+          "label": "Sep 22",
+          "value": 6.7
+        },
+        {
+          "label": "Oct 22",
+          "value": 6.7
+        },
+        {
+          "label": "Nov 22",
+          "value": 6.7
+        },
+        {
+          "label": "Dec 22",
+          "value": 6.6
+        },
+        {
+          "label": "Jan 23",
+          "value": 6.7
+        },
+        {
+          "label": "Feb 23",
+          "value": 6.8
+        },
+        {
+          "label": "Mar 23",
+          "value": 6.7
+        },
+        {
+          "label": "Apr 23",
+          "value": 6.6
+        },
+        {
+          "label": "May 23",
+          "value": 6.7
+        },
+        {
+          "label": "Jun 23",
+          "value": 6.9
+        },
+        {
+          "label": "Jul 23",
+          "value": 6.7
+        },
+        {
+          "label": "Aug 23",
+          "value": 7.1
+        },
+        {
+          "label": "Sep 23",
+          "value": 7
+        },
+        {
+          "label": "Oct 23",
+          "value": 7.2
+        },
+        {
+          "label": "Nov 23",
+          "value": 7
+        },
+        {
+          "label": "Dec 23",
+          "value": 7.2
+        }
+      ],
+      "unemploymentGap": [
+        {
+          "label": "Jan 14",
+          "value": 6
+        },
+        {
+          "label": "Feb 14",
+          "value": 5.9
+        },
+        {
+          "label": "Mar 14",
+          "value": 6
+        },
+        {
+          "label": "Apr 14",
+          "value": 6.1
+        },
+        {
+          "label": "May 14",
+          "value": 6
+        },
+        {
+          "label": "Jun 14",
+          "value": 5.9
+        },
+        {
+          "label": "Jul 14",
+          "value": 5.9
+        },
+        {
+          "label": "Aug 14",
+          "value": 5.9
+        },
+        {
+          "label": "Sep 14",
+          "value": 5.8
+        },
+        {
+          "label": "Oct 14",
+          "value": 5.8
+        },
+        {
+          "label": "Nov 14",
+          "value": 5.6
+        },
+        {
+          "label": "Dec 14",
+          "value": 5.6
+        },
+        {
+          "label": "Jan 15",
+          "value": 5.5
+        },
+        {
+          "label": "Feb 15",
+          "value": 5.4
+        },
+        {
+          "label": "Mar 15",
+          "value": 5.5
+        },
+        {
+          "label": "Apr 15",
+          "value": 5.5
+        },
+        {
+          "label": "May 15",
+          "value": 5.3
+        },
+        {
+          "label": "Jun 15",
+          "value": 5.1
+        },
+        {
+          "label": "Jul 15",
+          "value": 5.1
+        },
+        {
+          "label": "Aug 15",
+          "value": 5.1
+        },
+        {
+          "label": "Sep 15",
+          "value": 5
+        },
+        {
+          "label": "Oct 15",
+          "value": 4.8
+        },
+        {
+          "label": "Nov 15",
+          "value": 4.9
+        },
+        {
+          "label": "Dec 15",
+          "value": 4.9
+        },
+        {
+          "label": "Jan 16",
+          "value": 4.9
+        },
+        {
+          "label": "Feb 16",
+          "value": 4.7
+        },
+        {
+          "label": "Mar 16",
+          "value": 4.8
+        },
+        {
+          "label": "Apr 16",
+          "value": 4.8
+        },
+        {
+          "label": "May 16",
+          "value": 5.1
+        },
+        {
+          "label": "Jun 16",
+          "value": 4.6
+        },
+        {
+          "label": "Jul 16",
+          "value": 4.8
+        },
+        {
+          "label": "Aug 16",
+          "value": 4.7
+        },
+        {
+          "label": "Sep 16",
+          "value": 4.7
+        },
+        {
+          "label": "Oct 16",
+          "value": 4.7
+        },
+        {
+          "label": "Nov 16",
+          "value": 4.7
+        },
+        {
+          "label": "Dec 16",
+          "value": 4.5
+        },
+        {
+          "label": "Jan 17",
+          "value": 4.5
+        },
+        {
+          "label": "Feb 17",
+          "value": 4.4
+        },
+        {
+          "label": "Mar 17",
+          "value": 4.4
+        },
+        {
+          "label": "Apr 17",
+          "value": 4.2
+        },
+        {
+          "label": "May 17",
+          "value": 4.1
+        },
+        {
+          "label": "Jun 17",
+          "value": 4.2
+        },
+        {
+          "label": "Jul 17",
+          "value": 4.2
+        },
+        {
+          "label": "Aug 17",
+          "value": 4.2
+        },
+        {
+          "label": "Sep 17",
+          "value": 4
+        },
+        {
+          "label": "Oct 17",
+          "value": 3.9
+        },
+        {
+          "label": "Nov 17",
+          "value": 3.8
+        },
+        {
+          "label": "Dec 17",
+          "value": 4
+        },
+        {
+          "label": "Jan 18",
+          "value": 4
+        },
+        {
+          "label": "Feb 18",
+          "value": 4
+        },
+        {
+          "label": "Mar 18",
+          "value": 4
+        },
+        {
+          "label": "Apr 18",
+          "value": 3.9
+        },
+        {
+          "label": "May 18",
+          "value": 4
+        },
+        {
+          "label": "Jun 18",
+          "value": 3.8
+        },
+        {
+          "label": "Jul 18",
+          "value": 3.7
+        },
+        {
+          "label": "Aug 18",
+          "value": 3.6
+        },
+        {
+          "label": "Sep 18",
+          "value": 3.8
+        },
+        {
+          "label": "Oct 18",
+          "value": 3.7
+        },
+        {
+          "label": "Nov 18",
+          "value": 3.8
+        },
+        {
+          "label": "Dec 18",
+          "value": 3.7
+        },
+        {
+          "label": "Jan 19",
+          "value": 4
+        },
+        {
+          "label": "Feb 19",
+          "value": 3.4
+        },
+        {
+          "label": "Mar 19",
+          "value": 3.6
+        },
+        {
+          "label": "Apr 19",
+          "value": 3.7
+        },
+        {
+          "label": "May 19",
+          "value": 3.5
+        },
+        {
+          "label": "Jun 19",
+          "value": 3.6
+        },
+        {
+          "label": "Jul 19",
+          "value": 3.2
+        },
+        {
+          "label": "Aug 19",
+          "value": 3.6
+        },
+        {
+          "label": "Sep 19",
+          "value": 3.4
+        },
+        {
+          "label": "Oct 19",
+          "value": 3.3
+        },
+        {
+          "label": "Nov 19",
+          "value": 3.2
+        },
+        {
+          "label": "Dec 19",
+          "value": 3.2
+        },
+        {
+          "label": "Jan 20",
+          "value": 3.4
+        },
+        {
+          "label": "Feb 20",
+          "value": 3.5
+        },
+        {
+          "label": "Mar 20",
+          "value": 4.4
+        },
+        {
+          "label": "Apr 20",
+          "value": 8.1
+        },
+        {
+          "label": "May 20",
+          "value": 7.9
+        },
+        {
+          "label": "Jun 20",
+          "value": 7
+        },
+        {
+          "label": "Jul 20",
+          "value": 6.3
+        },
+        {
+          "label": "Aug 20",
+          "value": 5.8
+        },
+        {
+          "label": "Sep 20",
+          "value": 5
+        },
+        {
+          "label": "Oct 20",
+          "value": 5.2
+        },
+        {
+          "label": "Nov 20",
+          "value": 5.2
+        },
+        {
+          "label": "Dec 20",
+          "value": 5
+        },
+        {
+          "label": "Jan 21",
+          "value": 4.8
+        },
+        {
+          "label": "Feb 21",
+          "value": 4.9
+        },
+        {
+          "label": "Mar 21",
+          "value": 4.7
+        },
+        {
+          "label": "Apr 21",
+          "value": 4.2
+        },
+        {
+          "label": "May 21",
+          "value": 4.3
+        },
+        {
+          "label": "Jun 21",
+          "value": 3.9
+        },
+        {
+          "label": "Jul 21",
+          "value": 3.8
+        },
+        {
+          "label": "Aug 21",
+          "value": 3.7
+        },
+        {
+          "label": "Sep 21",
+          "value": 3.7
+        },
+        {
+          "label": "Oct 21",
+          "value": 3.7
+        },
+        {
+          "label": "Nov 21",
+          "value": 3.6
+        },
+        {
+          "label": "Dec 21",
+          "value": 3.4
+        },
+        {
+          "label": "Jan 22",
+          "value": 3.1
+        },
+        {
+          "label": "Feb 22",
+          "value": 3.3
+        },
+        {
+          "label": "Mar 22",
+          "value": 3.3
+        },
+        {
+          "label": "Apr 22",
+          "value": 3.3
+        },
+        {
+          "label": "May 22",
+          "value": 3.5
+        },
+        {
+          "label": "Jun 22",
+          "value": 3.1
+        },
+        {
+          "label": "Jul 22",
+          "value": 3.3
+        },
+        {
+          "label": "Aug 22",
+          "value": 3.3
+        },
+        {
+          "label": "Sep 22",
+          "value": 3.2
+        },
+        {
+          "label": "Oct 22",
+          "value": 3.1
+        },
+        {
+          "label": "Nov 22",
+          "value": 3.1
+        },
+        {
+          "label": "Dec 22",
+          "value": 3.1
+        },
+        {
+          "label": "Jan 23",
+          "value": 3.2
+        },
+        {
+          "label": "Feb 23",
+          "value": 3.2
+        },
+        {
+          "label": "Mar 23",
+          "value": 3.2
+        },
+        {
+          "label": "Apr 23",
+          "value": 3.2
+        },
+        {
+          "label": "May 23",
+          "value": 3.1
+        },
+        {
+          "label": "Jun 23",
+          "value": 3.3
+        },
+        {
+          "label": "Jul 23",
+          "value": 3.2
+        },
+        {
+          "label": "Aug 23",
+          "value": 3.4
+        },
+        {
+          "label": "Sep 23",
+          "value": 3.3
+        },
+        {
+          "label": "Oct 23",
+          "value": 3.3
+        },
+        {
+          "label": "Nov 23",
+          "value": 3.3
+        },
+        {
+          "label": "Dec 23",
+          "value": 3.4
         }
       ],
       "laborForceParticipationRate": [
@@ -4313,6 +7050,918 @@
           "value": 3.35
         }
       ],
+      "coreInflationYoY": [
+        {
+          "label": "Jan 15",
+          "value": 1.65
+        },
+        {
+          "label": "Feb 15",
+          "value": 1.7
+        },
+        {
+          "label": "Mar 15",
+          "value": 1.75
+        },
+        {
+          "label": "Apr 15",
+          "value": 1.81
+        },
+        {
+          "label": "May 15",
+          "value": 1.72
+        },
+        {
+          "label": "Jun 15",
+          "value": 1.76
+        },
+        {
+          "label": "Jul 15",
+          "value": 1.8
+        },
+        {
+          "label": "Aug 15",
+          "value": 1.83
+        },
+        {
+          "label": "Sep 15",
+          "value": 1.89
+        },
+        {
+          "label": "Oct 15",
+          "value": 1.91
+        },
+        {
+          "label": "Nov 15",
+          "value": 2.02
+        },
+        {
+          "label": "Dec 15",
+          "value": 2.1
+        },
+        {
+          "label": "Jan 16",
+          "value": 2.21
+        },
+        {
+          "label": "Feb 16",
+          "value": 2.33
+        },
+        {
+          "label": "Mar 16",
+          "value": 2.19
+        },
+        {
+          "label": "Apr 16",
+          "value": 2.15
+        },
+        {
+          "label": "May 16",
+          "value": 2.24
+        },
+        {
+          "label": "Jun 16",
+          "value": 2.24
+        },
+        {
+          "label": "Jul 16",
+          "value": 2.19
+        },
+        {
+          "label": "Aug 16",
+          "value": 2.32
+        },
+        {
+          "label": "Sep 16",
+          "value": 2.21
+        },
+        {
+          "label": "Oct 16",
+          "value": 2.14
+        },
+        {
+          "label": "Nov 16",
+          "value": 2.11
+        },
+        {
+          "label": "Dec 16",
+          "value": 2.2
+        },
+        {
+          "label": "Jan 17",
+          "value": 2.27
+        },
+        {
+          "label": "Feb 17",
+          "value": 2.22
+        },
+        {
+          "label": "Mar 17",
+          "value": 2
+        },
+        {
+          "label": "Apr 17",
+          "value": 1.88
+        },
+        {
+          "label": "May 17",
+          "value": 1.73
+        },
+        {
+          "label": "Jun 17",
+          "value": 1.7
+        },
+        {
+          "label": "Jul 17",
+          "value": 1.69
+        },
+        {
+          "label": "Aug 17",
+          "value": 1.68
+        },
+        {
+          "label": "Sep 17",
+          "value": 1.69
+        },
+        {
+          "label": "Oct 17",
+          "value": 1.77
+        },
+        {
+          "label": "Nov 17",
+          "value": 1.71
+        },
+        {
+          "label": "Dec 17",
+          "value": 1.78
+        },
+        {
+          "label": "Jan 18",
+          "value": 1.82
+        },
+        {
+          "label": "Feb 18",
+          "value": 1.85
+        },
+        {
+          "label": "Mar 18",
+          "value": 2.12
+        },
+        {
+          "label": "Apr 18",
+          "value": 2.14
+        },
+        {
+          "label": "May 18",
+          "value": 2.24
+        },
+        {
+          "label": "Jun 18",
+          "value": 2.26
+        },
+        {
+          "label": "Jul 18",
+          "value": 2.35
+        },
+        {
+          "label": "Aug 18",
+          "value": 2.2
+        },
+        {
+          "label": "Sep 18",
+          "value": 2.17
+        },
+        {
+          "label": "Oct 18",
+          "value": 2.14
+        },
+        {
+          "label": "Nov 18",
+          "value": 2.21
+        },
+        {
+          "label": "Dec 18",
+          "value": 2.18
+        },
+        {
+          "label": "Jan 19",
+          "value": 2.15
+        },
+        {
+          "label": "Feb 19",
+          "value": 2.08
+        },
+        {
+          "label": "Mar 19",
+          "value": 2.04
+        },
+        {
+          "label": "Apr 19",
+          "value": 2.06
+        },
+        {
+          "label": "May 19",
+          "value": 1.99
+        },
+        {
+          "label": "Jun 19",
+          "value": 2.13
+        },
+        {
+          "label": "Jul 19",
+          "value": 2.21
+        },
+        {
+          "label": "Aug 19",
+          "value": 2.39
+        },
+        {
+          "label": "Sep 19",
+          "value": 2.36
+        },
+        {
+          "label": "Oct 19",
+          "value": 2.31
+        },
+        {
+          "label": "Nov 19",
+          "value": 2.32
+        },
+        {
+          "label": "Dec 19",
+          "value": 2.26
+        },
+        {
+          "label": "Jan 20",
+          "value": 2.26
+        },
+        {
+          "label": "Feb 20",
+          "value": 2.36
+        },
+        {
+          "label": "Mar 20",
+          "value": 2.09
+        },
+        {
+          "label": "Apr 20",
+          "value": 1.43
+        },
+        {
+          "label": "May 20",
+          "value": 1.22
+        },
+        {
+          "label": "Jun 20",
+          "value": 1.19
+        },
+        {
+          "label": "Jul 20",
+          "value": 1.57
+        },
+        {
+          "label": "Aug 20",
+          "value": 1.74
+        },
+        {
+          "label": "Sep 20",
+          "value": 1.71
+        },
+        {
+          "label": "Oct 20",
+          "value": 1.61
+        },
+        {
+          "label": "Nov 20",
+          "value": 1.65
+        },
+        {
+          "label": "Dec 20",
+          "value": 1.62
+        },
+        {
+          "label": "Jan 21",
+          "value": 1.41
+        },
+        {
+          "label": "Feb 21",
+          "value": 1.28
+        },
+        {
+          "label": "Mar 21",
+          "value": 1.65
+        },
+        {
+          "label": "Apr 21",
+          "value": 2.96
+        },
+        {
+          "label": "May 21",
+          "value": 3.8
+        },
+        {
+          "label": "Jun 21",
+          "value": 4.47
+        },
+        {
+          "label": "Jul 21",
+          "value": 4.27
+        },
+        {
+          "label": "Aug 21",
+          "value": 4
+        },
+        {
+          "label": "Sep 21",
+          "value": 4.03
+        },
+        {
+          "label": "Oct 21",
+          "value": 4.56
+        },
+        {
+          "label": "Nov 21",
+          "value": 4.93
+        },
+        {
+          "label": "Dec 21",
+          "value": 5.45
+        },
+        {
+          "label": "Jan 22",
+          "value": 6.02
+        },
+        {
+          "label": "Feb 22",
+          "value": 6.41
+        },
+        {
+          "label": "Mar 22",
+          "value": 6.47
+        },
+        {
+          "label": "Apr 22",
+          "value": 6.16
+        },
+        {
+          "label": "May 22",
+          "value": 6.02
+        },
+        {
+          "label": "Jun 22",
+          "value": 5.92
+        },
+        {
+          "label": "Jul 22",
+          "value": 5.91
+        },
+        {
+          "label": "Aug 22",
+          "value": 6.32
+        },
+        {
+          "label": "Sep 22",
+          "value": 6.63
+        },
+        {
+          "label": "Oct 22",
+          "value": 6.28
+        },
+        {
+          "label": "Nov 22",
+          "value": 5.96
+        },
+        {
+          "label": "Dec 22",
+          "value": 5.71
+        },
+        {
+          "label": "Jan 23",
+          "value": 5.58
+        },
+        {
+          "label": "Feb 23",
+          "value": 5.54
+        },
+        {
+          "label": "Mar 23",
+          "value": 5.59
+        },
+        {
+          "label": "Apr 23",
+          "value": 5.52
+        },
+        {
+          "label": "May 23",
+          "value": 5.33
+        },
+        {
+          "label": "Jun 23",
+          "value": 4.83
+        },
+        {
+          "label": "Jul 23",
+          "value": 4.65
+        },
+        {
+          "label": "Aug 23",
+          "value": 4.35
+        },
+        {
+          "label": "Sep 23",
+          "value": 4.15
+        },
+        {
+          "label": "Oct 23",
+          "value": 4.03
+        },
+        {
+          "label": "Nov 23",
+          "value": 4.01
+        },
+        {
+          "label": "Dec 23",
+          "value": 3.93
+        }
+      ],
+      "cpiMoM": [
+        {
+          "label": "Feb 14",
+          "value": 0.37
+        },
+        {
+          "label": "Mar 14",
+          "value": 0.64
+        },
+        {
+          "label": "Apr 14",
+          "value": 0.33
+        },
+        {
+          "label": "May 14",
+          "value": 0.35
+        },
+        {
+          "label": "Jun 14",
+          "value": 0.19
+        },
+        {
+          "label": "Jul 14",
+          "value": -0.04
+        },
+        {
+          "label": "Aug 14",
+          "value": -0.17
+        },
+        {
+          "label": "Sep 14",
+          "value": 0.08
+        },
+        {
+          "label": "Oct 14",
+          "value": -0.25
+        },
+        {
+          "label": "Nov 14",
+          "value": -0.54
+        },
+        {
+          "label": "Dec 14",
+          "value": -0.57
+        },
+        {
+          "label": "Jan 15",
+          "value": -0.47
+        },
+        {
+          "label": "Feb 15",
+          "value": 0.43
+        },
+        {
+          "label": "Mar 15",
+          "value": 0.6
+        },
+        {
+          "label": "Apr 15",
+          "value": 0.2
+        },
+        {
+          "label": "May 15",
+          "value": 0.51
+        },
+        {
+          "label": "Jun 15",
+          "value": 0.35
+        },
+        {
+          "label": "Jul 15",
+          "value": 0.01
+        },
+        {
+          "label": "Aug 15",
+          "value": -0.14
+        },
+        {
+          "label": "Sep 15",
+          "value": -0.16
+        },
+        {
+          "label": "Oct 15",
+          "value": -0.04
+        },
+        {
+          "label": "Nov 15",
+          "value": -0.21
+        },
+        {
+          "label": "Dec 15",
+          "value": -0.34
+        },
+        {
+          "label": "Jan 16",
+          "value": 0.17
+        },
+        {
+          "label": "Feb 16",
+          "value": 0.08
+        },
+        {
+          "label": "Mar 16",
+          "value": 0.43
+        },
+        {
+          "label": "Apr 16",
+          "value": 0.47
+        },
+        {
+          "label": "May 16",
+          "value": 0.4
+        },
+        {
+          "label": "Jun 16",
+          "value": 0.33
+        },
+        {
+          "label": "Jul 16",
+          "value": -0.16
+        },
+        {
+          "label": "Aug 16",
+          "value": 0.09
+        },
+        {
+          "label": "Sep 16",
+          "value": 0.24
+        },
+        {
+          "label": "Oct 16",
+          "value": 0.12
+        },
+        {
+          "label": "Nov 16",
+          "value": -0.16
+        },
+        {
+          "label": "Dec 16",
+          "value": 0.03
+        },
+        {
+          "label": "Jan 17",
+          "value": 0.58
+        },
+        {
+          "label": "Feb 17",
+          "value": 0.31
+        },
+        {
+          "label": "Mar 17",
+          "value": 0.08
+        },
+        {
+          "label": "Apr 17",
+          "value": 0.3
+        },
+        {
+          "label": "May 17",
+          "value": 0.09
+        },
+        {
+          "label": "Jun 17",
+          "value": 0.09
+        },
+        {
+          "label": "Jul 17",
+          "value": -0.07
+        },
+        {
+          "label": "Aug 17",
+          "value": 0.3
+        },
+        {
+          "label": "Sep 17",
+          "value": 0.53
+        },
+        {
+          "label": "Oct 17",
+          "value": -0.06
+        },
+        {
+          "label": "Nov 17",
+          "value": 0
+        },
+        {
+          "label": "Dec 17",
+          "value": -0.06
+        },
+        {
+          "label": "Jan 18",
+          "value": 0.54
+        },
+        {
+          "label": "Feb 18",
+          "value": 0.45
+        },
+        {
+          "label": "Mar 18",
+          "value": 0.23
+        },
+        {
+          "label": "Apr 18",
+          "value": 0.4
+        },
+        {
+          "label": "May 18",
+          "value": 0.42
+        },
+        {
+          "label": "Jun 18",
+          "value": 0.16
+        },
+        {
+          "label": "Jul 18",
+          "value": 0.01
+        },
+        {
+          "label": "Aug 18",
+          "value": 0.06
+        },
+        {
+          "label": "Sep 18",
+          "value": 0.12
+        },
+        {
+          "label": "Oct 18",
+          "value": 0.18
+        },
+        {
+          "label": "Nov 18",
+          "value": -0.33
+        },
+        {
+          "label": "Dec 18",
+          "value": -0.32
+        },
+        {
+          "label": "Jan 19",
+          "value": 0.19
+        },
+        {
+          "label": "Feb 19",
+          "value": 0.42
+        },
+        {
+          "label": "Mar 19",
+          "value": 0.56
+        },
+        {
+          "label": "Apr 19",
+          "value": 0.53
+        },
+        {
+          "label": "May 19",
+          "value": 0.21
+        },
+        {
+          "label": "Jun 19",
+          "value": 0.02
+        },
+        {
+          "label": "Jul 19",
+          "value": 0.17
+        },
+        {
+          "label": "Aug 19",
+          "value": -0.01
+        },
+        {
+          "label": "Sep 19",
+          "value": 0.08
+        },
+        {
+          "label": "Oct 19",
+          "value": 0.23
+        },
+        {
+          "label": "Nov 19",
+          "value": -0.05
+        },
+        {
+          "label": "Dec 19",
+          "value": -0.09
+        },
+        {
+          "label": "Jan 20",
+          "value": 0.39
+        },
+        {
+          "label": "Feb 20",
+          "value": 0.27
+        },
+        {
+          "label": "Mar 20",
+          "value": -0.22
+        },
+        {
+          "label": "Apr 20",
+          "value": -0.67
+        },
+        {
+          "label": "May 20",
+          "value": 0
+        },
+        {
+          "label": "Jun 20",
+          "value": 0.55
+        },
+        {
+          "label": "Jul 20",
+          "value": 0.51
+        },
+        {
+          "label": "Aug 20",
+          "value": 0.32
+        },
+        {
+          "label": "Sep 20",
+          "value": 0.14
+        },
+        {
+          "label": "Oct 20",
+          "value": 0.04
+        },
+        {
+          "label": "Nov 20",
+          "value": -0.06
+        },
+        {
+          "label": "Dec 20",
+          "value": 0.09
+        },
+        {
+          "label": "Jan 21",
+          "value": 0.43
+        },
+        {
+          "label": "Feb 21",
+          "value": 0.55
+        },
+        {
+          "label": "Mar 21",
+          "value": 0.71
+        },
+        {
+          "label": "Apr 21",
+          "value": 0.82
+        },
+        {
+          "label": "May 21",
+          "value": 0.8
+        },
+        {
+          "label": "Jun 21",
+          "value": 0.93
+        },
+        {
+          "label": "Jul 21",
+          "value": 0.48
+        },
+        {
+          "label": "Aug 21",
+          "value": 0.21
+        },
+        {
+          "label": "Sep 21",
+          "value": 0.27
+        },
+        {
+          "label": "Oct 21",
+          "value": 0.83
+        },
+        {
+          "label": "Nov 21",
+          "value": 0.49
+        },
+        {
+          "label": "Dec 21",
+          "value": 0.31
+        },
+        {
+          "label": "Jan 22",
+          "value": 0.84
+        },
+        {
+          "label": "Feb 22",
+          "value": 0.91
+        },
+        {
+          "label": "Mar 22",
+          "value": 1.34
+        },
+        {
+          "label": "Apr 22",
+          "value": 0.56
+        },
+        {
+          "label": "May 22",
+          "value": 1.1
+        },
+        {
+          "label": "Jun 22",
+          "value": 1.37
+        },
+        {
+          "label": "Jul 22",
+          "value": -0.01
+        },
+        {
+          "label": "Aug 22",
+          "value": -0.04
+        },
+        {
+          "label": "Sep 22",
+          "value": 0.22
+        },
+        {
+          "label": "Oct 22",
+          "value": 0.41
+        },
+        {
+          "label": "Nov 22",
+          "value": -0.1
+        },
+        {
+          "label": "Dec 22",
+          "value": -0.31
+        },
+        {
+          "label": "Jan 23",
+          "value": 0.8
+        },
+        {
+          "label": "Feb 23",
+          "value": 0.56
+        },
+        {
+          "label": "Mar 23",
+          "value": 0.33
+        },
+        {
+          "label": "Apr 23",
+          "value": 0.51
+        },
+        {
+          "label": "May 23",
+          "value": 0.25
+        },
+        {
+          "label": "Jun 23",
+          "value": 0.32
+        },
+        {
+          "label": "Jul 23",
+          "value": 0.19
+        },
+        {
+          "label": "Aug 23",
+          "value": 0.44
+        },
+        {
+          "label": "Sep 23",
+          "value": 0.25
+        },
+        {
+          "label": "Oct 23",
+          "value": -0.04
+        },
+        {
+          "label": "Nov 23",
+          "value": -0.2
+        },
+        {
+          "label": "Dec 23",
+          "value": -0.1
+        }
+      ],
       "hourlyEarningsYoY": [
         {
           "label": "Jan 15",
@@ -4741,6 +8390,918 @@
         {
           "label": "Nov 23",
           "value": 4.11
+        },
+        {
+          "label": "Dec 23",
+          "value": 4.1
+        }
+      ],
+      "hourlyEarningsMoM": [
+        {
+          "label": "Feb 14",
+          "value": 0.41
+        },
+        {
+          "label": "Mar 14",
+          "value": -0.08
+        },
+        {
+          "label": "Apr 14",
+          "value": 0.12
+        },
+        {
+          "label": "May 14",
+          "value": 0.25
+        },
+        {
+          "label": "Jun 14",
+          "value": 0.25
+        },
+        {
+          "label": "Jul 14",
+          "value": 0.08
+        },
+        {
+          "label": "Aug 14",
+          "value": 0.25
+        },
+        {
+          "label": "Sep 14",
+          "value": 0.04
+        },
+        {
+          "label": "Oct 14",
+          "value": 0.12
+        },
+        {
+          "label": "Nov 14",
+          "value": 0.33
+        },
+        {
+          "label": "Dec 14",
+          "value": -0.12
+        },
+        {
+          "label": "Jan 15",
+          "value": 0.49
+        },
+        {
+          "label": "Feb 15",
+          "value": 0.2
+        },
+        {
+          "label": "Mar 15",
+          "value": 0.2
+        },
+        {
+          "label": "Apr 15",
+          "value": 0.16
+        },
+        {
+          "label": "May 15",
+          "value": 0.32
+        },
+        {
+          "label": "Jun 15",
+          "value": 0
+        },
+        {
+          "label": "Jul 15",
+          "value": 0.16
+        },
+        {
+          "label": "Aug 15",
+          "value": 0.32
+        },
+        {
+          "label": "Sep 15",
+          "value": 0.08
+        },
+        {
+          "label": "Oct 15",
+          "value": 0.36
+        },
+        {
+          "label": "Nov 15",
+          "value": 0.2
+        },
+        {
+          "label": "Dec 15",
+          "value": 0
+        },
+        {
+          "label": "Jan 16",
+          "value": 0.48
+        },
+        {
+          "label": "Feb 16",
+          "value": 0.04
+        },
+        {
+          "label": "Mar 16",
+          "value": 0.28
+        },
+        {
+          "label": "Apr 16",
+          "value": 0.31
+        },
+        {
+          "label": "May 16",
+          "value": 0.2
+        },
+        {
+          "label": "Jun 16",
+          "value": 0.16
+        },
+        {
+          "label": "Jul 16",
+          "value": 0.27
+        },
+        {
+          "label": "Aug 16",
+          "value": 0.08
+        },
+        {
+          "label": "Sep 16",
+          "value": 0.23
+        },
+        {
+          "label": "Oct 16",
+          "value": 0.5
+        },
+        {
+          "label": "Nov 16",
+          "value": 0
+        },
+        {
+          "label": "Dec 16",
+          "value": 0.12
+        },
+        {
+          "label": "Jan 17",
+          "value": 0.27
+        },
+        {
+          "label": "Feb 17",
+          "value": 0.27
+        },
+        {
+          "label": "Mar 17",
+          "value": 0.15
+        },
+        {
+          "label": "Apr 17",
+          "value": 0.23
+        },
+        {
+          "label": "May 17",
+          "value": 0.15
+        },
+        {
+          "label": "Jun 17",
+          "value": 0.19
+        },
+        {
+          "label": "Jul 17",
+          "value": 0.34
+        },
+        {
+          "label": "Aug 17",
+          "value": 0.08
+        },
+        {
+          "label": "Sep 17",
+          "value": 0.46
+        },
+        {
+          "label": "Oct 17",
+          "value": 0.04
+        },
+        {
+          "label": "Nov 17",
+          "value": 0.15
+        },
+        {
+          "label": "Dec 17",
+          "value": 0.34
+        },
+        {
+          "label": "Jan 18",
+          "value": 0.34
+        },
+        {
+          "label": "Feb 18",
+          "value": 0.07
+        },
+        {
+          "label": "Mar 18",
+          "value": 0.41
+        },
+        {
+          "label": "Apr 18",
+          "value": 0.22
+        },
+        {
+          "label": "May 18",
+          "value": 0.26
+        },
+        {
+          "label": "Jun 18",
+          "value": 0.19
+        },
+        {
+          "label": "Jul 18",
+          "value": 0.26
+        },
+        {
+          "label": "Aug 18",
+          "value": 0.41
+        },
+        {
+          "label": "Sep 18",
+          "value": 0.4
+        },
+        {
+          "label": "Oct 18",
+          "value": 0.18
+        },
+        {
+          "label": "Nov 18",
+          "value": 0.26
+        },
+        {
+          "label": "Dec 18",
+          "value": 0.44
+        },
+        {
+          "label": "Jan 19",
+          "value": 0.11
+        },
+        {
+          "label": "Feb 19",
+          "value": 0.36
+        },
+        {
+          "label": "Mar 19",
+          "value": 0.29
+        },
+        {
+          "label": "Apr 19",
+          "value": 0.07
+        },
+        {
+          "label": "May 19",
+          "value": 0.32
+        },
+        {
+          "label": "Jun 19",
+          "value": 0.29
+        },
+        {
+          "label": "Jul 19",
+          "value": 0.25
+        },
+        {
+          "label": "Aug 19",
+          "value": 0.39
+        },
+        {
+          "label": "Sep 19",
+          "value": 0.07
+        },
+        {
+          "label": "Oct 19",
+          "value": 0.25
+        },
+        {
+          "label": "Nov 19",
+          "value": 0.39
+        },
+        {
+          "label": "Dec 19",
+          "value": 0.14
+        },
+        {
+          "label": "Jan 20",
+          "value": 0.18
+        },
+        {
+          "label": "Feb 20",
+          "value": 0.39
+        },
+        {
+          "label": "Mar 20",
+          "value": 0.7
+        },
+        {
+          "label": "Apr 20",
+          "value": 4.52
+        },
+        {
+          "label": "May 20",
+          "value": -1.07
+        },
+        {
+          "label": "Jun 20",
+          "value": -1.14
+        },
+        {
+          "label": "Jul 20",
+          "value": 0.03
+        },
+        {
+          "label": "Aug 20",
+          "value": 0.37
+        },
+        {
+          "label": "Sep 20",
+          "value": 0.03
+        },
+        {
+          "label": "Oct 20",
+          "value": 0.14
+        },
+        {
+          "label": "Nov 20",
+          "value": 0.3
+        },
+        {
+          "label": "Dec 20",
+          "value": 0.91
+        },
+        {
+          "label": "Jan 21",
+          "value": 0.03
+        },
+        {
+          "label": "Feb 21",
+          "value": 0.5
+        },
+        {
+          "label": "Mar 21",
+          "value": -0.1
+        },
+        {
+          "label": "Apr 21",
+          "value": 0.63
+        },
+        {
+          "label": "May 21",
+          "value": 0.6
+        },
+        {
+          "label": "Jun 21",
+          "value": 0.46
+        },
+        {
+          "label": "Jul 21",
+          "value": 0.36
+        },
+        {
+          "label": "Aug 21",
+          "value": 0.42
+        },
+        {
+          "label": "Sep 21",
+          "value": 0.55
+        },
+        {
+          "label": "Oct 21",
+          "value": 0.61
+        },
+        {
+          "label": "Nov 21",
+          "value": 0.32
+        },
+        {
+          "label": "Dec 21",
+          "value": 0.51
+        },
+        {
+          "label": "Jan 22",
+          "value": 0.67
+        },
+        {
+          "label": "Feb 22",
+          "value": 0.13
+        },
+        {
+          "label": "Mar 22",
+          "value": 0.51
+        },
+        {
+          "label": "Apr 22",
+          "value": 0.44
+        },
+        {
+          "label": "May 22",
+          "value": 0.44
+        },
+        {
+          "label": "Jun 22",
+          "value": 0.31
+        },
+        {
+          "label": "Jul 22",
+          "value": 0.47
+        },
+        {
+          "label": "Aug 22",
+          "value": 0.28
+        },
+        {
+          "label": "Sep 22",
+          "value": 0.34
+        },
+        {
+          "label": "Oct 22",
+          "value": 0.46
+        },
+        {
+          "label": "Nov 22",
+          "value": 0.43
+        },
+        {
+          "label": "Dec 22",
+          "value": 0.37
+        },
+        {
+          "label": "Jan 23",
+          "value": 0.27
+        },
+        {
+          "label": "Feb 23",
+          "value": 0.33
+        },
+        {
+          "label": "Mar 23",
+          "value": 0.36
+        },
+        {
+          "label": "Apr 23",
+          "value": 0.42
+        },
+        {
+          "label": "May 23",
+          "value": 0.3
+        },
+        {
+          "label": "Jun 23",
+          "value": 0.51
+        },
+        {
+          "label": "Jul 23",
+          "value": 0.45
+        },
+        {
+          "label": "Aug 23",
+          "value": 0.15
+        },
+        {
+          "label": "Sep 23",
+          "value": 0.3
+        },
+        {
+          "label": "Oct 23",
+          "value": 0.24
+        },
+        {
+          "label": "Nov 23",
+          "value": 0.35
+        },
+        {
+          "label": "Dec 23",
+          "value": 0.35
+        }
+      ],
+      "weeklyEarningsYoY": [
+        {
+          "label": "Jan 15",
+          "value": 2.44
+        },
+        {
+          "label": "Feb 15",
+          "value": 2.82
+        },
+        {
+          "label": "Mar 15",
+          "value": 2.22
+        },
+        {
+          "label": "Apr 15",
+          "value": 2.26
+        },
+        {
+          "label": "May 15",
+          "value": 2.34
+        },
+        {
+          "label": "Jun 15",
+          "value": 2.08
+        },
+        {
+          "label": "Jul 15",
+          "value": 2.46
+        },
+        {
+          "label": "Aug 15",
+          "value": 2.24
+        },
+        {
+          "label": "Sep 15",
+          "value": 2.28
+        },
+        {
+          "label": "Oct 15",
+          "value": 2.23
+        },
+        {
+          "label": "Nov 15",
+          "value": 2.1
+        },
+        {
+          "label": "Dec 15",
+          "value": 2.22
+        },
+        {
+          "label": "Jan 16",
+          "value": 2.8
+        },
+        {
+          "label": "Feb 16",
+          "value": 1.75
+        },
+        {
+          "label": "Mar 16",
+          "value": 2.12
+        },
+        {
+          "label": "Apr 16",
+          "value": 2.27
+        },
+        {
+          "label": "May 16",
+          "value": 2.15
+        },
+        {
+          "label": "Jun 16",
+          "value": 2.31
+        },
+        {
+          "label": "Jul 16",
+          "value": 2.42
+        },
+        {
+          "label": "Aug 16",
+          "value": 1.58
+        },
+        {
+          "label": "Sep 16",
+          "value": 2.33
+        },
+        {
+          "label": "Oct 16",
+          "value": 2.48
+        },
+        {
+          "label": "Nov 16",
+          "value": 2.28
+        },
+        {
+          "label": "Dec 16",
+          "value": 2.39
+        },
+        {
+          "label": "Jan 17",
+          "value": 1.89
+        },
+        {
+          "label": "Feb 17",
+          "value": 2.42
+        },
+        {
+          "label": "Mar 17",
+          "value": 2.29
+        },
+        {
+          "label": "Apr 17",
+          "value": 2.51
+        },
+        {
+          "label": "May 17",
+          "value": 2.46
+        },
+        {
+          "label": "Jun 17",
+          "value": 2.5
+        },
+        {
+          "label": "Jul 17",
+          "value": 2.27
+        },
+        {
+          "label": "Aug 17",
+          "value": 2.87
+        },
+        {
+          "label": "Sep 17",
+          "value": 2.79
+        },
+        {
+          "label": "Oct 17",
+          "value": 2.32
+        },
+        {
+          "label": "Nov 17",
+          "value": 2.77
+        },
+        {
+          "label": "Dec 17",
+          "value": 3
+        },
+        {
+          "label": "Jan 18",
+          "value": 2.77
+        },
+        {
+          "label": "Feb 18",
+          "value": 3.17
+        },
+        {
+          "label": "Mar 18",
+          "value": 3.43
+        },
+        {
+          "label": "Apr 18",
+          "value": 3.13
+        },
+        {
+          "label": "May 18",
+          "value": 3.24
+        },
+        {
+          "label": "Jun 18",
+          "value": 3.53
+        },
+        {
+          "label": "Jul 18",
+          "value": 3.15
+        },
+        {
+          "label": "Aug 18",
+          "value": 3.49
+        },
+        {
+          "label": "Sep 18",
+          "value": 3.13
+        },
+        {
+          "label": "Oct 18",
+          "value": 3.58
+        },
+        {
+          "label": "Nov 18",
+          "value": 3.09
+        },
+        {
+          "label": "Dec 18",
+          "value": 3.49
+        },
+        {
+          "label": "Jan 19",
+          "value": 3.56
+        },
+        {
+          "label": "Feb 19",
+          "value": 3.25
+        },
+        {
+          "label": "Mar 19",
+          "value": 3.43
+        },
+        {
+          "label": "Apr 19",
+          "value": 2.97
+        },
+        {
+          "label": "May 19",
+          "value": 3.04
+        },
+        {
+          "label": "Jun 19",
+          "value": 2.84
+        },
+        {
+          "label": "Jul 19",
+          "value": 3.13
+        },
+        {
+          "label": "Aug 19",
+          "value": 3.12
+        },
+        {
+          "label": "Sep 19",
+          "value": 3.07
+        },
+        {
+          "label": "Oct 19",
+          "value": 2.54
+        },
+        {
+          "label": "Nov 19",
+          "value": 2.98
+        },
+        {
+          "label": "Dec 19",
+          "value": 2.38
+        },
+        {
+          "label": "Jan 20",
+          "value": 2.45
+        },
+        {
+          "label": "Feb 20",
+          "value": 2.77
+        },
+        {
+          "label": "Mar 20",
+          "value": 2.29
+        },
+        {
+          "label": "Apr 20",
+          "value": 7.47
+        },
+        {
+          "label": "May 20",
+          "value": 7.53
+        },
+        {
+          "label": "Jun 20",
+          "value": 5.69
+        },
+        {
+          "label": "Jul 20",
+          "value": 5.46
+        },
+        {
+          "label": "Aug 20",
+          "value": 5.75
+        },
+        {
+          "label": "Sep 20",
+          "value": 5.71
+        },
+        {
+          "label": "Oct 20",
+          "value": 6.2
+        },
+        {
+          "label": "Nov 20",
+          "value": 6.11
+        },
+        {
+          "label": "Dec 20",
+          "value": 6.93
+        },
+        {
+          "label": "Jan 21",
+          "value": 7.39
+        },
+        {
+          "label": "Feb 21",
+          "value": 6.28
+        },
+        {
+          "label": "Mar 21",
+          "value": 6.98
+        },
+        {
+          "label": "Apr 21",
+          "value": 2.99
+        },
+        {
+          "label": "May 21",
+          "value": 2.91
+        },
+        {
+          "label": "Jun 21",
+          "value": 4.58
+        },
+        {
+          "label": "Jul 21",
+          "value": 4.92
+        },
+        {
+          "label": "Aug 21",
+          "value": 4.37
+        },
+        {
+          "label": "Sep 21",
+          "value": 5.22
+        },
+        {
+          "label": "Oct 21",
+          "value": 5.11
+        },
+        {
+          "label": "Nov 21",
+          "value": 5.43
+        },
+        {
+          "label": "Dec 21",
+          "value": 5.02
+        },
+        {
+          "label": "Jan 22",
+          "value": 4.17
+        },
+        {
+          "label": "Feb 22",
+          "value": 5.59
+        },
+        {
+          "label": "Mar 22",
+          "value": 5.01
+        },
+        {
+          "label": "Apr 22",
+          "value": 4.82
+        },
+        {
+          "label": "May 22",
+          "value": 4.65
+        },
+        {
+          "label": "Jun 22",
+          "value": 4.8
+        },
+        {
+          "label": "Jul 22",
+          "value": 4.91
+        },
+        {
+          "label": "Aug 22",
+          "value": 4.75
+        },
+        {
+          "label": "Sep 22",
+          "value": 4.23
+        },
+        {
+          "label": "Oct 22",
+          "value": 4.67
+        },
+        {
+          "label": "Nov 22",
+          "value": 4.18
+        },
+        {
+          "label": "Dec 22",
+          "value": 3.73
+        },
+        {
+          "label": "Jan 23",
+          "value": 4.83
+        },
+        {
+          "label": "Feb 23",
+          "value": 3.83
+        },
+        {
+          "label": "Mar 23",
+          "value": 3.98
+        },
+        {
+          "label": "Apr 23",
+          "value": 3.66
+        },
+        {
+          "label": "May 23",
+          "value": 3.82
+        },
+        {
+          "label": "Jun 23",
+          "value": 4.02
+        },
+        {
+          "label": "Jul 23",
+          "value": 3.7
+        },
+        {
+          "label": "Aug 23",
+          "value": 4.17
+        },
+        {
+          "label": "Sep 23",
+          "value": 4.12
+        },
+        {
+          "label": "Oct 23",
+          "value": 3.29
+        },
+        {
+          "label": "Nov 23",
+          "value": 3.81
         },
         {
           "label": "Dec 23",
@@ -5239,6 +9800,180 @@
           "value": 16.03
         }
       ],
+      "deficit3mAvg": [
+        {
+          "label": "Nov 24",
+          "value": 314012002287.09
+        },
+        {
+          "label": "Dec 24",
+          "value": 200371810650.19
+        },
+        {
+          "label": "Jan 25",
+          "value": 176461275991.29
+        },
+        {
+          "label": "Feb 25",
+          "value": 174129673462.02
+        },
+        {
+          "label": "Mar 25",
+          "value": 198729240957.37
+        },
+        {
+          "label": "Apr 25",
+          "value": 69715855694.56
+        },
+        {
+          "label": "May 25",
+          "value": 83087088692.02
+        },
+        {
+          "label": "Jun 25",
+          "value": 53232079017.68
+        },
+        {
+          "label": "Jul 25",
+          "value": 220612424488.47
+        },
+        {
+          "label": "Aug 25",
+          "value": 219832757210.63
+        },
+        {
+          "label": "Sep 25",
+          "value": 130194449597.8
+        },
+        {
+          "label": "Oct 25",
+          "value": 143730770759.59
+        },
+        {
+          "label": "Nov 25",
+          "value": 86559198499.19
+        },
+        {
+          "label": "Dec 25",
+          "value": 181452948291
+        }
+      ],
+      "outlays3mAvg": [
+        {
+          "label": "Nov 24",
+          "value": 588842038068.24
+        },
+        {
+          "label": "Dec 24",
+          "value": 564994182786.5
+        },
+        {
+          "label": "Jan 25",
+          "value": 590640971632.81
+        },
+        {
+          "label": "Feb 25",
+          "value": 595507251784.01
+        },
+        {
+          "label": "Mar 25",
+          "value": 591180306778.98
+        },
+        {
+          "label": "Apr 25",
+          "value": 574458579889.79
+        },
+        {
+          "label": "May 25",
+          "value": 596904247272.53
+        },
+        {
+          "label": "Jun 25",
+          "value": 599922486737.13
+        },
+        {
+          "label": "Jul 25",
+          "value": 594038869050.36
+        },
+        {
+          "label": "Aug 25",
+          "value": 600148646783.15
+        },
+        {
+          "label": "Sep 25",
+          "value": 536313028855.01
+        },
+        {
+          "label": "Oct 25",
+          "value": 574513990241.33
+        },
+        {
+          "label": "Nov 25",
+          "value": 514571042547.48
+        },
+        {
+          "label": "Dec 25",
+          "value": 579715366016.05
+        }
+      ],
+      "receipts3mAvg": [
+        {
+          "label": "Nov 24",
+          "value": 274830035781.15
+        },
+        {
+          "label": "Dec 24",
+          "value": 364622372136.31
+        },
+        {
+          "label": "Jan 25",
+          "value": 414179695641.52
+        },
+        {
+          "label": "Feb 25",
+          "value": 421377578321.99
+        },
+        {
+          "label": "Mar 25",
+          "value": 392451065821.61
+        },
+        {
+          "label": "Apr 25",
+          "value": 504742724195.23
+        },
+        {
+          "label": "May 25",
+          "value": 513817158580.51
+        },
+        {
+          "label": "Jun 25",
+          "value": 546690407719.46
+        },
+        {
+          "label": "Jul 25",
+          "value": 373426444561.88
+        },
+        {
+          "label": "Aug 25",
+          "value": 380315889572.52
+        },
+        {
+          "label": "Sep 25",
+          "value": 406118579257.21
+        },
+        {
+          "label": "Oct 25",
+          "value": 430783219481.75
+        },
+        {
+          "label": "Nov 25",
+          "value": 428011844048.29
+        },
+        {
+          "label": "Dec 25",
+          "value": 398262417725.04
+        }
+      ],
       "nonfarmPayroll": [
         {
           "label": "Jan 15",
@@ -5672,10 +10407,534 @@
           "label": "Dec 23",
           "value": 1.68
         }
+      ],
+      "payrollMoMChange": [
+        {
+          "label": "Feb 14",
+          "value": 151
+        },
+        {
+          "label": "Mar 14",
+          "value": 273
+        },
+        {
+          "label": "Apr 14",
+          "value": 312
+        },
+        {
+          "label": "May 14",
+          "value": 215
+        },
+        {
+          "label": "Jun 14",
+          "value": 337
+        },
+        {
+          "label": "Jul 14",
+          "value": 224
+        },
+        {
+          "label": "Aug 14",
+          "value": 196
+        },
+        {
+          "label": "Sep 14",
+          "value": 294
+        },
+        {
+          "label": "Oct 14",
+          "value": 234
+        },
+        {
+          "label": "Nov 14",
+          "value": 293
+        },
+        {
+          "label": "Dec 14",
+          "value": 274
+        },
+        {
+          "label": "Jan 15",
+          "value": 204
+        },
+        {
+          "label": "Feb 15",
+          "value": 259
+        },
+        {
+          "label": "Mar 15",
+          "value": 96
+        },
+        {
+          "label": "Apr 15",
+          "value": 273
+        },
+        {
+          "label": "May 15",
+          "value": 342
+        },
+        {
+          "label": "Jun 15",
+          "value": 171
+        },
+        {
+          "label": "Jul 15",
+          "value": 282
+        },
+        {
+          "label": "Aug 15",
+          "value": 134
+        },
+        {
+          "label": "Sep 15",
+          "value": 150
+        },
+        {
+          "label": "Oct 15",
+          "value": 304
+        },
+        {
+          "label": "Nov 15",
+          "value": 229
+        },
+        {
+          "label": "Dec 15",
+          "value": 269
+        },
+        {
+          "label": "Jan 16",
+          "value": 133
+        },
+        {
+          "label": "Feb 16",
+          "value": 197
+        },
+        {
+          "label": "Mar 16",
+          "value": 255
+        },
+        {
+          "label": "Apr 16",
+          "value": 193
+        },
+        {
+          "label": "May 16",
+          "value": 45
+        },
+        {
+          "label": "Jun 16",
+          "value": 246
+        },
+        {
+          "label": "Jul 16",
+          "value": 374
+        },
+        {
+          "label": "Aug 16",
+          "value": 142
+        },
+        {
+          "label": "Sep 16",
+          "value": 305
+        },
+        {
+          "label": "Oct 16",
+          "value": 99
+        },
+        {
+          "label": "Nov 16",
+          "value": 117
+        },
+        {
+          "label": "Dec 16",
+          "value": 225
+        },
+        {
+          "label": "Jan 17",
+          "value": 220
+        },
+        {
+          "label": "Feb 17",
+          "value": 220
+        },
+        {
+          "label": "Mar 17",
+          "value": 121
+        },
+        {
+          "label": "Apr 17",
+          "value": 205
+        },
+        {
+          "label": "May 17",
+          "value": 206
+        },
+        {
+          "label": "Jun 17",
+          "value": 203
+        },
+        {
+          "label": "Jul 17",
+          "value": 189
+        },
+        {
+          "label": "Aug 17",
+          "value": 147
+        },
+        {
+          "label": "Sep 17",
+          "value": 88
+        },
+        {
+          "label": "Oct 17",
+          "value": 143
+        },
+        {
+          "label": "Nov 17",
+          "value": 223
+        },
+        {
+          "label": "Dec 17",
+          "value": 150
+        },
+        {
+          "label": "Jan 18",
+          "value": 137
+        },
+        {
+          "label": "Feb 18",
+          "value": 394
+        },
+        {
+          "label": "Mar 18",
+          "value": 226
+        },
+        {
+          "label": "Apr 18",
+          "value": 142
+        },
+        {
+          "label": "May 18",
+          "value": 318
+        },
+        {
+          "label": "Jun 18",
+          "value": 219
+        },
+        {
+          "label": "Jul 18",
+          "value": 61
+        },
+        {
+          "label": "Aug 18",
+          "value": 259
+        },
+        {
+          "label": "Sep 18",
+          "value": 79
+        },
+        {
+          "label": "Oct 18",
+          "value": 168
+        },
+        {
+          "label": "Nov 18",
+          "value": 91
+        },
+        {
+          "label": "Dec 18",
+          "value": 192
+        },
+        {
+          "label": "Jan 19",
+          "value": 250
+        },
+        {
+          "label": "Feb 19",
+          "value": 6
+        },
+        {
+          "label": "Mar 19",
+          "value": 230
+        },
+        {
+          "label": "Apr 19",
+          "value": 298
+        },
+        {
+          "label": "May 19",
+          "value": 28
+        },
+        {
+          "label": "Jun 19",
+          "value": 218
+        },
+        {
+          "label": "Jul 19",
+          "value": 97
+        },
+        {
+          "label": "Aug 19",
+          "value": 235
+        },
+        {
+          "label": "Sep 19",
+          "value": 194
+        },
+        {
+          "label": "Oct 19",
+          "value": 95
+        },
+        {
+          "label": "Nov 19",
+          "value": 208
+        },
+        {
+          "label": "Dec 19",
+          "value": 127
+        },
+        {
+          "label": "Jan 20",
+          "value": 236
+        },
+        {
+          "label": "Feb 20",
+          "value": 261
+        },
+        {
+          "label": "Mar 20",
+          "value": -1397
+        },
+        {
+          "label": "Apr 20",
+          "value": -20471
+        },
+        {
+          "label": "May 20",
+          "value": 2616
+        },
+        {
+          "label": "Jun 20",
+          "value": 4631
+        },
+        {
+          "label": "Jul 20",
+          "value": 1584
+        },
+        {
+          "label": "Aug 20",
+          "value": 1564
+        },
+        {
+          "label": "Sep 20",
+          "value": 951
+        },
+        {
+          "label": "Oct 20",
+          "value": 691
+        },
+        {
+          "label": "Nov 20",
+          "value": 270
+        },
+        {
+          "label": "Dec 20",
+          "value": -183
+        },
+        {
+          "label": "Jan 21",
+          "value": 365
+        },
+        {
+          "label": "Feb 21",
+          "value": 509
+        },
+        {
+          "label": "Mar 21",
+          "value": 824
+        },
+        {
+          "label": "Apr 21",
+          "value": 365
+        },
+        {
+          "label": "May 21",
+          "value": 421
+        },
+        {
+          "label": "Jun 21",
+          "value": 796
+        },
+        {
+          "label": "Jul 21",
+          "value": 931
+        },
+        {
+          "label": "Aug 21",
+          "value": 487
+        },
+        {
+          "label": "Sep 21",
+          "value": 466
+        },
+        {
+          "label": "Oct 21",
+          "value": 857
+        },
+        {
+          "label": "Nov 21",
+          "value": 637
+        },
+        {
+          "label": "Dec 21",
+          "value": 575
+        },
+        {
+          "label": "Jan 22",
+          "value": 225
+        },
+        {
+          "label": "Feb 22",
+          "value": 869
+        },
+        {
+          "label": "Mar 22",
+          "value": 471
+        },
+        {
+          "label": "Apr 22",
+          "value": 305
+        },
+        {
+          "label": "May 22",
+          "value": 241
+        },
+        {
+          "label": "Jun 22",
+          "value": 461
+        },
+        {
+          "label": "Jul 22",
+          "value": 696
+        },
+        {
+          "label": "Aug 22",
+          "value": 237
+        },
+        {
+          "label": "Sep 22",
+          "value": 227
+        },
+        {
+          "label": "Oct 22",
+          "value": 400
+        },
+        {
+          "label": "Nov 22",
+          "value": 297
+        },
+        {
+          "label": "Dec 22",
+          "value": 126
+        },
+        {
+          "label": "Jan 23",
+          "value": 444
+        },
+        {
+          "label": "Feb 23",
+          "value": 306
+        },
+        {
+          "label": "Mar 23",
+          "value": 85
+        },
+        {
+          "label": "Apr 23",
+          "value": 216
+        },
+        {
+          "label": "May 23",
+          "value": 227
+        },
+        {
+          "label": "Jun 23",
+          "value": 257
+        },
+        {
+          "label": "Jul 23",
+          "value": 148
+        },
+        {
+          "label": "Aug 23",
+          "value": 157
+        },
+        {
+          "label": "Sep 23",
+          "value": 158
+        },
+        {
+          "label": "Oct 23",
+          "value": 186
+        },
+        {
+          "label": "Nov 23",
+          "value": 141
+        },
+        {
+          "label": "Dec 23",
+          "value": 269
+        }
       ]
     }
   },
   "recentDatasets": [
+    {
+      "id": "7b449a30-b331-4b2b-8ba4-5c153a46bf7f",
+      "title": "Transfer Agent Data Sets",
+      "organization": "Securities and Exchange Commission",
+      "metadataModified": "2026-02-10T00:58:58.849880",
+      "metadataCreated": "2020-11-12T12:17:29.880773",
+      "resourceCount": 77,
+      "formats": [
+        "ZIP"
+      ]
+    },
+    {
+      "id": "2e3a5d55-b6f3-499c-b73e-903c9d6fd05f",
+      "title": "Number of EDGAR Filings by Form Type",
+      "organization": "Securities and Exchange Commission",
+      "metadataModified": "2026-02-10T00:58:58.648862",
+      "metadataCreated": "2020-11-12T12:17:21.774722",
+      "resourceCount": 1,
+      "formats": [
+        "CSV"
+      ]
+    },
+    {
+      "id": "23bafe8f-b83c-486c-9dba-8cec6ea271a1",
+      "title": "Hourly Electricity Demand Profiles for Each County in the Contiguous United States",
+      "organization": "Department of Energy",
+      "metadataModified": "2026-02-10T00:58:44.068144",
+      "metadataCreated": "2025-11-08T10:10:54.084189",
+      "resourceCount": 2,
+      "formats": [
+        "HTML",
+        "H5"
+      ]
+    },
+    {
+      "id": "65aaa021-ac8f-4376-9b9f-b292570371de",
+      "title": "Utah FORGE: Updated Discrete Fracture Network Model - 2025",
+      "organization": "Department of Energy",
+      "metadataModified": "2026-02-10T00:58:44.063327",
+      "metadataCreated": "2025-07-26T16:50:36.509727",
+      "resourceCount": 3,
+      "formats": [
+        "ZIP",
+        "PDF"
+      ]
+    },
     {
       "id": "68cc6751-8a14-49f6-b67a-425b38937ff1",
       "title": "Navigation Facilities",
@@ -5994,42 +11253,6 @@
       "formats": [
         "ESRI REST"
       ]
-    },
-    {
-      "id": "e535c41c-4030-422b-9d29-be28e9f54bb1",
-      "title": "ELIS - Electronic Immigration System",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:14:10.768384",
-      "metadataCreated": "2026-02-09T00:14:10.768379",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "accfa28e-5505-4377-9eda-e631613b7a79",
-      "title": "CIS2 - Central Index System 2",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:14:09.672083",
-      "metadataCreated": "2026-02-09T00:14:09.672079",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "eae1e17b-9282-42ba-97b6-cbfe343403b3",
-      "title": "FLETC Mobile Application",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:14:02.135527",
-      "metadataCreated": "2022-10-14T14:42:54.535531",
-      "resourceCount": 0,
-      "formats": []
-    },
-    {
-      "id": "ca236322-13b3-4792-a8a2-bf3c55346d5f",
-      "title": "FLETC.gov",
-      "organization": "Department of Homeland Security",
-      "metadataModified": "2026-02-09T00:14:00.841528",
-      "metadataCreated": "2022-10-14T14:42:58.892747",
-      "resourceCount": 1,
-      "formats": []
     }
   ],
   "source": {
@@ -6038,5 +11261,5 @@
     "apiBase": "https://catalog.data.gov/api/3/action + BLS + Census + Treasury + BEA (key not set)",
     "snapshotStrategy": "build-time static snapshot from federal data APIs"
   },
-  "generatedAt": "2026-02-10T00:46:59.649Z"
+  "generatedAt": "2026-02-10T01:00:27.790Z"
 }

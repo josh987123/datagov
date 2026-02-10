@@ -335,12 +335,6 @@ function OverviewPage({
   charts: ChartVm;
 }) {
   const economy = data.economy.snapshot;
-  const cpiMoMMap = new Map(charts.cpiMoMTrend.map((point) => [point.label, point.value]));
-  const wageMoMVsCpi = charts.earningsMoMTrend.map((point) => ({
-    label: point.label,
-    wageMoM: point.value,
-    cpiMoM: cpiMoMMap.get(point.label) ?? 0,
-  }));
 
   return (
     <div className="page-stack">
@@ -667,13 +661,11 @@ function EconomyPage({
   charts: ChartVm;
 }) {
   const economy = data.economy.snapshot;
-  const rollingReceiptsMap = new Map(charts.receipts3mAvgTrend.map((point) => [point.label, point.value]));
-  const rollingDeficitMap = new Map(charts.deficit3mAvgTrend.map((point) => [point.label, point.value]));
-  const rollingFiscalTrend = charts.outlays3mAvgTrend.map((point) => ({
+  const cpiMoMMap = new Map(charts.cpiMoMTrend.map((point) => [point.label, point.value]));
+  const wageMoMVsCpi = charts.earningsMoMTrend.map((point) => ({
     label: point.label,
-    outlays3m: point.value,
-    receipts3m: rollingReceiptsMap.get(point.label) ?? 0,
-    deficit3m: rollingDeficitMap.get(point.label) ?? 0,
+    wageMoM: point.value,
+    cpiMoM: cpiMoMMap.get(point.label) ?? 0,
   }));
 
   return (
@@ -1170,6 +1162,14 @@ function FiscalPage({
   charts: ChartVm;
 }) {
   const economy = data.economy.snapshot;
+  const rollingReceiptsMap = new Map(charts.receipts3mAvgTrend.map((point) => [point.label, point.value]));
+  const rollingDeficitMap = new Map(charts.deficit3mAvgTrend.map((point) => [point.label, point.value]));
+  const rollingFiscalTrend = charts.outlays3mAvgTrend.map((point) => ({
+    label: point.label,
+    outlays3m: point.value,
+    receipts3m: rollingReceiptsMap.get(point.label) ?? 0,
+    deficit3m: rollingDeficitMap.get(point.label) ?? 0,
+  }));
 
   return (
     <div className="page-stack">
