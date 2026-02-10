@@ -307,10 +307,7 @@ export async function runIngestion(options: RunIngestionOptions = {}): Promise<I
         } else {
           insertedCount += 1;
           const createdDataset = await prisma.dataset.create({
-            data: {
-              ckanId: pkg.id,
-              ...datasetPayload
-            },
+            data: datasetPayload,
             select: { id: true }
           });
           datasetId = createdDataset.id;

@@ -132,8 +132,14 @@ export async function getMetricsSummary(): Promise<MetricsSummaryResponse> {
   ]);
 
   const topAgencyCounts = agencyCounts
-    .filter((row): row is { organizationId: number; _count: { _all: number } } => row.organizationId !== null)
-    .sort((a, b) => b._count._all - a._count._all)
+    .filter((row) => row.organizationId !== null)
+    .map((row) => ({
+      organizationId: row.organizationId as number,
+      datasetCount: row._count._all,
+      avgQualityScore: toFixedNumber(row._avg.qualityScore),
+      avgOpennessScore: toFixedNumber(row._avg.opennessScore)
+    }))
+    .sort((a, b) => b.datasetCount - a.datasetCount)
     .slice(0, 10);
 
   const agencyMap = new Map<number, string>();
@@ -155,9 +161,9 @@ export async function getMetricsSummary(): Promise<MetricsSummaryResponse> {
   const topAgencies: TopAgency[] = topAgencyCounts.map((entry) => ({
     id: entry.organizationId,
     name: agencyMap.get(entry.organizationId) ?? "Unknown agency",
-    datasetCount: entry._count._all,
-    avgQualityScore: toFixedNumber(entry._avg.qualityScore),
-    avgOpennessScore: toFixedNumber(entry._avg.opennessScore)
+    datasetCount: entry.datasetCount,
+    avgQualityScore: entry.avgQualityScore,
+    avgOpennessScore: entry.avgOpennessScore
   }));
 
   const topTagCounts = tagCounts.sort((a, b) => b._count._all - a._count._all).slice(0, 12);
