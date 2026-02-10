@@ -1,7 +1,9 @@
 import { app } from "./app.js";
 import { env } from "./config.js";
 
-app.listen(env.API_PORT, () => {
+const port = Number(process.env.PORT ?? env.API_PORT);
+
+app.listen(port, () => {
   // eslint-disable-next-line no-console
-  console.log(`API listening on http://localhost:${env.API_PORT}`);
+  console.log(`API listening on port ${port}`);
 });

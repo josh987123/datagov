@@ -2,6 +2,8 @@
 
 Production-ready full-stack analytics platform for Data.gov CKAN metadata.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/josh987123/datagov)
+
 ## Stack
 
 - **Frontend:** Next.js (App Router) + TypeScript + Tailwind + Recharts
@@ -157,11 +159,45 @@ pnpm dev
 Web: `http://localhost:3000`  
 API: `http://localhost:4000`
 
+## Production deployment (one-click on Render)
+
+This repository includes `render.yaml` to provision all required services:
+
+- PostgreSQL database
+- API service (`us-data-dashboard-api`)
+- Next.js web service (`us-data-dashboard-web`)
+
+### Fastest path
+
+1. Click the **Deploy to Render** button above.
+2. Confirm the blueprint and create services.
+3. Wait for the first deploy to finish.
+4. Open the web URL from Render (`us-data-dashboard-web`).
+
+The API URL is preconfigured in the web service as:
+
+- `https://us-data-dashboard-api.onrender.com`
+
+If Render assigns a different API hostname, update:
+
+- `NEXT_PUBLIC_API_BASE_URL` in the web service environment.
+
+### Required post-deploy env checks
+
+In Render dashboard:
+
+- API service:
+  - verify `INGEST_TOKEN` exists
+  - optionally set `CKAN_API_KEY`
+- Web service:
+  - optionally set `AUTH_EMAIL`, `AUTH_PASSWORD` (to enable auth scaffold)
+
 ## Scripts
 
 - `pnpm dev` – run web + API
 - `pnpm build` – build all workspace packages
 - `pnpm db:migrate` – run Prisma migrations (API)
+- `pnpm db:deploy` – apply committed Prisma migrations (production-safe)
 - `pnpm ingest` – trigger ingestion job (API script)
 - `pnpm seed` – run seed script (currently performs ingest)
 
@@ -203,3 +239,7 @@ Required repository secrets:
 
 - `INGEST_ENDPOINT` (e.g. `https://api.your-domain.com`)
 - `INGEST_TOKEN` (must match API `INGEST_TOKEN`)
+
+For Render, set:
+
+- `INGEST_ENDPOINT=https://us-data-dashboard-api.onrender.com`

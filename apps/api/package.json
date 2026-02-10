@@ -10,6 +10,7 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "ingest": "tsx src/scripts/run-ingest.ts",
     "postinstall": "prisma generate"
