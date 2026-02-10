@@ -1,89 +1,159 @@
-# Data.gov Metrics Dashboard
+# Data.gov Metrics Dashboard (Monorepo)
 
-A comprehensive, polished, and visually rich dashboard centered on **actual federal economic, demographic, spending, debt, labor, and savings/investment indicators**, with catalog metadata retained as optional context.
+Production-ready full-stack dashboard for Data.gov CKAN metrics.
 
-## Pages and categories
+## Stack
 
-The dashboard is organized into category pages:
+- **Frontend:** Next.js (App Router) + TypeScript + Tailwind + Recharts
+- **Backend API:** Express + TypeScript + Prisma
+- **Database:** PostgreSQL
+- **Shared package:** workspace types under `@datagov/shared`
 
-1. **Overview**  
-   Cross-domain summary of inflation, unemployment, spending flow, debt trajectory, and alerts.
-2. **Economy**  
-   Income, rent/home value, investment/savings context, wage and payroll trends.
-3. **Labor & Prices**  
-   Unemployment, labor-force participation, employment-population ratio, CPI/wage trajectories.
-4. **Spending & Debt**  
-   Multi-year outlays/receipts/deficit history, debt change windows (7d/30d/1y), per-capita and YoY fiscal diagnostics.
-5. **Demographics**  
-   Population, households, poverty, internet access, housing composition, affordability ratios, inequality, and education attainment.
-6. **Catalog Context** (secondary)  
-   Metadata diagnostics, concentration/coverage metrics, freshness/age bucket charts, and searchable/sortable/exportable recent dataset table.
+## Repository layout
 
-## What's new in this build
-
-- Significantly expanded indicator set across all pages (labor, prices, fiscal, affordability, poverty, digital access, concentration, and quality metrics).
-- Extended historical windows for core trend charts (multi-year BLS and Treasury time series).
-- "What it is" + "Why it matters" explainer cards for each category page.
-- Selective data labels added to charts where readability remains high.
-
-## Data source
-
-This dashboard combines multiple public federal APIs, including:
-
-- `https://catalog.data.gov/api/3/action` (catalog metadata context)
-- BLS public API (labor, inflation, earnings)
-- U.S. Census ACS API (demographics and household indicators)
-- Treasury Fiscal Data API (debt and monthly spending flow)
-- BEA API (investment/savings, when `BEA_API_KEY` is provided)
-
-### Why it uses a snapshot
-
-Data.gov API endpoints do not currently allow browser CORS requests from GitHub Pages origins, so the dashboard uses a **build-time generated JSON snapshot**:
-
-- `public/dashboard-data.json`
-
-The snapshot is refreshed during build/deploy and then served from the same origin as the dashboard UI.
-
-## Quick start
-
-```bash
-npm install
-npm run dev
+```text
+apps/
+  web/        # Next.js frontend
+  api/        # Express API + Prisma schema/migrations
+packages/
+  shared/     # shared TS types
 ```
 
-Then open `http://localhost:5173`.
+## Core features
 
-## Refreshing dashboard data snapshot
+### Data ingestion layer
 
-Run:
+- Pulls CKAN dataset catalog pages from Data.gov (`package_search`)
+- Normalizes and stores:
+  - datasets
+  - agencies
+  - tags
+  - timestamps (`metadata_created`, `metadata_modified`)
+- Deduplicates by CKAN dataset identifier (`ckanId`)
+- Tracks daily snapshots:
+  - total datasets
+  - datasets added in last 7/30 days
+  - per-agency daily counts for trend charts
+
+### API endpoints
+
+- `GET /health`
+- `GET /metrics/summary`
+- `GET /metrics/trends?days=30`
+- `GET /datasets?search=&agency=&tag=&page=`
+- `POST /ingest/run` (protected by `x-ingest-token`)
+
+Includes:
+- request logging via `morgan`
+- global rate limiting via `express-rate-limit`
+
+### Frontend pages
+
+- **Overview**
+  - total datasets
+  - datasets added in 7/30 days
+  - top agencies
+  - common tags
+  - last ingest run status/time
+- **Datasets**
+  - searchable + paginated table
+  - filters by agency and tag
+- **Trends**
+  - dataset growth over time chart
+  - top agencies over time chart
+- **Auth (scaffold)**
+  - optional simple email/password scaffold routes and login page
+
+## Environment setup
+
+Use the per-app examples:
+
+- `apps/api/.env.example`
+- `apps/web/.env.example`
+
+### Minimal required values
+
+For API (`apps/api/.env`):
+
+- `DATABASE_URL=postgresql://...`
+- `INGEST_TOKEN=...`
+
+For web (`apps/web/.env`):
+
+- `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000`
+
+Optional auth scaffold (web):
+
+- `AUTH_EMAIL`
+- `AUTH_PASSWORD`
+- `AUTH_SECRET`
+
+## Local development
+
+1. Install deps:
 
 ```bash
-npm run generate:data
+pnpm install
 ```
 
-Optional: set an API key for server-side snapshot generation:
-
-- Copy `.env.example` to `.env`
-- Set `DATA_GOV_API_KEY=...`
-
-## Build
+2. Configure env files:
 
 ```bash
-npm run build
-npm run preview
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
 ```
 
-## Hosting (GitHub Pages)
+3. Run migrations:
 
-This repo includes a GitHub Actions workflow at:
+```bash
+pnpm db:migrate
+```
 
-`.github/workflows/deploy-pages.yml`
+4. Run initial ingestion:
 
-It generates a fresh snapshot, builds the app, and deploys `dist/` to GitHub Pages on pushes to:
+```bash
+pnpm ingest
+```
 
-- `main`
-- `cursor/data-gov-metrics-dashboard-1d8c`
+5. Start both apps:
 
-Once deployed, the site URL format is:
+```bash
+pnpm dev
+```
 
-`https://josh987123.github.io/datagov/`
+Web: `http://localhost:3000`  
+API: `http://localhost:4000`
+
+## Scripts
+
+- `pnpm dev` – run web + API
+- `pnpm build` – build all workspace packages
+- `pnpm db:migrate` – run Prisma migrations (API)
+- `pnpm ingest` – trigger ingestion job (API script)
+- `pnpm seed` – run seed script (currently performs ingest)
+
+## Prisma
+
+- Schema: `apps/api/prisma/schema.prisma`
+- Migration: `apps/api/prisma/migrations/*`
+- Seed: `apps/api/prisma/seed.ts`
+
+## Docker (API)
+
+Backend Dockerfile:
+
+- `apps/api/Dockerfile`
+
+Build from repo root (so workspace deps are available):
+
+```bash
+docker build -f apps/api/Dockerfile -t datagov-api .
+```
+
+## CI
+
+A lightweight CI workflow is included at:
+
+- `.github/workflows/ci.yml`
+
+It installs dependencies, runs lint, and builds the monorepo.
