@@ -39,7 +39,7 @@ export function TopAgenciesTrendChart({ series }: TopAgenciesTrendChartProps) {
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis dataKey="date" minTickGap={28} tick={{ fontSize: 12 }} />
           <YAxis tickFormatter={formatCompactNumber} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(value: number) => formatCompactNumber(Number(value))} />
+          <Tooltip formatter={(value) => formatCompactNumber(value as number | string | undefined)} />
           <Legend />
           {series.map((entry, index) => (
             <Line

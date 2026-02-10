@@ -31,7 +31,7 @@ export function DatasetGrowthChart({ data }: DatasetGrowthChartProps) {
           <XAxis dataKey="label" minTickGap={28} tick={{ fontSize: 12 }} />
           <YAxis tickFormatter={formatCompactNumber} tick={{ fontSize: 12 }} />
           <Tooltip
-            formatter={(value: number) => formatCompactNumber(Number(value))}
+            formatter={(value) => formatCompactNumber(value as number | string | undefined)}
             labelFormatter={(label) => `Date: ${label}`}
           />
           <Line type="monotone" dataKey="totalDatasets" name="Total datasets" stroke="#2563eb" strokeWidth={2.5} dot={false} />

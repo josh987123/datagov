@@ -1,8 +1,13 @@
-export function formatCompactNumber(value: number): string {
+export function formatCompactNumber(value: number | string | null | undefined): string {
+  const numericValue = Number(value ?? 0);
+  if (!Number.isFinite(numericValue)) {
+    return "0";
+  }
+
   return new Intl.NumberFormat("en-US", {
     notation: "compact",
     maximumFractionDigits: 1
-  }).format(value);
+  }).format(numericValue);
 }
 
 export function formatDate(value: string | null): string {
