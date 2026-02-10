@@ -19,7 +19,7 @@ interface TopAgenciesTrendChartProps {
 
 const COLORS = ["#0f766e", "#2563eb", "#9333ea", "#f97316", "#dc2626"];
 
-export function TopAgenciesTrendChart({ series }: TopAgenciesTrendChartProps): JSX.Element {
+export function TopAgenciesTrendChart({ series }: TopAgenciesTrendChartProps) {
   const allDates = Array.from(new Set(series.flatMap((entry) => entry.points.map((point) => point.date)))).sort();
 
   const chartData = allDates.map((date) => {

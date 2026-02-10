@@ -10,7 +10,7 @@ const links = [
   { href: "/login", label: "Auth" }
 ];
 
-export function AppNav(): JSX.Element {
+export function AppNav() {
   const pathname = usePathname();
 
   return (

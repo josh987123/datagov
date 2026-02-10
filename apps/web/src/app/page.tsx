@@ -4,7 +4,7 @@ import { DatasetGrowthChart } from "@/components/charts/dataset-growth-chart";
 import { getMetricsSummary, getMetricsTrends } from "@/lib/api";
 import { formatCompactNumber, formatDateTime } from "@/lib/format";
 
-export default async function HomePage(): Promise<JSX.Element> {
+export default async function HomePage() {
   const [summary, trends] = await Promise.all([getMetricsSummary(), getMetricsTrends(30)]);
 
   return (

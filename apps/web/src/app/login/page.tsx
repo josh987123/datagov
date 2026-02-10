@@ -7,7 +7,7 @@ interface SessionState {
   email?: string;
 }
 
-export default function LoginPage(): JSX.Element {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);

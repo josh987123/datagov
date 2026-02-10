@@ -17,7 +17,7 @@ function buildPageHref(current: URLSearchParams, nextPage: number): string {
   return `/datasets?${params.toString()}`;
 }
 
-export default async function DatasetsPage({ searchParams }: DatasetsPageProps): Promise<JSX.Element> {
+export default async function DatasetsPage({ searchParams }: DatasetsPageProps) {
   const params = await searchParams;
   const page = Math.max(1, Number(params.page ?? "1") || 1);
   const search = params.search ?? "";

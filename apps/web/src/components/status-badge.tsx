@@ -8,7 +8,7 @@ const statusStyles: Record<StatusBadgeProps["status"], string> = {
   FAILED: "bg-rose-100 text-rose-800"
 };
 
-export function StatusBadge({ status }: StatusBadgeProps): JSX.Element {
+export function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusStyles[status]}`}>{status}</span>
   );

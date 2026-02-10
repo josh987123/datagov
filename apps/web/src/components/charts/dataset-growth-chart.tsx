@@ -16,7 +16,7 @@ interface DatasetGrowthChartProps {
   data: TrendPoint[];
 }
 
-export function DatasetGrowthChart({ data }: DatasetGrowthChartProps): JSX.Element {
+export function DatasetGrowthChart({ data }: DatasetGrowthChartProps) {
   const chartData = data.map((point) => ({
     ...point,
     label: point.date.slice(5)

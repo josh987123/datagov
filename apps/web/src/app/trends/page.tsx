@@ -9,7 +9,7 @@ interface TrendsPageProps {
   }>;
 }
 
-export default async function TrendsPage({ searchParams }: TrendsPageProps): Promise<JSX.Element> {
+export default async function TrendsPage({ searchParams }: TrendsPageProps) {
   const params = await searchParams;
   const days = Math.min(365, Math.max(7, Number(params.days ?? "30") || 30));
   const trends = await getMetricsTrends(days);

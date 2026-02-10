@@ -4,7 +4,7 @@ interface DashboardCardProps {
   subtitle?: string;
 }
 
-export function DashboardCard({ title, value, subtitle }: DashboardCardProps): JSX.Element {
+export function DashboardCard({ title, value, subtitle }: DashboardCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <p className="text-sm font-medium text-slate-500">{title}</p>
