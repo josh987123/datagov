@@ -743,6 +743,45 @@ body {
   line-height: 1.44;
 }
 
+.summary-strip {
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.58);
+  padding: 0.78rem 0.82rem;
+}
+
+.summary-strip h4 {
+  margin: 0 0 0.56rem;
+  color: #f8fafc;
+  font-size: 0.9rem;
+}
+
+.summary-strip__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.5rem;
+}
+
+.summary-strip__item {
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(30, 41, 59, 0.44);
+  padding: 0.52rem 0.58rem;
+}
+
+.summary-strip__item h5 {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+}
+
+.summary-strip__item p {
+  margin: 0.3rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  line-height: 1.43;
+}
+
 .progress-stack {
   display: flex;
   flex-direction: column;

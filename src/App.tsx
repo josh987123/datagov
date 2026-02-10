@@ -546,6 +546,11 @@ interface IndicatorExplanation {
   why: string;
 }
 
+interface ConciseSummaryItem {
+  heading: string;
+  summary: string;
+}
+
 function IndicatorExplainers({
   title,
   items,
@@ -566,6 +571,28 @@ function IndicatorExplainers({
             <p>
               <strong>Why it matters:</strong> {item.why}
             </p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ConciseSummary({
+  title,
+  items,
+}: {
+  title: string;
+  items: ConciseSummaryItem[];
+}) {
+  return (
+    <section className="summary-strip">
+      <h4>{title}</h4>
+      <div className="summary-strip__grid">
+        {items.map((item) => (
+          <article key={item.heading} className="summary-strip__item">
+            <h5>{item.heading}</h5>
+            <p>{item.summary}</p>
           </article>
         ))}
       </div>
@@ -935,6 +962,37 @@ function OverviewPage({
   charts: ChartVm;
 }) {
   const economy = data.economy.snapshot;
+  const overviewSummary: ConciseSummaryItem[] = [
+    {
+      heading: "Inflation vs wages",
+      summary:
+        economy.realWageYoY >= 0
+          ? `Wage growth is currently outpacing inflation (${formatSignedPercent(economy.realWageYoY)} real wage change).`
+          : `Inflation is still eroding purchasing power (${formatSignedPercent(economy.realWageYoY)} real wage change).`,
+    },
+    {
+      heading: "Labor market slack",
+      summary:
+        economy.sahmRuleValue >= 0.5
+          ? `Labor stress is elevated (Sahm proxy ${economy.sahmRuleValue.toFixed(2)}pp) with underemployment at ${economy.underemploymentRate.toFixed(1)}%.`
+          : `Labor conditions remain comparatively stable (Sahm proxy ${economy.sahmRuleValue.toFixed(2)}pp).`,
+    },
+    {
+      heading: "Fiscal stance",
+      summary:
+        economy.deficitToOutlaysRatio > 20
+          ? `The deficit is absorbing a sizable share of spending (${economy.deficitToOutlaysRatio.toFixed(1)}% of outlays).`
+          : `The current deficit burden is moderate (${economy.deficitToOutlaysRatio.toFixed(1)}% of outlays).`,
+    },
+    {
+      heading: "Debt momentum",
+      summary: `Debt has moved ${formatSignedPercent(economy.debtChange365DaysPct)} over the past year, with about ${formatCurrencyCompact(economy.debtPerCapita)} per capita.`,
+    },
+    {
+      heading: "Household pressure",
+      summary: `Severe rent burden is ${economy.severeRentBurdenShare.toFixed(1)}% and poverty is ${economy.povertyRate.toFixed(1)}%, signaling ongoing cost pressure for lower-income households.`,
+    },
+  ];
 
   return (
     <div className="page-stack">
@@ -1116,6 +1174,8 @@ function OverviewPage({
         />
       </section>
 
+      <ConciseSummary title="Overview: what the numbers imply" items={overviewSummary} />
+
       <section className="panel-grid panel-grid--two">
         <ChartPanel title="Federal spending flow (monthly)" subtitle="Outlays, receipts, and deficit/surplus">
           <ResponsiveContainer width="100%" height={300}>
@@ -1267,6 +1327,31 @@ function EconomyPage({
     wageMoM: point.value,
     cpiMoM: cpiMoMMap.get(point.label) ?? 0,
   }));
+  const economySummary: ConciseSummaryItem[] = [
+    {
+      heading: "Income quality",
+      summary:
+        economy.realWeeklyEarningsYoY >= 0
+          ? `Real weekly earnings are rising (${formatSignedPercent(economy.realWeeklyEarningsYoY)}), supporting household purchasing power.`
+          : `Real weekly earnings are falling (${formatSignedPercent(economy.realWeeklyEarningsYoY)}), indicating purchasing-power strain.`,
+    },
+    {
+      heading: "Affordability",
+      summary: `Home values are about ${formatRatio(economy.homeValueToIncomeRatio)} annual income and median rent absorbs ${(economy.annualRentToIncomeRatio * 100).toFixed(1)}% of income.`,
+    },
+    {
+      heading: "Labor demand",
+      summary: `Payroll growth is ${formatSignedPercent(economy.payrollYoYChange)} YoY, with monthly payroll change around ${formatCompact(economy.payrollMoMChange)}.`,
+    },
+    {
+      heading: "Price backdrop",
+      summary: `Headline inflation is ${formatSignedPercent(economy.inflationYoY)} and core inflation is ${formatSignedPercent(economy.coreInflationYoY)}.`,
+    },
+    {
+      heading: "Structural capacity",
+      summary: `Education attainment (${economy.bachelorsOrHigherShare.toFixed(1)}% bachelor+) and internet access (${economy.internetAccessRate.toFixed(1)}%) are key long-run growth enablers.`,
+    },
+  ];
 
   return (
     <div className="page-stack">
@@ -1306,6 +1391,8 @@ function EconomyPage({
         <MetricCard title="Owner cost burden" value={`${economy.ownerCostBurdenShare.toFixed(1)}%`} hint="Owners paying 30%+ income on housing costs" icon={<Home size={18} />} accent="violet" />
         <MetricCard title="Persons per household" value={economy.personsPerHousehold.toFixed(2)} hint="Average household size estimate" icon={<Users size={18} />} accent="cyan" />
       </section>
+
+      <ConciseSummary title="Economy: quick interpretation" items={economySummary} />
 
       <section className="panel-grid panel-grid--two">
         <ChartPanel title="Wage growth (YoY)" subtitle="Average hourly earnings year-over-year">
@@ -1536,6 +1623,34 @@ function LaborPricesPage({
       employmentPopulation: employmentPoint?.value ?? 0,
     };
   });
+  const laborSummary: ConciseSummaryItem[] = [
+    {
+      heading: "Headline vs broad unemployment",
+      summary: `Headline unemployment is ${economy.unemploymentRate.toFixed(1)}%, while underemployment is ${economy.underemploymentRate.toFixed(1)}% (gap: ${economy.underemploymentGap.toFixed(1)}pp).`,
+    },
+    {
+      heading: "Recession risk signal",
+      summary:
+        economy.sahmRuleValue >= 0.5
+          ? `The Sahm-style trigger is elevated at ${economy.sahmRuleValue.toFixed(2)}pp, suggesting higher cyclical risk.`
+          : `The Sahm-style trigger is contained at ${economy.sahmRuleValue.toFixed(2)}pp.`,
+    },
+    {
+      heading: "Wage-price balance",
+      summary:
+        economy.realWageYoY >= 0
+          ? `Wages are beating inflation (${formatSignedPercent(economy.realWageYoY)} real wage growth).`
+          : `Prices are outrunning wages (${formatSignedPercent(economy.realWageYoY)} real wage growth).`,
+    },
+    {
+      heading: "Participation health",
+      summary: `Participation is ${economy.laborForceParticipationRate.toFixed(1)}% with an MoM move of ${economy.laborForceParticipationMoMDelta.toFixed(2)}pp.`,
+    },
+    {
+      heading: "Labor depth",
+      summary: `Long-term unemployment share is ${economy.longTermUnemploymentShare.toFixed(1)}%, useful for identifying persistent slack.`,
+    },
+  ];
 
   return (
     <div className="page-stack">
@@ -1571,6 +1686,8 @@ function LaborPricesPage({
         <MetricCard title="Real weekly earnings YoY" value={formatSignedPercent(economy.realWeeklyEarningsYoY)} hint="Weekly earnings growth net of inflation" icon={<Gauge size={18} />} accent="emerald" />
         <MetricCard title="Payroll MoM change" value={formatCompact(economy.payrollMoMChange)} hint="Absolute monthly payroll index move" icon={<Layers3 size={18} />} accent="amber" />
       </section>
+
+      <ConciseSummary title="Labor & prices: quick interpretation" items={laborSummary} />
 
       <section className="panel-grid panel-grid--two">
         <ChartPanel title="Unemployment trend" subtitle="Extended historical unemployment trajectory">
@@ -1770,6 +1887,28 @@ function FiscalPage({
     receipts3m: rollingReceiptsMap.get(point.label) ?? 0,
     deficit3m: rollingDeficitMap.get(point.label) ?? 0,
   }));
+  const fiscalSummary: ConciseSummaryItem[] = [
+    {
+      heading: "Debt trajectory",
+      summary: `Total debt is ${formatCurrencyCompact(economy.totalPublicDebt)}, up ${formatSignedPercent(economy.debtChange365DaysPct)} over the past year.`,
+    },
+    {
+      heading: "Debt composition",
+      summary: `${economy.debtHeldByPublicShare.toFixed(1)}% is held by the public and ${economy.intragovShare.toFixed(1)}% is intragovernmental.`,
+    },
+    {
+      heading: "Current flow balance",
+      summary: `Receipts cover ${economy.receiptsToOutlaysRatio.toFixed(1)}% of outlays; the deficit currently equals ${economy.deficitToOutlaysRatio.toFixed(1)}% of spending.`,
+    },
+    {
+      heading: "Medium-run fiscal pressure",
+      summary: `The deficit has persisted for ${formatCompact(economy.deficitStreakMonths)} consecutive months, with trailing-12 deficit at ${formatCurrencyCompact(economy.trailing12Deficit)}.`,
+    },
+    {
+      heading: "Volatility and risk",
+      summary: `Daily debt volatility is about ${formatCurrencyCompact(economy.debtDailyVolatility30)} and monthly deficit volatility is ${formatCurrencyCompact(economy.deficitVolatility12)}.`,
+    },
+  ];
 
   return (
     <div className="page-stack">
@@ -1817,6 +1956,8 @@ function FiscalPage({
         <MetricCard title="Deficit YoY" value={formatSignedPercent(economy.deficitYoY)} hint="Trailing-12-month deficit growth rate" icon={<BarChart3 size={18} />} accent="violet" />
         <MetricCard title="Surplus months (12m)" value={formatCompact(economy.surplusMonthsLast12)} hint="Months where receipts exceeded outlays" icon={<CheckCircle2 size={18} />} accent="cyan" />
       </section>
+
+      <ConciseSummary title="Fiscal: quick interpretation" items={fiscalSummary} />
 
       <section className="panel-grid panel-grid--two">
         <ChartPanel title="Monthly outlays, receipts, and deficit" subtitle="Treasury fiscal flow over time">
@@ -2002,6 +2143,28 @@ function DemographicsPage({
     { label: "Multifamily", value: economy.multiFamilyHousingShare },
     { label: "Mobile home", value: economy.mobileHomeShare },
   ];
+  const demographicSummary: ConciseSummaryItem[] = [
+    {
+      heading: "Population structure",
+      summary: `Working-age share is ${economy.workingAgePopulationShare.toFixed(1)}% with a dependency ratio of ${economy.dependencyRatio.toFixed(1)}%.`,
+    },
+    {
+      heading: "Housing stress",
+      summary: `Severe rent burden is ${economy.severeRentBurdenShare.toFixed(1)}% and owner cost burden is ${economy.ownerCostBurdenShare.toFixed(1)}%.`,
+    },
+    {
+      heading: "Tenure and supply",
+      summary: `Homeownership is ${economy.homeownershipRate.toFixed(1)}% with vacancy at ${economy.vacancyRate.toFixed(1)}%, shaping housing tightness.`,
+    },
+    {
+      heading: "Inclusion indicators",
+      summary: `Internet access is ${economy.internetAccessRate.toFixed(1)}% and zero-vehicle households are ${economy.zeroVehicleShare.toFixed(1)}%.`,
+    },
+    {
+      heading: "Distribution and mobility",
+      summary: `Poverty is ${economy.povertyRate.toFixed(1)}%, inequality (Gini) is ${economy.giniIndex.toFixed(3)}, and long-commute share is ${economy.longCommuteShare.toFixed(1)}%.`,
+    },
+  ];
 
   return (
     <div className="page-stack">
@@ -2038,6 +2201,8 @@ function DemographicsPage({
         <MetricCard title="Zero-vehicle households" value={`${economy.zeroVehicleShare.toFixed(1)}%`} hint="Households with no vehicle access" icon={<Database size={18} />} accent="emerald" />
         <MetricCard title="Gini index" value={economy.giniIndex.toFixed(3)} hint="Income inequality index" icon={<Sparkles size={18} />} accent="cyan" />
       </section>
+
+      <ConciseSummary title="Demographics: quick interpretation" items={demographicSummary} />
 
       <section className="panel-grid panel-grid--two">
         <ChartPanel title="Housing occupancy composition" subtitle="Owner, renter, and vacant housing units">
@@ -2277,6 +2442,28 @@ function CatalogPage({
 
     triggerDownload("datagov-recent-datasets.csv", `${csv}\n`, "text/csv;charset=utf-8");
   };
+  const catalogSummary: ConciseSummaryItem[] = [
+    {
+      heading: "Freshness and cadence",
+      summary: `Freshness is ${data.kpis.freshnessScore.toFixed(1)}% with ~${formatCompact(data.analytics.velocity.updatesPerDay30)} updates/day over the last 30 days.`,
+    },
+    {
+      heading: "Concentration risk",
+      summary: `Top-1 publisher controls ${data.analytics.concentration.top1Share.toFixed(1)}% of records (HHI ${formatCompact(data.analytics.concentration.hhi)}).`,
+    },
+    {
+      heading: "Metadata completeness",
+      summary: `${data.analytics.resourceCoverage.noResourceShare.toFixed(1)}% of sampled datasets have zero resources, signaling usability risk.`,
+    },
+    {
+      heading: "Licensing clarity",
+      summary: `Open-license share is ${data.analytics.licenseSummary.openShare.toFixed(1)}%, while ${data.analytics.licenseSummary.unspecifiedShare.toFixed(1)}% remain unspecified.`,
+    },
+    {
+      heading: "Momentum",
+      summary: `Week-over-week change is ${formatSignedPercent(data.analytics.periodComparison.updatedDeltaPct)} for updates and ${formatSignedPercent(data.analytics.periodComparison.createdDeltaPct)} for new records.`,
+    },
+  ];
 
   return (
     <div className="page-stack">
@@ -2321,6 +2508,8 @@ function CatalogPage({
         <MetricCard title="Updated 7d delta" value={formatSignedPercent(data.analytics.periodComparison.updatedDeltaPct)} hint="Current week vs previous week updates" icon={<RefreshCcw size={18} />} accent="cyan" />
         <MetricCard title="Created 7d delta" value={formatSignedPercent(data.analytics.periodComparison.createdDeltaPct)} hint="Current week vs previous week creations" icon={<CalendarClock size={18} />} accent="emerald" />
       </section>
+
+      <ConciseSummary title="Catalog context: quick interpretation" items={catalogSummary} />
 
       <section className="panel-grid panel-grid--three">
         <ChartPanel title="Top publishers" subtitle="Largest dataset publishers">
