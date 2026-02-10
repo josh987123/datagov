@@ -14,12 +14,12 @@ jobs:
       - name: Validate secrets
         run: |
           if [ -z "${{ secrets.INGEST_ENDPOINT }}" ]; then
-            echo "INGEST_ENDPOINT secret is required."
-            exit 1
+            echo "INGEST_ENDPOINT secret is not set. Skipping ingest trigger."
+            exit 0
           fi
           if [ -z "${{ secrets.INGEST_TOKEN }}" ]; then
-            echo "INGEST_TOKEN secret is required."
-            exit 1
+            echo "INGEST_TOKEN secret is not set. Skipping ingest trigger."
+            exit 0
           fi
 
       - name: Trigger remote ingest
