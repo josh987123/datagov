@@ -32,7 +32,7 @@ const datasetsQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).optional().default(25)
 });
 
-export const app = express();
+export const app: express.Express = express();
 
 app.disable("x-powered-by");
 app.use(helmet());
