@@ -13,11 +13,18 @@ The dashboard is organized into category pages:
 3. **Labor & Prices**  
    Unemployment, labor-force participation, employment-population ratio, CPI/wage trajectories.
 4. **Spending & Debt**  
-   Monthly outlays/receipts/deficit series, debt metrics, trailing-12-month fiscal aggregates.
+   Multi-year outlays/receipts/deficit history, debt change windows (7d/30d/1y), per-capita and YoY fiscal diagnostics.
 5. **Demographics**  
-   Population, age, housing composition, homeownership/vacancy, inequality and education attainment.
+   Population, households, poverty, internet access, housing composition, affordability ratios, inequality, and education attainment.
 6. **Catalog Context** (secondary)  
-   Metadata diagnostics plus searchable/sortable/exportable recent dataset table.
+   Metadata diagnostics, concentration/coverage metrics, freshness/age bucket charts, and searchable/sortable/exportable recent dataset table.
+
+## What's new in this build
+
+- Significantly expanded indicator set across all pages (labor, prices, fiscal, affordability, poverty, digital access, concentration, and quality metrics).
+- Extended historical windows for core trend charts (multi-year BLS and Treasury time series).
+- "What it is" + "Why it matters" explainer cards for each category page.
+- Selective data labels added to charts where readability remains high.
 
 ## Data source
 

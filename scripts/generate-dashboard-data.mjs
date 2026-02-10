@@ -8,6 +8,9 @@ const MONTHLY_TREND_MONTHS = 12;
 const QUERY_CONCURRENCY = 4;
 const RECENT_DATASET_ROWS = 30;
 const RESOURCE_SAMPLE_ROWS = 200;
+const BLS_HISTORY_YEARS = 12;
+const SPENDING_HISTORY_MONTHS = 84;
+const DEBT_HISTORY_DAYS = 420;
 const OUTPUT_FILE = resolve(process.cwd(), "public", "dashboard-data.json");
 const API_KEY =
   process.env.DATA_GOV_API_KEY?.trim() || process.env.VITE_DATA_GOV_API_KEY?.trim() || "";
@@ -120,6 +123,38 @@ function safeLabelFromDate(isoDate) {
     day: "2-digit",
     timeZone: "UTC",
   }).format(date);
+}
+
+function average(values) {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function lastNAverage(points, count) {
+  if (points.length === 0) {
+    return 0;
+  }
+
+  const slice = points.slice(-count);
+  return round(average(slice.map((point) => point.value)), 2);
+}
+
+function computeMovingAverage(points, windowSize) {
+  const result = [];
+
+  for (let index = 0; index < points.length; index += 1) {
+    const start = Math.max(0, index - windowSize + 1);
+    const slice = points.slice(start, index + 1);
+    result.push({
+      label: points[index].label,
+      value: round(average(slice.map((item) => item.value)), 2),
+    });
+  }
+
+  return result;
 }
 
 async function mapWithConcurrency(items, worker, concurrency = QUERY_CONCURRENCY) {
@@ -412,23 +447,29 @@ function computeYearOverYear(points) {
 
 async function fetchBlsIndicators() {
   const currentYear = new Date().getUTCFullYear();
-  const startYear = String(currentYear - 4);
+  const startYear = String(currentYear - BLS_HISTORY_YEARS);
   const endYear = String(currentYear);
 
   const empty = {
     unemploymentRate: 0,
+    unemploymentRate3mAvg: 0,
     laborForceParticipationRate: 0,
     employmentPopulationRatio: 0,
     cpiIndex: 0,
     inflationYoY: 0,
+    inflationYoY3mAvg: 0,
     averageHourlyEarnings: 0,
     hourlyEarningsYoY: 0,
+    hourlyEarningsYoY3mAvg: 0,
+    realWageYoY: 0,
+    realWageYoY3mAvg: 0,
     nonfarmPayrollEmployment: 0,
     unemploymentTrend: [],
     participationTrend: [],
     employmentPopulationTrend: [],
     inflationTrend: [],
     earningsTrend: [],
+    realWageTrend: [],
     payrollTrend: [],
   };
 
@@ -465,6 +506,17 @@ async function fetchBlsIndicators() {
     const inflationYoYSeries = computeYearOverYear(cpi);
     const earningsYoYSeries = computeYearOverYear(earnings);
     const payrollYoYSeries = computeYearOverYear(payroll);
+    const inflationMap = new Map(inflationYoYSeries.map((point) => [point.label, point.value]));
+    const realWageYoYSeries = earningsYoYSeries.map((point) => ({
+      label: point.label,
+      value: round(point.value - (inflationMap.get(point.label) ?? 0), 2),
+    }));
+    const unemploymentTrend = unemployment.map((point) => ({ label: point.label, value: point.value }));
+    const participationTrend = participation.map((point) => ({ label: point.label, value: point.value }));
+    const employmentPopulationTrend = employmentPopulation.map((point) => ({
+      label: point.label,
+      value: point.value,
+    }));
 
     const latestUnemployment = unemployment.at(-1)?.value ?? 0;
     const latestParticipation = participation.at(-1)?.value ?? 0;
@@ -481,17 +533,21 @@ async function fetchBlsIndicators() {
       employmentPopulationRatio: latestEmploymentPopulation,
       cpiIndex: latestCpi,
       inflationYoY: latestInflation,
+      inflationYoY3mAvg: lastNAverage(inflationYoYSeries, 3),
       averageHourlyEarnings: latestEarnings,
       hourlyEarningsYoY: latestEarningsYoY,
+      hourlyEarningsYoY3mAvg: lastNAverage(earningsYoYSeries, 3),
+      realWageYoY: realWageYoYSeries.at(-1)?.value ?? 0,
+      realWageYoY3mAvg: lastNAverage(realWageYoYSeries, 3),
+      unemploymentRate3mAvg: lastNAverage(unemploymentTrend, 3),
       nonfarmPayrollEmployment: latestPayroll,
-      unemploymentTrend: unemployment.slice(-12).map((point) => ({ label: point.label, value: point.value })),
-      participationTrend: participation.slice(-12).map((point) => ({ label: point.label, value: point.value })),
-      employmentPopulationTrend: employmentPopulation
-        .slice(-12)
-        .map((point) => ({ label: point.label, value: point.value })),
-      inflationTrend: inflationYoYSeries.slice(-12),
-      earningsTrend: earningsYoYSeries.slice(-12),
-      payrollTrend: payrollYoYSeries.slice(-12),
+      unemploymentTrend,
+      participationTrend,
+      employmentPopulationTrend,
+      inflationTrend: inflationYoYSeries,
+      earningsTrend: earningsYoYSeries,
+      realWageTrend: realWageYoYSeries,
+      payrollTrend: payrollYoYSeries,
     };
   } catch {
     return empty;
@@ -502,7 +558,7 @@ async function fetchDemographicIndicators() {
   try {
     const payload = await requestJson(ACS_ENDPOINT, {
       queryParams: {
-        get: "B01003_001E,B19013_001E,B19301_001E,B19083_001E,B01002_001E,B23025_003E,B23025_005E,B25077_001E,B25064_001E,B25002_001E,B25002_003E,B25003_002E,B25003_003E,B15003_001E,B15003_022E,B15003_023E,B15003_024E,B15003_025E,NAME",
+        get: "B01003_001E,B11001_001E,B19013_001E,B19301_001E,B19083_001E,B17001_001E,B17001_002E,B01002_001E,B23025_003E,B23025_005E,B25077_001E,B25064_001E,B25002_001E,B25002_003E,B25003_002E,B25003_003E,B28002_001E,B28002_013E,B15003_001E,B15003_022E,B15003_023E,B15003_024E,B15003_025E,NAME",
         for: "us:1",
       },
     });
@@ -516,12 +572,19 @@ async function fetchDemographicIndicators() {
       parseNumber(mapped.B15003_023E) +
       parseNumber(mapped.B15003_024E) +
       parseNumber(mapped.B15003_025E);
+    const povertyUniverse = parseNumber(mapped.B17001_001E);
+    const belowPoverty = parseNumber(mapped.B17001_002E);
+    const internetTotal = parseNumber(mapped.B28002_001E);
+    const noInternet = parseNumber(mapped.B28002_013E);
 
     return {
       population: parseNumber(mapped.B01003_001E),
+      households: parseNumber(mapped.B11001_001E),
       medianIncome: parseNumber(mapped.B19013_001E),
       perCapitaIncome: parseNumber(mapped.B19301_001E),
       giniIndex: parseNumber(mapped.B19083_001E),
+      povertyRate: toPercent(belowPoverty, povertyUniverse),
+      internetAccessRate: toPercent(internetTotal - noInternet, internetTotal),
       medianAge: parseNumber(mapped.B01002_001E),
       laborForce: parseNumber(mapped.B23025_003E),
       unemploymentPersons: parseNumber(mapped.B23025_005E),
@@ -536,9 +599,12 @@ async function fetchDemographicIndicators() {
   } catch {
     return {
       population: 0,
+      households: 0,
       medianIncome: 0,
       perCapitaIncome: 0,
       giniIndex: 0,
+      povertyRate: 0,
+      internetAccessRate: 0,
       medianAge: 0,
       laborForce: 0,
       unemploymentPersons: 0,
@@ -585,7 +651,7 @@ async function fetchTreasurySpendingSeries() {
         deficit: parseNumber(row.current_month_dfct_sur_amt),
       }));
 
-    return monthlySeries.slice(-18);
+    return monthlySeries.slice(-SPENDING_HISTORY_MONTHS);
   } catch {
     return [];
   }
@@ -597,20 +663,28 @@ async function fetchDebtSeries() {
       queryParams: {
         fields: "record_date,tot_pub_debt_out_amt",
         sort: "-record_date",
-        "page[size]": 120,
+        "page[size]": 900,
       },
     });
 
     const rows = payload?.data ?? [];
     const latest = rows[0];
-    const baseline = rows[Math.min(30, Math.max(rows.length - 1, 0))];
+    const baseline7 = rows[Math.min(7, Math.max(rows.length - 1, 0))];
+    const baseline30 = rows[Math.min(30, Math.max(rows.length - 1, 0))];
+    const baseline365 = rows[Math.min(365, Math.max(rows.length - 1, 0))];
+    const latestValue = parseNumber(latest?.tot_pub_debt_out_amt);
+    const value7 = parseNumber(baseline7?.tot_pub_debt_out_amt);
+    const value30 = parseNumber(baseline30?.tot_pub_debt_out_amt);
+    const value365 = parseNumber(baseline365?.tot_pub_debt_out_amt);
 
     return {
-      totalDebt: parseNumber(latest?.tot_pub_debt_out_amt),
-      debtChange30Days:
-        parseNumber(latest?.tot_pub_debt_out_amt) - parseNumber(baseline?.tot_pub_debt_out_amt),
+      totalDebt: latestValue,
+      debtChange7Days: latestValue - value7,
+      debtChange30Days: latestValue - value30,
+      debtChange365Days: latestValue - value365,
+      debtYoYGrowthPct: value365 === 0 ? 0 : round(((latestValue / value365) - 1) * 100, 2),
       trend: rows
-        .slice(0, 45)
+        .slice(0, DEBT_HISTORY_DAYS)
         .reverse()
         .map((row) => ({
           label: safeLabelFromDate(row.record_date),
@@ -620,7 +694,10 @@ async function fetchDebtSeries() {
   } catch {
     return {
       totalDebt: 0,
+      debtChange7Days: 0,
       debtChange30Days: 0,
+      debtChange365Days: 0,
+      debtYoYGrowthPct: 0,
       trend: [],
     };
   }
@@ -879,10 +956,26 @@ async function generateDashboardData() {
     receipts: 0,
     deficit: 0,
   };
+  const priorYearSpending = spendingSeries.slice(-24, -12);
   const trailing12Spending = spendingSeries.slice(-12);
   const trailing12Outlays = trailing12Spending.reduce((sum, item) => sum + item.outlays, 0);
   const trailing12Receipts = trailing12Spending.reduce((sum, item) => sum + item.receipts, 0);
   const trailing12Deficit = trailing12Spending.reduce((sum, item) => sum + item.deficit, 0);
+  const prior12Outlays = priorYearSpending.reduce((sum, item) => sum + item.outlays, 0);
+  const prior12Receipts = priorYearSpending.reduce((sum, item) => sum + item.receipts, 0);
+  const prior12Deficit = priorYearSpending.reduce((sum, item) => sum + item.deficit, 0);
+  const outlaysYoY = percentChange(trailing12Outlays, prior12Outlays);
+  const receiptsYoY = percentChange(trailing12Receipts, prior12Receipts);
+  const deficitYoY = percentChange(trailing12Deficit, prior12Deficit);
+  const surplusMonthsLast12 = trailing12Spending.filter((item) => item.deficit < 0).length;
+  const largestDeficitMonthRow = trailing12Spending.reduce(
+    (best, item) => (item.deficit > best.deficit ? item : best),
+    { label: "N/A", deficit: 0 },
+  );
+  const largestSurplusMonthRow = trailing12Spending.reduce(
+    (best, item) => (item.deficit < best.deficit ? item : best),
+    { label: "N/A", deficit: 0 },
+  );
 
   const unemploymentRate =
     blsIndicators.unemploymentRate > 0
@@ -890,8 +983,24 @@ async function generateDashboardData() {
       : demographicIndicators.laborForce > 0
         ? round((demographicIndicators.unemploymentPersons / demographicIndicators.laborForce) * 100, 2)
         : 0;
+  const outlaysPerCapita =
+    demographicIndicators.population > 0 ? latestSpending.outlays / demographicIndicators.population : 0;
+  const receiptsPerCapita =
+    demographicIndicators.population > 0 ? latestSpending.receipts / demographicIndicators.population : 0;
+  const deficitPerCapita =
+    demographicIndicators.population > 0 ? latestSpending.deficit / demographicIndicators.population : 0;
   const debtPerCapita =
     demographicIndicators.population > 0 ? debtSeries.totalDebt / demographicIndicators.population : 0;
+  const debtToIncomeRatio =
+    demographicIndicators.perCapitaIncome > 0 ? debtPerCapita / demographicIndicators.perCapitaIncome : 0;
+  const homeValueToIncomeRatio =
+    demographicIndicators.medianIncome > 0
+      ? demographicIndicators.medianHomeValue / demographicIndicators.medianIncome
+      : 0;
+  const annualRentToIncomeRatio =
+    demographicIndicators.medianIncome > 0
+      ? (demographicIndicators.medianRent * 12) / demographicIndicators.medianIncome
+      : 0;
   const vacancyRate = toPercent(
     demographicIndicators.vacantHousingUnits,
     demographicIndicators.housingUnits,
@@ -910,36 +1019,64 @@ async function generateDashboardData() {
     latestSpending.deficit,
     latestSpending.outlays,
   );
+  const realWageTrend = blsIndicators.realWageTrend ?? [];
+  const deficitShareOfOutlaysTrend = spendingSeries.map((item) => ({
+    label: item.label,
+    value: item.outlays === 0 ? 0 : round((item.deficit / item.outlays) * 100, 2),
+  }));
 
   const economySnapshot = {
     population: demographicIndicators.population,
+    households: demographicIndicators.households,
     medianIncome: demographicIndicators.medianIncome,
     perCapitaIncome: demographicIndicators.perCapitaIncome,
     medianHomeValue: demographicIndicators.medianHomeValue,
     medianRent: demographicIndicators.medianRent,
     medianAge: demographicIndicators.medianAge,
     giniIndex: demographicIndicators.giniIndex,
+    povertyRate: demographicIndicators.povertyRate,
+    internetAccessRate: demographicIndicators.internetAccessRate,
     laborForce: demographicIndicators.laborForce,
     unemploymentPersons: demographicIndicators.unemploymentPersons,
     unemploymentRate,
+    unemploymentRate3mAvg: blsIndicators.unemploymentRate3mAvg,
     laborForceParticipationRate: blsIndicators.laborForceParticipationRate,
     employmentPopulationRatio: blsIndicators.employmentPopulationRatio,
     nonfarmPayrollEmployment: blsIndicators.nonfarmPayrollEmployment,
     cpiIndex: blsIndicators.cpiIndex,
     inflationYoY: blsIndicators.inflationYoY,
+    inflationYoY3mAvg: blsIndicators.inflationYoY3mAvg,
     averageHourlyEarnings: blsIndicators.averageHourlyEarnings,
     hourlyEarningsYoY: blsIndicators.hourlyEarningsYoY,
+    hourlyEarningsYoY3mAvg: blsIndicators.hourlyEarningsYoY3mAvg,
+    realWageYoY: blsIndicators.realWageYoY,
+    realWageYoY3mAvg: blsIndicators.realWageYoY3mAvg,
     totalPublicDebt: debtSeries.totalDebt,
+    debtChange7Days: debtSeries.debtChange7Days,
     debtChange30Days: debtSeries.debtChange30Days,
+    debtChange365Days: debtSeries.debtChange365Days,
+    debtYoYGrowthPct: debtSeries.debtYoYGrowthPct,
     debtPerCapita,
+    debtToIncomeRatio,
     latestOutlays: latestSpending.outlays,
     latestReceipts: latestSpending.receipts,
     latestDeficit: latestSpending.deficit,
     receiptsToOutlaysRatio,
     deficitToOutlaysRatio,
+    outlaysPerCapita,
+    receiptsPerCapita,
+    deficitPerCapita,
     trailing12Outlays,
     trailing12Receipts,
     trailing12Deficit,
+    outlaysYoY,
+    receiptsYoY,
+    deficitYoY,
+    surplusMonthsLast12,
+    largestDeficitMonth: largestDeficitMonthRow.label,
+    largestDeficitAmount: largestDeficitMonthRow.deficit,
+    largestSurplusMonth: largestSurplusMonthRow.label,
+    largestSurplusAmount: largestSurplusMonthRow.deficit,
     housingUnits: demographicIndicators.housingUnits,
     vacantHousingUnits: demographicIndicators.vacantHousingUnits,
     ownerOccupiedHousingUnits: demographicIndicators.ownerOccupiedHousingUnits,
@@ -947,13 +1084,15 @@ async function generateDashboardData() {
     vacancyRate,
     homeownershipRate,
     bachelorsOrHigherShare: demographicIndicators.bachelorsOrHigherShare,
+    homeValueToIncomeRatio,
+    annualRentToIncomeRatio,
     grossPrivateDomesticInvestment: beaIndicators.grossPrivateDomesticInvestment,
     personalSavingRate: beaIndicators.personalSavingRate,
     beaDataAvailable: beaIndicators.beaDataAvailable,
   };
 
   const economyTrends = {
-    monthlySpending: spendingSeries.slice(-12).map((point) => ({
+    monthlySpending: spendingSeries.map((point) => ({
       label: point.label,
       outlays: point.outlays,
       receipts: point.receipts,
@@ -965,6 +1104,8 @@ async function generateDashboardData() {
     employmentPopulationRatio: blsIndicators.employmentPopulationTrend,
     inflationYoY: blsIndicators.inflationTrend,
     hourlyEarningsYoY: blsIndicators.earningsTrend,
+    realWageYoY: realWageTrend,
+    deficitShareOfOutlays: deficitShareOfOutlaysTrend,
     nonfarmPayroll: blsIndicators.payrollTrend,
   };
 
@@ -1093,7 +1234,7 @@ async function generateDashboardData() {
     source: {
       siteTitle: statusData?.site_title ?? "Catalog",
       ckanVersion: statusData?.ckan_version ?? "unknown",
-      apiBase: `${CKAN_BASE_URL} + BLS + Census + Treasury`,
+      apiBase: `${CKAN_BASE_URL} + BLS + Census + Treasury + ${BEA_API_KEY ? "BEA" : "BEA (key not set)"}`,
       snapshotStrategy: "build-time static snapshot from federal data APIs",
     },
     generatedAt: new Date().toISOString(),

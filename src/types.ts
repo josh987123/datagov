@@ -161,33 +161,56 @@ export interface SourceMetadata {
 
 export interface EconomySnapshot {
   population: number;
+  households: number;
   medianIncome: number;
   perCapitaIncome: number;
   medianHomeValue: number;
   medianRent: number;
   medianAge: number;
   giniIndex: number;
+  povertyRate: number;
+  internetAccessRate: number;
   laborForce: number;
   unemploymentPersons: number;
   unemploymentRate: number;
+  unemploymentRate3mAvg: number;
   laborForceParticipationRate: number;
   employmentPopulationRatio: number;
   nonfarmPayrollEmployment: number;
   cpiIndex: number;
   inflationYoY: number;
+  inflationYoY3mAvg: number;
   averageHourlyEarnings: number;
   hourlyEarningsYoY: number;
+  hourlyEarningsYoY3mAvg: number;
+  realWageYoY: number;
+  realWageYoY3mAvg: number;
   totalPublicDebt: number;
+  debtChange7Days: number;
   debtChange30Days: number;
+  debtChange365Days: number;
+  debtYoYGrowthPct: number;
   debtPerCapita: number;
+  debtToIncomeRatio: number;
   latestOutlays: number;
   latestReceipts: number;
   latestDeficit: number;
   receiptsToOutlaysRatio: number;
   deficitToOutlaysRatio: number;
+  outlaysPerCapita: number;
+  receiptsPerCapita: number;
+  deficitPerCapita: number;
   trailing12Outlays: number;
   trailing12Receipts: number;
   trailing12Deficit: number;
+  outlaysYoY: number;
+  receiptsYoY: number;
+  deficitYoY: number;
+  surplusMonthsLast12: number;
+  largestDeficitMonth: string;
+  largestDeficitAmount: number;
+  largestSurplusMonth: string;
+  largestSurplusAmount: number;
   housingUnits: number;
   vacantHousingUnits: number;
   ownerOccupiedHousingUnits: number;
@@ -195,6 +218,8 @@ export interface EconomySnapshot {
   vacancyRate: number;
   homeownershipRate: number;
   bachelorsOrHigherShare: number;
+  homeValueToIncomeRatio: number;
+  annualRentToIncomeRatio: number;
   grossPrivateDomesticInvestment: number | null;
   personalSavingRate: number | null;
   beaDataAvailable: boolean;
@@ -208,6 +233,8 @@ export interface EconomyTrends {
   employmentPopulationRatio: ValueTrendPoint[];
   inflationYoY: ValueTrendPoint[];
   hourlyEarningsYoY: ValueTrendPoint[];
+  realWageYoY: ValueTrendPoint[];
+  deficitShareOfOutlays: ValueTrendPoint[];
   nonfarmPayroll: ValueTrendPoint[];
 }
 
