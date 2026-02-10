@@ -4,13 +4,13 @@ import { dirname, resolve } from "node:path";
 const CKAN_BASE_URL = "https://catalog.data.gov/api/3/action";
 const WINDOW_DAYS = [7, 30, 90, 180, 365, 1825];
 const DAILY_TREND_DAYS = 14;
-const MONTHLY_TREND_MONTHS = 12;
+const MONTHLY_TREND_MONTHS = 60;
 const QUERY_CONCURRENCY = 4;
 const RECENT_DATASET_ROWS = 30;
 const RESOURCE_SAMPLE_ROWS = 200;
 const BLS_HISTORY_YEARS = 12;
 const SPENDING_HISTORY_MONTHS = 84;
-const DEBT_HISTORY_DAYS = 420;
+const DEBT_HISTORY_DAYS = 1825;
 const OUTPUT_FILE = resolve(process.cwd(), "public", "dashboard-data.json");
 const API_KEY =
   process.env.DATA_GOV_API_KEY?.trim() || process.env.VITE_DATA_GOV_API_KEY?.trim() || "";
@@ -1062,15 +1062,36 @@ async function fetchTreasurySpendingSeries() {
 
 async function fetchDebtSeries() {
   try {
-    const payload = await requestJson(TREASURY_DEBT_ENDPOINT, {
-      queryParams: {
-        fields: "record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt",
-        sort: "-record_date",
-        "page[size]": 900,
-      },
-    });
+    const rows = [];
+    const pageSize = 500;
+    let pageNumber = 1;
 
-    const rows = payload?.data ?? [];
+    while (rows.length < Math.max(DEBT_HISTORY_DAYS, 400)) {
+      const payload = await requestJson(TREASURY_DEBT_ENDPOINT, {
+        queryParams: {
+          fields: "record_date,tot_pub_debt_out_amt,debt_held_public_amt,intragov_hold_amt",
+          sort: "-record_date",
+          "page[size]": pageSize,
+          "page[number]": pageNumber,
+        },
+      });
+
+      const pageRows = payload?.data ?? [];
+      if (pageRows.length === 0) {
+        break;
+      }
+
+      rows.push(...pageRows);
+      if (pageRows.length < pageSize) {
+        break;
+      }
+
+      pageNumber += 1;
+      if (pageNumber > 8) {
+        break;
+      }
+    }
+
     const latest = rows[0];
     const baseline7 = rows[Math.min(7, Math.max(rows.length - 1, 0))];
     const baseline30 = rows[Math.min(30, Math.max(rows.length - 1, 0))];

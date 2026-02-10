@@ -46,7 +46,13 @@ import { HashRouter, Navigate, NavLink, Route, Routes } from "react-router-dom";
 import { ChartPanel } from "./components/ChartPanel";
 import { ErrorState } from "./components/ErrorState";
 import { LoadingState } from "./components/LoadingState";
-import { MetricCard } from "./components/MetricCard";
+import {
+  MetricCard,
+  MetricTrendProvider,
+  type MetricTrendMap,
+  type MetricTrendPoint,
+  type MetricTrendSeries,
+} from "./components/MetricCard";
 import { RecentDatasetsTable } from "./components/RecentDatasetsTable";
 import { formatCompact, formatDateTime, formatNumber, formatPercent, truncate } from "./lib/format";
 import type { DashboardData } from "./types";
@@ -252,6 +258,240 @@ function buildChartVm(data: DashboardData): ChartVm {
       { name: "Vacant units", value: data.economy.snapshot.vacantHousingUnits },
     ].filter((item) => item.value > 0),
   };
+}
+
+function createMetricTrendSeries(
+  points: Array<{ label: string; value: number }>,
+  oneYearCount: number,
+  fiveYearCount: number,
+): MetricTrendSeries {
+  const normalized: MetricTrendPoint[] = points
+    .filter((point) => Number.isFinite(point.value))
+    .map((point) => ({
+      label: point.label,
+      value: point.value,
+    }));
+
+  if (normalized.length === 0) {
+    return {
+      oneYear: [],
+      fiveYear: [],
+    };
+  }
+
+  return {
+    oneYear: normalized.slice(-Math.min(oneYearCount, normalized.length)),
+    fiveYear: normalized.slice(-Math.min(fiveYearCount, normalized.length)),
+  };
+}
+
+function buildMetricTrendMap(data: DashboardData): MetricTrendMap {
+  const trends = data.economy.trends;
+  const spending = trends.monthlySpending ?? [];
+  const outlaysPoints = spending.map((point) => ({ label: point.label, value: point.outlays }));
+  const receiptsPoints = spending.map((point) => ({ label: point.label, value: point.receipts }));
+  const deficitPoints = spending.map((point) => ({ label: point.label, value: point.deficit }));
+  const deficitSharePoints =
+    trends.deficitShareOfOutlays ?? spending.map((point) => ({
+      label: point.label,
+      value: point.outlays === 0 ? 0 : (point.deficit / point.outlays) * 100,
+    }));
+  const receiptsToOutlaysPoints = spending.map((point) => ({
+    label: point.label,
+    value: point.outlays === 0 ? 0 : (point.receipts / point.outlays) * 100,
+  }));
+  const outlaysPerCapitaPoints = spending.map((point) => ({
+    label: point.label,
+    value: data.economy.snapshot.population === 0 ? 0 : point.outlays / data.economy.snapshot.population,
+  }));
+  const receiptsPerCapitaPoints = spending.map((point) => ({
+    label: point.label,
+    value: data.economy.snapshot.population === 0 ? 0 : point.receipts / data.economy.snapshot.population,
+  }));
+  const deficitPerCapitaPoints = spending.map((point) => ({
+    label: point.label,
+    value: data.economy.snapshot.population === 0 ? 0 : point.deficit / data.economy.snapshot.population,
+  }));
+  const debtPoints = trends.debtDaily ?? [];
+  const debtChangePoints = trends.debtDailyChange ?? [];
+  const unemploymentPoints = trends.unemploymentRate ?? [];
+  const underemploymentPoints = trends.underemploymentRate ?? [];
+  const participationPoints = trends.laborForceParticipationRate ?? [];
+  const employmentPopulationPoints = trends.employmentPopulationRatio ?? [];
+  const inflationPoints = trends.inflationYoY ?? [];
+  const coreInflationPoints = trends.coreInflationYoY ?? [];
+  const cpiMoMPoints = trends.cpiMoM ?? [];
+  const earningsYoYPoints = trends.hourlyEarningsYoY ?? [];
+  const earningsMoMPoints = trends.hourlyEarningsMoM ?? [];
+  const weeklyEarningsYoYPoints = trends.weeklyEarningsYoY ?? [];
+  const realWagePoints = trends.realWageYoY ?? [];
+  const payrollYoYPoints = trends.nonfarmPayroll ?? [];
+  const payrollMoMPoints = trends.payrollMoMChange ?? [];
+  const catalogModifiedPoints = (data.analytics.monthlyTrend ?? []).map((point) => ({
+    label: point.label,
+    value: point.modified,
+  }));
+  const catalogCreatedPoints = (data.analytics.monthlyTrend ?? []).map((point) => ({
+    label: point.label,
+    value: point.created,
+  }));
+
+  const monthlySeries = (points: Array<{ label: string; value: number }>) =>
+    createMetricTrendSeries(points, 12, 60);
+  const dailySeries = (points: Array<{ label: string; value: number }>) =>
+    createMetricTrendSeries(points, 365, 1825);
+
+  const map: MetricTrendMap = {};
+  const assign = (titles: string[], series: MetricTrendSeries) => {
+    titles.forEach((title) => {
+      map[title] = series;
+    });
+  };
+
+  const unemploymentSeries = monthlySeries(unemploymentPoints);
+  const underemploymentSeries = monthlySeries(underemploymentPoints);
+  const participationSeries = monthlySeries(participationPoints);
+  const employmentPopulationSeries = monthlySeries(employmentPopulationPoints);
+  const inflationSeries = monthlySeries(inflationPoints);
+  const coreInflationSeries = monthlySeries(coreInflationPoints);
+  const cpiMoMSeries = monthlySeries(cpiMoMPoints);
+  const earningsYoYSeries = monthlySeries(earningsYoYPoints);
+  const earningsMoMSeries = monthlySeries(earningsMoMPoints);
+  const weeklyEarningsYoYSeries = monthlySeries(weeklyEarningsYoYPoints);
+  const realWageSeries = monthlySeries(realWagePoints);
+  const payrollYoYSeries = monthlySeries(payrollYoYPoints);
+  const payrollMoMSeries = monthlySeries(payrollMoMPoints);
+  const outlaysSeries = monthlySeries(outlaysPoints);
+  const receiptsSeries = monthlySeries(receiptsPoints);
+  const deficitSeries = monthlySeries(deficitPoints);
+  const deficitShareSeries = monthlySeries(deficitSharePoints);
+  const receiptsToOutlaysSeries = monthlySeries(receiptsToOutlaysPoints);
+  const outlaysPerCapitaSeries = monthlySeries(outlaysPerCapitaPoints);
+  const receiptsPerCapitaSeries = monthlySeries(receiptsPerCapitaPoints);
+  const deficitPerCapitaSeries = monthlySeries(deficitPerCapitaPoints);
+  const debtLevelSeries = dailySeries(debtPoints);
+  const debtDeltaSeries = dailySeries(debtChangePoints);
+  const catalogModifiedSeries = monthlySeries(catalogModifiedPoints);
+  const catalogCreatedSeries = monthlySeries(catalogCreatedPoints);
+
+  assign(
+    [
+      "Unemployment rate",
+      "Unemployment 3m avg",
+      "Unemployment MoM delta",
+      "Unemployment YoY delta",
+      "Sahm rule value",
+      "Labor force",
+      "Unemployed persons",
+    ],
+    unemploymentSeries,
+  );
+  assign(["Underemployment (U6)", "U6-U3 gap", "U6 - U3 gap", "Long-term unemployment share"], underemploymentSeries);
+  assign(["Labor-force participation", "Participation MoM delta"], participationSeries);
+  assign(["Employment-pop ratio", "Employment-pop MoM delta"], employmentPopulationSeries);
+  assign(["Inflation (YoY)", "Inflation 3m avg", "Inflation gap to 2%"], inflationSeries);
+  assign(["Core inflation (YoY)", "Core inflation YoY"], coreInflationSeries);
+  assign(["Core inflation (MoM)", "Core inflation MoM"], cpiMoMSeries);
+  assign(["CPI index", "Core CPI index", "CPI MoM"], cpiMoMSeries);
+  assign(["Inflation-core spread"], coreInflationSeries);
+  assign(["Wage growth (YoY)", "Wage growth 3m avg"], earningsYoYSeries);
+  assign(["Average hourly earnings", "Hourly earnings MoM"], earningsMoMSeries);
+  assign(["Weekly earnings", "Weekly earnings YoY", "Real weekly earnings YoY"], weeklyEarningsYoYSeries);
+  assign(["Average weekly hours", "Weekly hours YoY"], weeklyEarningsYoYSeries);
+  assign(["Real wage growth", "Real wage growth (YoY)", "Real wage 3m avg"], realWageSeries);
+  assign(["Payroll growth YoY", "Payroll YoY change", "Nonfarm payroll"], payrollYoYSeries);
+  assign(["Payroll MoM change", "Payroll 3m avg change"], payrollMoMSeries);
+
+  assign(["Federal outlays", "Latest outlays", "Trailing 12m outlays", "Outlays YoY", "Outlays 3m avg", "Avg monthly outlays (12m)"], outlaysSeries);
+  assign(["Latest receipts", "Trailing 12m receipts", "Receipts YoY", "Receipts 3m avg", "Avg monthly receipts (12m)"], receiptsSeries);
+  assign(
+    [
+      "Federal deficit/surplus",
+      "Latest deficit/surplus",
+      "Trailing 12m deficit",
+      "Deficit YoY",
+      "Avg monthly deficit (12m)",
+      "Deficit streak months",
+      "Deficit streak",
+      "Surplus months (12m)",
+      "Fiscal impulse (YoY)",
+    ],
+    deficitSeries,
+  );
+  assign(["Deficit share of outlays", "Deficit share 3m avg"], deficitShareSeries);
+  assign(["Receipts/outlays ratio"], receiptsToOutlaysSeries);
+  assign(["Outlays per capita"], outlaysPerCapitaSeries);
+  assign(["Receipts per capita"], receiptsPerCapitaSeries);
+  assign(["Deficit per capita"], deficitPerCapitaSeries);
+
+  assign(
+    [
+      "Total public debt",
+      "Debt per capita",
+      "Debt held by public",
+      "Intragov holdings",
+      "Debt held by public share",
+      "Debt intragov share",
+      "Debt-to-income ratio",
+      "Debt YoY growth",
+      "Debt growth (1y)",
+      "Debt daily volatility (30d)",
+      "Debt volatility (30d)",
+      "Avg daily debt change (30d)",
+    ],
+    debtLevelSeries,
+  );
+  assign(
+    [
+      "Debt change (7d)",
+      "Debt change (30d)",
+      "Debt change (1y)",
+      "Debt change (7d %)",
+      "Debt change (30d %)",
+      "Debt change (1y %)",
+      "Max daily debt increase (30d)",
+      "Max daily debt decrease (30d)",
+    ],
+    debtDeltaSeries,
+  );
+
+  assign(
+    [
+      "Catalog datasets",
+      "Active publishers",
+      "Catalog groups",
+      "Freshness score",
+      "Updated last 7d",
+      "Updated last 30d",
+      "Updated last 365d",
+      "Updates/day (30d)",
+      "Update/create ratio",
+      "Weekly momentum",
+      "Top-5 publisher share",
+      "Top-1 publisher share",
+      "Top-10 publisher share",
+      "Publisher concentration (HHI)",
+      "Top-3 group share",
+      "Avg resources/dataset",
+      "Median resources/dataset",
+      "Max resources/dataset",
+      "Resource sample size",
+      "Total sampled resources",
+      "No-resource share",
+      "No-resource datasets",
+      "Open-license share",
+      "Unspecified license share",
+      "Open license count",
+      "Restricted license count",
+      "Format diversity score",
+      "Top-3 format share",
+      "Updated 7d delta",
+    ],
+    catalogModifiedSeries,
+  );
+  assign(["Created last 7d", "Create/day (30d)", "Created 7d delta"], catalogCreatedSeries);
+
+  return map;
 }
 
 function CategoryNavigation() {
@@ -1958,6 +2198,7 @@ export default function App() {
   const source = data.source;
   const economy = data.economy.snapshot;
   const charts = buildChartVm(data);
+  const metricTrends = buildMetricTrendMap(data);
 
   const exportSnapshot = () => {
     triggerDownload(
@@ -1969,64 +2210,66 @@ export default function App() {
 
   return (
     <HashRouter>
-      <main className="dashboard-shell">
-        <div className="decor decor--top" />
-        <div className="decor decor--bottom" />
-        <div className="dashboard">
-          <header className="hero">
-            <div>
-              <p className="eyebrow">Federal economic and demographic intelligence</p>
-              <h1>U.S. Economy, Spending, and Demographics Dashboard</h1>
-              <p className="hero__subtitle">
-                Multi-page analytical workspace focused on actual federal indicators across economy,
-                labor, prices, spending, debt, demographics, and optional catalog context.
-              </p>
-              <p className="hero__timestamp">{refreshHint}</p>
-              <div className="hero__insights">
-                <span className="insight-pill">
-                  Inflation YoY: {formatSignedPercent(economy.inflationYoY)}
-                </span>
-                <span className="insight-pill">
-                  Unemployment: {economy.unemploymentRate.toFixed(1)}%
-                </span>
-                <span className="insight-pill">
-                  Debt 30d change: {formatCurrencyCompact(economy.debtChange30Days)}
-                </span>
-              </div>
-            </div>
-            <div className="hero__controls">
-              <div className="api-form">
-                <label>Snapshot details</label>
-                <p className="hero__mode-note">{source.snapshotStrategy}</p>
-                <p className="hero__mode-note">
-                  Source: {source.siteTitle} (CKAN {source.ckanVersion})
+      <MetricTrendProvider trends={metricTrends}>
+        <main className="dashboard-shell">
+          <div className="decor decor--top" />
+          <div className="decor decor--bottom" />
+          <div className="dashboard">
+            <header className="hero">
+              <div>
+                <p className="eyebrow">Federal economic and demographic intelligence</p>
+                <h1>U.S. Economy, Spending, and Demographics Dashboard</h1>
+                <p className="hero__subtitle">
+                  Multi-page analytical workspace focused on actual federal indicators across economy,
+                  labor, prices, spending, debt, demographics, and optional catalog context.
                 </p>
-                <p className="hero__mode-note">APIs: {truncate(source.apiBase, 60)}</p>
+                <p className="hero__timestamp">{refreshHint}</p>
+                <div className="hero__insights">
+                  <span className="insight-pill">
+                    Inflation YoY: {formatSignedPercent(economy.inflationYoY)}
+                  </span>
+                  <span className="insight-pill">
+                    Unemployment: {economy.unemploymentRate.toFixed(1)}%
+                  </span>
+                  <span className="insight-pill">
+                    Debt 30d change: {formatCurrencyCompact(economy.debtChange30Days)}
+                  </span>
+                </div>
               </div>
-              <button type="button" className="secondary-button" onClick={() => void refetch()}>
-                <RefreshCcw size={16} />
-                Refresh
-              </button>
-              <button type="button" className="secondary-button" onClick={exportSnapshot}>
-                <Download size={16} />
-                Snapshot JSON
-              </button>
-            </div>
-          </header>
+              <div className="hero__controls">
+                <div className="api-form">
+                  <label>Snapshot details</label>
+                  <p className="hero__mode-note">{source.snapshotStrategy}</p>
+                  <p className="hero__mode-note">
+                    Source: {source.siteTitle} (CKAN {source.ckanVersion})
+                  </p>
+                  <p className="hero__mode-note">APIs: {truncate(source.apiBase, 60)}</p>
+                </div>
+                <button type="button" className="secondary-button" onClick={() => void refetch()}>
+                  <RefreshCcw size={16} />
+                  Refresh
+                </button>
+                <button type="button" className="secondary-button" onClick={exportSnapshot}>
+                  <Download size={16} />
+                  Snapshot JSON
+                </button>
+              </div>
+            </header>
 
-          <CategoryNavigation />
+            <CategoryNavigation />
 
-          <Routes>
-            <Route path="/" element={<OverviewPage data={data} charts={charts} />} />
-            <Route path="/economy" element={<EconomyPage data={data} charts={charts} />} />
-            <Route path="/labor-prices" element={<LaborPricesPage data={data} charts={charts} />} />
-            <Route path="/fiscal" element={<FiscalPage data={data} charts={charts} />} />
-            <Route path="/demographics" element={<DemographicsPage data={data} charts={charts} />} />
-            <Route path="/catalog" element={<CatalogPage data={data} charts={charts} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </main>
+            <Routes>
+              <Route path="/" element={<OverviewPage data={data} charts={charts} />} />
+              <Route path="/economy" element={<EconomyPage data={data} charts={charts} />} />
+              <Route path="/labor-prices" element={<LaborPricesPage data={data} charts={charts} />} />
+              <Route path="/fiscal" element={<FiscalPage data={data} charts={charts} />} />
+              <Route path="/demographics" element={<DemographicsPage data={data} charts={charts} />} />
+              <Route path="/catalog" element={<CatalogPage data={data} charts={charts} />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </main>
+      </MetricTrendProvider>
     </HashRouter>
   );
 }
