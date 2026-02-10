@@ -279,9 +279,15 @@ function createMetricTrendSeries(
     };
   }
 
+  const fiveYearAvailableCount = Math.round(fiveYearCount * 0.8);
+  const fiveYear =
+    normalized.length >= fiveYearAvailableCount
+      ? normalized.slice(-Math.min(fiveYearCount, normalized.length))
+      : [];
+
   return {
     oneYear: normalized.slice(-Math.min(oneYearCount, normalized.length)),
-    fiveYear: normalized.slice(-Math.min(fiveYearCount, normalized.length)),
+    fiveYear,
   };
 }
 
@@ -339,7 +345,7 @@ function buildMetricTrendMap(data: DashboardData): MetricTrendMap {
   const monthlySeries = (points: Array<{ label: string; value: number }>) =>
     createMetricTrendSeries(points, 12, 60);
   const dailySeries = (points: Array<{ label: string; value: number }>) =>
-    createMetricTrendSeries(points, 365, 1825);
+    createMetricTrendSeries(points, 252, 1260);
 
   const map: MetricTrendMap = {};
   const assign = (titles: string[], series: MetricTrendSeries) => {

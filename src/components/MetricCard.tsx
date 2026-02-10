@@ -3,6 +3,7 @@ import {
   useContext,
   type ReactNode,
 } from "react";
+import { formatCompact } from "../lib/format";
 
 export interface MetricTrendPoint {
   label: string;
@@ -42,6 +43,39 @@ function hasVisibleVariation(points: MetricTrendPoint[]): boolean {
 
   const scale = Math.max(Math.abs(max), Math.abs(min), 1);
   return range / scale >= 0.001;
+}
+
+function formatCurrencyCompact(value: number): string {
+  const sign = value < 0 ? "-" : value > 0 ? "+" : "";
+  return `${sign}$${formatCompact(Math.abs(value))}`;
+}
+
+function formatTrendDelta(value: number, displayValue: string): string {
+  if (!Number.isFinite(value)) {
+    return "N/A";
+  }
+
+  if (displayValue.includes("$")) {
+    return formatCurrencyCompact(value);
+  }
+
+  if (displayValue.includes("%")) {
+    const sign = value > 0 ? "+" : "";
+    return `${sign}${value.toFixed(2)}pp`;
+  }
+
+  if (displayValue.includes("x")) {
+    const sign = value > 0 ? "+" : "";
+    return `${sign}${value.toFixed(2)}x`;
+  }
+
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+  const absolute = Math.abs(value);
+  if (absolute >= 1000) {
+    return `${sign}${formatCompact(absolute)}`;
+  }
+
+  return `${sign}${absolute.toFixed(2)}`;
 }
 
 function sparklineGeometry(points: MetricTrendPoint[]) {
@@ -130,8 +164,7 @@ export function MetricCard({
           <p className="metric-card__sparkline-caption">
             Past 5 years:{" "}
             <span className={trendDelta >= 0 ? "metric-card__sparkline-delta metric-card__sparkline-delta--up" : "metric-card__sparkline-delta metric-card__sparkline-delta--down"}>
-              {trendDelta >= 0 ? "+" : ""}
-              {trendDelta.toFixed(2)}
+              {formatTrendDelta(trendDelta, value)}
             </span>
           </p>
         </div>
