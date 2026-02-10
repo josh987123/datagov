@@ -534,7 +534,11 @@ function EconomyPage({
               <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(1)}%`} tickLine={false} axisLine={false} />
               <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
               <Bar dataKey="value" fill="#14b8a6" radius={[8, 8, 0, 0]}>
-                <LabelList dataKey="value" position="top" formatter={(value: number) => `${value.toFixed(1)}%`} />
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -900,7 +904,11 @@ function FiscalPage({
               <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(0)}%`} tickLine={false} axisLine={false} />
               <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
               <Bar dataKey="value" fill="#6366f1" radius={[8, 8, 0, 0]}>
-                <LabelList dataKey="value" position="top" formatter={(value: number) => `${value.toFixed(0)}%`} />
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(0)}%`}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -1081,7 +1089,11 @@ function DemographicsPage({
             <YAxis stroke="#94a3b8" tickFormatter={(value: number) => `${value.toFixed(0)}%`} tickLine={false} axisLine={false} />
             <Tooltip formatter={(value: number | string | undefined) => `${Number(value ?? 0).toFixed(2)}%`} />
             <Bar dataKey="value" fill="#22c55e" radius={[8, 8, 0, 0]}>
-              <LabelList dataKey="value" position="top" formatter={(value: number) => `${value.toFixed(1)}%`} />
+              <LabelList
+                dataKey="value"
+                position="top"
+                formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+              />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -1248,7 +1260,11 @@ function CatalogPage({
               <YAxis dataKey="label" type="category" width={160} stroke="#94a3b8" tickLine={false} axisLine={false} />
               <Tooltip formatter={formatTooltipValue} />
               <Bar dataKey="count" fill="#6366f1" radius={[0, 8, 8, 0]}>
-                <LabelList dataKey="count" position="right" formatter={(value: number) => formatCompact(value)} />
+                <LabelList
+                  dataKey="count"
+                  position="right"
+                  formatter={(value) => formatCompact(Number(value ?? 0))}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -1293,7 +1309,11 @@ function CatalogPage({
               <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
               <Tooltip formatter={formatTooltipValue} />
               <Bar dataKey="count" fill="#22c55e" radius={[8, 8, 0, 0]}>
-                <LabelList dataKey="count" position="top" formatter={(value: number) => formatCompact(value)} />
+                <LabelList
+                  dataKey="count"
+                  position="top"
+                  formatter={(value) => formatCompact(Number(value ?? 0))}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -1309,7 +1329,11 @@ function CatalogPage({
               <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
               <Tooltip formatter={formatTooltipValue} />
               <Bar dataKey="count" fill="#06b6d4" radius={[8, 8, 0, 0]}>
-                <LabelList dataKey="share" position="top" formatter={(value: number) => `${value.toFixed(1)}%`} />
+                <LabelList
+                  dataKey="share"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -1323,7 +1347,11 @@ function CatalogPage({
               <YAxis stroke="#94a3b8" tickFormatter={formatCompact} tickLine={false} axisLine={false} />
               <Tooltip formatter={formatTooltipValue} />
               <Bar dataKey="count" fill="#f97316" radius={[8, 8, 0, 0]}>
-                <LabelList dataKey="share" position="top" formatter={(value: number) => `${value.toFixed(1)}%`} />
+                <LabelList
+                  dataKey="share"
+                  position="top"
+                  formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
