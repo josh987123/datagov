@@ -3,6 +3,7 @@ services:
     name: us-data-dashboard-api
     env: node
     plan: free
+    branch: cursor/data-gov-metrics-dashboard-1d8c
     autoDeploy: true
     healthCheckPath: /health
     buildCommand: |
@@ -48,6 +49,7 @@ services:
     name: us-data-dashboard-web
     env: node
     plan: free
+    branch: cursor/data-gov-metrics-dashboard-1d8c
     autoDeploy: true
     buildCommand: |
       corepack enable
