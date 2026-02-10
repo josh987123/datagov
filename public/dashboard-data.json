@@ -22742,5 +22742,5 @@
     "apiBase": "https://catalog.data.gov/api/3/action + BLS + Census + Treasury + BEA (key not set)",
     "snapshotStrategy": "build-time static snapshot from federal data APIs"
   },
-  "generatedAt": "2026-02-10T01:53:42.760Z"
+  "generatedAt": "2026-02-10T02:02:46.160Z"
 }
