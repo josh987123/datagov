@@ -1,0 +1,80 @@
+services:
+  - type: web
+    name: us-data-dashboard-api
+    env: node
+    plan: free
+    branch: cursor/data-gov-metrics-dashboard-1d8c
+    autoDeploy: true
+    healthCheckPath: /health
+    buildCommand: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      pnpm --filter @datagov/shared build
+      pnpm --filter @datagov/api db:generate
+      pnpm --filter @datagov/api build
+    startCommand: |
+      pnpm --filter @datagov/api db:deploy
+      pnpm --filter @datagov/api start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: us-data-dashboard-db
+          property: connectionString
+      - key: CKAN_BASE_URL
+        value: https://catalog.data.gov/api/3/action
+      - key: CKAN_API_KEY
+        sync: false
+      - key: CKAN_PAGE_SIZE
+        value: 100
+      - key: CKAN_MAX_PAGES
+        value: 20
+      - key: LINK_CHECK_ENABLED
+        value: "false"
+      - key: AUTO_INGEST_ON_EMPTY
+        value: "true"
+      - key: LINK_CHECK_MAX_PER_RUN
+        value: 30
+      - key: LINK_CHECK_TIMEOUT_MS
+        value: 3500
+      - key: INGEST_TOKEN
+        generateValue: true
+      - key: API_RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: API_RATE_LIMIT_MAX
+        value: 300
+      - key: CORS_ORIGIN
+        value: https://us-data-dashboard-web.onrender.com
+
+  - type: web
+    name: us-data-dashboard-web
+    env: node
+    plan: free
+    branch: cursor/data-gov-metrics-dashboard-1d8c
+    autoDeploy: true
+    buildCommand: |
+      corepack enable
+      pnpm install --frozen-lockfile
+      pnpm --filter @datagov/shared build
+      pnpm --filter @datagov/web build
+    startCommand: pnpm --filter @datagov/web start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://us-data-dashboard-api.onrender.com
+      - key: AUTH_EMAIL
+        sync: false
+      - key: AUTH_PASSWORD
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: AUTH_COOKIE_NAME
+        value: us_data_dashboard_auth
+
+databases:
+  - name: us-data-dashboard-db
+    plan: free
+    databaseName: us_data_dashboard
+    user: us_data_dashboard

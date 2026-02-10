@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IngestRunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum LinkHealthStatus {
+  UNKNOWN
+  HEALTHY
+  BROKEN
+}
+
+model Agency {
+  id             Int                  @id @default(autoincrement())
+  ckanId         String?              @unique
+  name           String               @unique
+  datasets       Dataset[]
+  dailySnapshots DailyAgencySnapshot[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+model Dataset {
+  id               Int         @id @default(autoincrement())
+  ckanId           String      @unique
+  title            String
+  notes            String?
+  resourceCount    Int         @default(0)
+  tagCount         Int         @default(0)
+  hasOpenFormat    Boolean     @default(false)
+  hasApiResource   Boolean     @default(false)
+  hasDescription   Boolean     @default(false)
+  hasLicense       Boolean     @default(false)
+  freshnessScore   Float       @default(0)
+  qualityScore     Float       @default(0)
+  opennessScore    Float       @default(0)
+  daysSinceModified Int?
+  linkStatus       LinkHealthStatus @default(UNKNOWN)
+  linkCheckedAt    DateTime?
+  linkHttpStatus   Int?
+  metadataCreated  DateTime?
+  metadataModified DateTime?
+  sourceUrl        String?
+  organizationId   Int?
+  organization     Agency?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  firstSeenAt      DateTime    @default(now())
+  lastSeenAt       DateTime    @default(now())
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  tags             DatasetTag[]
+
+  @@index([metadataModified])
+  @@index([organizationId])
+}
+
+model Tag {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  datasets  DatasetTag[]
+}
+
+model DatasetTag {
+  datasetId Int
+  tagId     Int
+  dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([datasetId, tagId])
+  @@index([tagId])
+}
+
+model IngestRun {
+  id              Int             @id @default(autoincrement())
+  status          IngestRunStatus @default(RUNNING)
+  startedAt       DateTime        @default(now())
+  finishedAt      DateTime?
+  totalFromSource Int?
+  processedCount  Int             @default(0)
+  insertedCount   Int             @default(0)
+  updatedCount    Int             @default(0)
+  message         String?
+  snapshots       DailySnapshot[]
+}
+
+model DailySnapshot {
+  id              Int                  @id @default(autoincrement())
+  snapshotDate    DateTime             @unique
+  totalDatasets   Int
+  netDatasetChange Int                 @default(0)
+  datasetsAdded7d Int
+  datasetsAdded30d Int
+  avgQualityScore Float                @default(0)
+  avgOpennessScore Float               @default(0)
+  staleDatasetCount Int                @default(0)
+  staleDatasetShare Float              @default(0)
+  openFormatShare Float                @default(0)
+  apiResourceShare Float               @default(0)
+  brokenLinkCount Int                  @default(0)
+  lastIngestRunId Int?
+  lastIngestRun   IngestRun?           @relation(fields: [lastIngestRunId], references: [id], onDelete: SetNull)
+  agencies        DailyAgencySnapshot[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+model DailyAgencySnapshot {
+  id           Int           @id @default(autoincrement())
+  snapshotDate DateTime
+  agencyId     Int
+  datasetCount Int
+  snapshot     DailySnapshot @relation(fields: [snapshotDate], references: [snapshotDate], onDelete: Cascade)
+  agency       Agency        @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotDate, agencyId])
+  @@index([agencyId, snapshotDate])
+}

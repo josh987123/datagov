@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 320" role="img" aria-labelledby="title desc">
+  <title id="title">US Data Dashboard logo</title>
+  <desc id="desc">A stylized growth icon with stars and the words US Data Dashboard.</desc>
+  <defs>
+    <linearGradient id="gBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ef4444" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <linearGradient id="gBars" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfdbfe" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="1.4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Emblem -->
+  <g transform="translate(20 26)">
+    <ellipse cx="168" cy="138" rx="143" ry="78" fill="none" stroke="url(#gBlue)" stroke-width="13" transform="rotate(-17 168 138)" />
+    <ellipse cx="172" cy="143" rx="122" ry="60" fill="none" stroke="#2563eb" stroke-opacity="0.78" stroke-width="8" transform="rotate(-17 172 143)" />
+
+    <g fill="url(#gBars)" filter="url(#softGlow)">
+      <rect x="94" y="162" width="36" height="32" rx="5" />
+      <rect x="139" y="138" width="36" height="56" rx="5" />
+      <rect x="184" y="110" width="36" height="84" rx="5" />
+      <rect x="229" y="78" width="36" height="116" rx="5" />
+    </g>
+
+    <path d="M36 192 C90 255 204 270 318 221" fill="none" stroke="url(#gRed)" stroke-width="17" stroke-linecap="round" />
+    <path d="M282 86 C318 114 334 141 333 170 C352 156 363 138 366 116 C367 101 367 93 364 82 Z" fill="url(#gRed)" />
+    <path d="M190 239 C228 258 258 261 302 251 C282 268 258 278 225 283 C205 282 191 276 178 269 Z" fill="url(#gBlue)" opacity="0.86" />
+
+    <g fill="#ffffff">
+      <polygon points="120,24 126,36 140,38 130,47 133,61 120,54 107,61 110,47 100,38 114,36" />
+      <polygon points="173,6 182,23 201,26 187,39 191,58 173,48 155,58 159,39 145,26 164,23" />
+      <polygon points="232,0 242,18 262,21 247,35 251,56 232,45 213,56 217,35 202,21 222,18" />
+      <polygon points="291,14 299,29 315,32 303,43 306,60 291,51 276,60 279,43 267,32 283,29" />
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <g fill="#f8fafc" font-family="Inter, Segoe UI, Arial, sans-serif">
+    <text x="434" y="126" font-size="88" font-weight="700" letter-spacing="0.5">US Data</text>
+    <text x="434" y="224" font-size="88" font-weight="700" letter-spacing="0.5">Dashboard</text>
+  </g>
+</svg>
